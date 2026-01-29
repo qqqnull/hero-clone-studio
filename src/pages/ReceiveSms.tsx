@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Minus, Plus, Copy, RefreshCw, X, Clock, AlertCircle } from 'lucide-react';
+import { Search, Minus, Plus, Copy, RefreshCw, X, Clock, AlertCircle, Menu, ChevronLeft } from 'lucide-react';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 interface Service {
   id: string;
@@ -49,6 +51,7 @@ export default function ReceiveSms() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const [services, setServices] = useState<Service[]>([]);
   const [countries, setCountries] = useState<ServicePrice[]>([]);
@@ -62,6 +65,7 @@ export default function ReceiveSms() {
   const [profile, setProfile] = useState<any>(null);
   const [showPhoneForCountry, setShowPhoneForCountry] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('popular');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetchServices();
@@ -292,12 +296,60 @@ export default function ReceiveSms() {
     toast({ title: t('receiveSms.copied') });
   };
 
-  // Generate price range display
   const getPriceRange = (price: number) => {
     const minPrice = price;
     const maxPrice = price * (1 + Math.random() * 2);
     return `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(4)}`;
   };
+
+  const handleServiceSelect = (service: Service) => {
+    setSelectedService(service);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
+  // Service List Component (reused in both desktop and mobile)
+  const ServicesList = () => (
+    <>
+      {/* Search Input */}
+      <div className="p-4 border-b border-gray-100">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder={t('receiveSms.findService')}
+            value={serviceSearch}
+            onChange={(e) => setServiceSearch(e.target.value)}
+            className="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-lg bg-white text-foreground placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+          />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        </div>
+      </div>
+
+      {/* Services List */}
+      <div className="max-h-[calc(100vh-200px)] lg:max-h-[500px] overflow-y-auto">
+        {filteredServices.map((service) => (
+          <button
+            key={service.id}
+            onClick={() => handleServiceSelect(service)}
+            className={`w-full flex items-center gap-3 py-3 px-4 transition-all text-left border-b border-gray-50 last:border-b-0 ${
+              selectedService?.id === service.id
+                ? 'bg-primary text-white'
+                : 'hover:bg-gray-50 text-foreground'
+            }`}
+          >
+            <span className="text-lg flex-shrink-0">{service.icon}</span>
+            <span className="font-medium text-sm truncate">{service.name}</span>
+          </button>
+        ))}
+        {filteredServices.length === 0 && (
+          <div className="p-4 text-center text-gray-400 text-sm">
+            {t('receiveSms.noServicesFound')}
+          </div>
+        )}
+      </div>
+    </>
+  );
 
   if (loading) {
     return (
@@ -312,57 +364,54 @@ export default function ReceiveSms() {
       <Navbar />
       <AnnouncementBar />
       
-      <main className="flex-1 py-8">
+      <main className="flex-1 py-4 lg:py-8">
         <div className="container mx-auto px-4 max-w-6xl">
-          {/* Page Title */}
-          <h1 className="text-2xl font-bold text-foreground mb-6">{t('receiveSms.services')}</h1>
+          {/* Page Title with Mobile Toggle */}
+          <div className="flex items-center gap-3 mb-4 lg:mb-6">
+            {isMobile && (
+              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" className="lg:hidden">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[300px] p-0">
+                  <div className="bg-white h-full">
+                    <div className="p-4 border-b border-gray-100 flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => setSidebarOpen(false)}
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </Button>
+                      <h2 className="font-semibold">{t('receiveSms.services')}</h2>
+                    </div>
+                    <ServicesList />
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
+            <h1 className="text-xl lg:text-2xl font-bold text-foreground">{t('receiveSms.services')}</h1>
+            {selectedService && isMobile && (
+              <div className="flex items-center gap-2 ml-auto bg-primary/10 px-3 py-1.5 rounded-full">
+                <span className="text-sm">{selectedService.icon}</span>
+                <span className="text-sm font-medium text-primary">{selectedService.name}</span>
+              </div>
+            )}
+          </div>
 
           {/* Main Content Grid */}
-          <div className="grid lg:grid-cols-[320px_1fr] gap-6 mb-12">
-            {/* Services Panel - Left */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              {/* Search Input */}
-              <div className="p-4 border-b border-gray-100">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder={t('receiveSms.findService')}
-                    value={serviceSearch}
-                    onChange={(e) => setServiceSearch(e.target.value)}
-                    className="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-lg bg-white text-foreground placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
-                  />
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                </div>
-              </div>
-
-              {/* Services List */}
-              <div className="max-h-[500px] overflow-y-auto">
-                {filteredServices.map((service) => (
-                  <button
-                    key={service.id}
-                    onClick={() => setSelectedService(service)}
-                    className={`w-full flex items-center gap-3 py-3 px-4 transition-all text-left border-b border-gray-50 last:border-b-0 ${
-                      selectedService?.id === service.id
-                        ? 'bg-primary text-white'
-                        : 'hover:bg-gray-50 text-foreground'
-                    }`}
-                  >
-                    <span className="text-lg flex-shrink-0">{service.icon}</span>
-                    <span className="font-medium text-sm truncate">{service.name}</span>
-                  </button>
-                ))}
-                {filteredServices.length === 0 && (
-                  <div className="p-4 text-center text-gray-400 text-sm">
-                    {t('receiveSms.noServicesFound')}
-                  </div>
-                )}
-              </div>
+          <div className="grid lg:grid-cols-[320px_1fr] gap-4 lg:gap-6 mb-8 lg:mb-12">
+            {/* Services Panel - Desktop Only */}
+            <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <ServicesList />
             </div>
 
-            {/* Countries Panel - Right */}
+            {/* Countries Panel */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               {/* Search and Sort Row */}
-              <div className="p-4 border-b border-gray-100 flex gap-4">
+              <div className="p-3 lg:p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <div className="relative flex-1">
                   <input
                     type="text"
@@ -385,23 +434,25 @@ export default function ReceiveSms() {
               </div>
 
               {/* Countries List */}
-              <div className="max-h-[500px] overflow-y-auto">
+              <div className="max-h-[400px] lg:max-h-[500px] overflow-y-auto">
                 {filteredCountries.map((item) => (
                   <div key={item.id} className="border-b border-gray-50 last:border-b-0">
-                    <div className="flex items-center justify-between px-4 py-3 hover:bg-gray-50/50 transition-colors">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 lg:px-4 py-3 hover:bg-gray-50/50 transition-colors gap-3 sm:gap-0">
                       {/* Country Info */}
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="text-xl flex-shrink-0">{item.country?.flag}</span>
-                        <span className="font-medium text-foreground text-sm">
-                          {item.country?.name} {item.country?.phone_code}
-                        </span>
-                        <span className="text-gray-400 text-xs">
-                          {item.stock.toLocaleString()}个
-                        </span>
+                        <div className="min-w-0">
+                          <span className="font-medium text-foreground text-sm block truncate">
+                            {item.country?.name}
+                          </span>
+                          <span className="text-gray-400 text-xs">
+                            {item.country?.phone_code} · {item.stock.toLocaleString()}个
+                          </span>
+                        </div>
                       </div>
 
                       {/* Quantity & Price */}
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 sm:gap-3 justify-between sm:justify-end">
                         {/* Quantity Controls */}
                         <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
                           <button 
@@ -410,8 +461,8 @@ export default function ReceiveSms() {
                           >
                             <Minus className="w-3 h-3" />
                           </button>
-                          <span className="px-3 text-sm text-foreground font-medium min-w-[40px] text-center">
-                            {quantities[item.country_id] || 1} 个
+                          <span className="px-2 sm:px-3 text-sm text-foreground font-medium min-w-[36px] text-center">
+                            {quantities[item.country_id] || 1}
                           </span>
                           <button 
                             onClick={() => updateQuantity(item.country_id, 1)}
@@ -425,7 +476,7 @@ export default function ReceiveSms() {
                         <button 
                           onClick={() => handlePriceClick(item)}
                           disabled={purchaseLoading === item.country_id}
-                          className="bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm hover:shadow min-w-[140px] disabled:opacity-50"
+                          className="bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all shadow-sm hover:shadow min-w-[100px] sm:min-w-[140px] disabled:opacity-50"
                         >
                           {purchaseLoading === item.country_id ? (
                             <RefreshCw className="w-4 h-4 animate-spin mx-auto" />
@@ -438,11 +489,11 @@ export default function ReceiveSms() {
 
                     {/* Expanded Purchase Section */}
                     {showPhoneForCountry === item.country_id && (
-                      <div className="px-4 pb-4">
+                      <div className="px-3 lg:px-4 pb-4">
                         <div className="bg-gray-50 rounded-lg p-4">
                           {profile && profile.balance >= item.price ? (
                             <div className="space-y-3">
-                              <div className="flex items-center justify-between text-sm">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm gap-2">
                                 <span className="text-gray-600">
                                   {t('receiveSms.clickToPurchase')}
                                 </span>
@@ -496,7 +547,7 @@ export default function ReceiveSms() {
           {/* My Numbers Section */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-foreground">{t('receiveSms.myNumbers')}</h2>
+              <h2 className="text-lg lg:text-xl font-bold text-foreground">{t('receiveSms.myNumbers')}</h2>
               <select className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-600 focus:outline-none">
                 <option>{t('receiveSms.deliveryStats')}</option>
               </select>
@@ -509,11 +560,11 @@ export default function ReceiveSms() {
                   {activeNumbers.map((num) => (
                     <div 
                       key={num.id}
-                      className="bg-primary text-white rounded-xl px-5 py-3.5 flex items-center gap-3"
+                      className="bg-primary text-white rounded-xl px-4 lg:px-5 py-3 lg:py-3.5 flex items-center gap-2 lg:gap-3"
                     >
-                      <span className="text-lg">{num.service?.icon}</span>
-                      <span className="text-lg">{num.country?.flag}</span>
-                      <span className="font-medium">{num.number}</span>
+                      <span className="text-base lg:text-lg">{num.service?.icon}</span>
+                      <span className="text-base lg:text-lg">{num.country?.flag}</span>
+                      <span className="font-medium text-sm lg:text-base">{num.number}</span>
                     </div>
                   ))}
                 </div>
@@ -521,13 +572,13 @@ export default function ReceiveSms() {
                 {/* SMS Display */}
                 <div className="space-y-4">
                   {activeNumbers.map((num) => (
-                    <div key={num.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                      <div className="flex items-center justify-between mb-3">
+                    <div key={num.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 lg:p-4">
+                      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">{num.service?.icon}</span>
-                          <span className="text-lg">{num.country?.flag}</span>
-                          <span className="font-medium text-foreground text-sm">{num.number}</span>
-                          <span className="text-primary font-medium text-sm">${num.price?.toFixed(4)}</span>
+                          <span className="text-base lg:text-lg">{num.service?.icon}</span>
+                          <span className="text-base lg:text-lg">{num.country?.flag}</span>
+                          <span className="font-medium text-foreground text-xs lg:text-sm">{num.number}</span>
+                          <span className="text-primary font-medium text-xs lg:text-sm">${num.price?.toFixed(4)}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <button 
@@ -557,7 +608,7 @@ export default function ReceiveSms() {
                       {num.sms_code ? (
                         <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                           <div className="text-green-700 font-medium text-sm mb-1">{t('receiveSms.codeReceived')}</div>
-                          <div className="text-2xl font-bold text-green-600">{num.sms_code}</div>
+                          <div className="text-xl lg:text-2xl font-bold text-green-600">{num.sms_code}</div>
                           {num.sms_content && (
                             <div className="text-sm text-green-600 mt-1">{num.sms_content}</div>
                           )}
@@ -572,7 +623,7 @@ export default function ReceiveSms() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12">
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 lg:p-12">
                 <p className="text-center text-primary">
                   {t('receiveSms.noActiveNumbers')}
                 </p>

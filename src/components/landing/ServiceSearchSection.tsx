@@ -1,25 +1,79 @@
 import { useTranslation } from 'react-i18next';
-import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { Search, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
-const services = [
-  { name: 'Yahoo', icon: '🔴', count: 2759280, price: 0.01 },
-  { name: 'Onet', icon: '💚', count: 660984, price: 0.01 },
-  { name: 'Baidu', icon: '🔵', count: 2093983, price: 0.02 },
-  { name: 'Tinder', icon: '🔥', count: 2130732, price: 0.0125 },
-  { name: 'Discord', icon: '💜', count: 2261579, price: 0.01 },
-  { name: 'Fore Coffee', icon: '☕', count: 31178, price: 0.02 },
-  { name: 'Naver', icon: '🟢', count: 2871167, price: 0.035 },
-  { name: 'eBay', icon: '🛒', count: 2553580, price: 0.04 },
-];
+interface Service {
+  id: string;
+  name: string;
+  icon: string;
+}
+
+interface ServicePrice {
+  service_id: string;
+  total_stock: number;
+  min_price: number;
+  service: Service;
+}
 
 export function ServiceSearchSection() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [services, setServices] = useState<ServicePrice[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    setLoading(true);
+    // Get services with aggregated prices
+    const { data: servicesData } = await supabase
+      .from('services')
+      .select('id, name, icon')
+      .eq('is_active', true)
+      .order('sort_order')
+      .limit(8);
+
+    if (servicesData) {
+      // Get price data for each service
+      const servicesWithPrices: ServicePrice[] = [];
+      
+      for (const service of servicesData) {
+        const { data: priceData } = await supabase
+          .from('service_prices')
+          .select('price, stock')
+          .eq('service_id', service.id)
+          .eq('is_active', true);
+        
+        if (priceData && priceData.length > 0) {
+          const totalStock = priceData.reduce((sum, p) => sum + (p.stock || 0), 0);
+          const minPrice = Math.min(...priceData.map(p => p.price));
+          
+          servicesWithPrices.push({
+            service_id: service.id,
+            total_stock: totalStock,
+            min_price: minPrice,
+            service: service
+          });
+        }
+      }
+      
+      setServices(servicesWithPrices);
+    }
+    setLoading(false);
+  };
 
   const filteredServices = services.filter(s => 
-    s.name.toLowerCase().includes(searchTerm.toLowerCase())
+    s.service.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleServiceClick = () => {
+    navigate('/receive-sms');
+  };
 
   return (
     <section className="py-20 bg-muted/30">
@@ -44,27 +98,39 @@ export function ServiceSearchSection() {
             </div>
 
             {/* Service List */}
-            <div className="space-y-1">
-              {filteredServices.map((service, index) => (
-                <div 
-                  key={index}
-                  className="flex items-center justify-between py-3 px-2 hover:bg-muted/50 rounded-lg transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{service.icon}</span>
-                    <span className="font-medium text-foreground">{service.name}</span>
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <RefreshCw className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {filteredServices.map((item) => (
+                  <div 
+                    key={item.service_id}
+                    onClick={handleServiceClick}
+                    className="flex items-center justify-between py-3 px-2 hover:bg-muted/50 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{item.service.icon}</span>
+                      <span className="font-medium text-foreground">{item.service.name}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-muted-foreground text-sm">
+                        {item.total_stock.toLocaleString()} 个
+                      </span>
+                      <button className="bg-primary hover:bg-primary/90 text-white text-sm font-medium px-4 py-1.5 rounded-full transition-colors">
+                        到 ${item.min_price.toFixed(2)}
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-muted-foreground text-sm">
-                      {service.count.toLocaleString()} 个
-                    </span>
-                    <button className="bg-primary hover:bg-primary-dark text-white text-sm font-medium px-4 py-1.5 rounded-full transition-colors">
-                      到 ${service.price}
-                    </button>
+                ))}
+                {filteredServices.length === 0 && !loading && (
+                  <div className="text-center py-4 text-muted-foreground">
+                    {t('serviceSearch.noResults')}
                   </div>
-                </div>
-              ))}
-            </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right - Features Description */}
