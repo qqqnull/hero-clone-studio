@@ -5,16 +5,14 @@ export function StatsSection() {
   const { t } = useTranslation();
 
   const stats = [
-    { value: 180, suffix: '+', label: t('stats.countries') },
-    { value: 700, suffix: '+', label: t('stats.services') },
-    { value: 50000, suffix: '+', label: t('stats.users') },
-    { value: 1000000, suffix: '+', label: t('stats.messages') },
+    { value: 180, suffix: '', label: t('stats.countries'), sublabel: t('stats.countriesSub') },
+    { value: 700, suffix: '+', label: '', sublabel: t('stats.servicesSub') },
   ];
 
   return (
-    <section className="py-16 bg-background border-y border-border">
+    <section className="py-16 bg-hero-gradient">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
           {stats.map((stat, index) => (
             <StatCard key={index} {...stat} />
           ))}
@@ -24,7 +22,7 @@ export function StatsSection() {
   );
 }
 
-function StatCard({ value, suffix, label }: { value: number; suffix: string; label: string }) {
+function StatCard({ value, suffix, label, sublabel }: { value: number; suffix: string; label: string; sublabel: string }) {
   const [count, setCount] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -64,23 +62,13 @@ function StatCard({ value, suffix, label }: { value: number; suffix: string; lab
     }, duration / steps);
   };
 
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(0) + 'K';
-    }
-    return num.toString();
-  };
-
   return (
-    <div ref={ref} className="text-center">
-      <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
-        {formatNumber(count)}{suffix}
+    <div ref={ref} className="text-center text-white">
+      <div className="text-5xl md:text-6xl font-bold mb-2">
+        {count}{suffix} {label}
       </div>
-      <div className="text-muted-foreground font-medium text-sm">
-        {label}
+      <div className="text-white/70 text-sm">
+        {sublabel}
       </div>
     </div>
   );

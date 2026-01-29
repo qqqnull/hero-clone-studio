@@ -1,5 +1,9 @@
 export { HeroSection } from './HeroSection';
-export { StepsSection } from './StepsSection';
-export { UseCasesSection } from './UseCasesSection';
-export { FeaturesSection } from './FeaturesSection';
+export { HowToSection } from './HowToSection';
+export { WhyNeedSection } from './WhyNeedSection';
+export { PartnersSection } from './PartnersSection';
+export { DisposableNumbersSection } from './DisposableNumbersSection';
+export { AboutPlatformSection } from './AboutPlatformSection';
 export { StatsSection } from './StatsSection';
+export { GuideSection } from './GuideSection';
+export { FAQSection } from './FAQSection';
