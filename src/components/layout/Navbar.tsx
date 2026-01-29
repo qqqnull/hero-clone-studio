@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, User, LogOut, Settings } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, Settings, DollarSign, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -210,8 +210,14 @@ export function Navbar() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                           <Link to="/admin/services" className="cursor-pointer flex items-center gap-2">
-                            <Settings className="w-4 h-4" />
+                            <Package className="w-4 h-4" />
                             {t('nav.adminServices')}
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/service-prices" className="cursor-pointer flex items-center gap-2">
+                            <DollarSign className="w-4 h-4" />
+                            {t('nav.adminPrices')}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>

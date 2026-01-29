@@ -18,7 +18,8 @@
     "affiliateMenu": "网站联盟",
     "dashboard": "控制面板",
     "adminSettings": "系统设置",
-    "adminServices": "商品服务管理"
+    "adminServices": "商品服务管理",
+    "adminPrices": "价格管理"
   },
   "about": {
     "title": "关于 HeroSMS 平台",
