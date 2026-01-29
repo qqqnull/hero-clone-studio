@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, User, LogOut, Wallet } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
-import logoImage from '@/assets/logo.png';
+import { supabase } from '@/integrations/supabase/client';
 
 const languages = [
   { code: 'cn', name: '中文', flag: '🇨🇳' },
@@ -24,8 +24,27 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];
+
+  // Check admin status
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      setIsAdmin(!!data);
+    };
+    checkAdmin();
+  }, [user]);
 
   const changeLanguage = (code: string) => {
     i18n.changeLanguage(code);
@@ -58,9 +77,12 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Logo - HEROSMS text style matching hero-sms.com */}
           <Link to="/" className="flex items-center">
-            <img src={logoImage} alt="HEROSMS" className="h-8 w-auto" />
+            <span className="text-2xl font-extrabold tracking-tight">
+              <span className="text-primary">HERO</span>
+              <span className="text-foreground">SMS</span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -183,6 +205,17 @@ export function Navbar() {
                         {t('nav.affiliateMenu')}
                       </Link>
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/settings" className="cursor-pointer flex items-center gap-2">
+                            <Settings className="w-4 h-4" />
+                            {t('nav.adminSettings')}
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       onClick={handleSignOut}
@@ -251,6 +284,16 @@ export function Navbar() {
                   </Link>
                 )
               ))}
+              {isAdmin && (
+                <Link
+                  to="/admin/settings"
+                  className="px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted flex items-center gap-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Settings className="w-4 h-4" />
+                  {t('nav.adminSettings')}
+                </Link>
+              )}
               {user && (
                 <button
                   onClick={() => { handleSignOut(); setIsOpen(false); }}

