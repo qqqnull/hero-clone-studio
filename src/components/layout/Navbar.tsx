@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/contexts/AuthContext';
 import logoImage from '@/assets/logo.png';
 
 const languages = [
@@ -21,6 +23,7 @@ export function Navbar() {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];
 
@@ -36,6 +39,10 @@ export function Navbar() {
     { label: t('nav.api'), href: '/api' },
     { label: t('nav.about'), href: '/about' },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
@@ -91,15 +98,49 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Login Button */}
-            <Link to="/auth">
-              <Button 
-                variant="outline" 
-                className="border-primary text-primary hover:bg-primary hover:text-white font-medium px-6"
-              >
-                {t('nav.login')}
-              </Button>
-            </Link>
+            {/* User Menu or Login Button */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="border-primary text-primary hover:bg-primary hover:text-white font-medium px-4 flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline max-w-[120px] truncate">{user.email}</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[180px]">
+                  <DropdownMenuItem className="text-muted-foreground text-sm">
+                    {user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/receive-sms" className="cursor-pointer">
+                      {t('nav.receiveSms')}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={handleSignOut}
+                    className="cursor-pointer text-destructive flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    {t('nav.logout')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/auth">
+                <Button 
+                  variant="outline" 
+                  className="border-primary text-primary hover:bg-primary hover:text-white font-medium px-6"
+                >
+                  {t('nav.login')}
+                </Button>
+              </Link>
+            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -129,6 +170,15 @@ export function Navbar() {
                   {item.label}
                 </Link>
               ))}
+              {user && (
+                <button
+                  onClick={() => { handleSignOut(); setIsOpen(false); }}
+                  className="px-4 py-3 rounded-lg text-sm font-medium text-destructive hover:bg-muted text-left flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  {t('nav.logout')}
+                </button>
+              )}
             </div>
           </div>
         )}
