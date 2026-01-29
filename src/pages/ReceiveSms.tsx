@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { ServiceIcon } from '@/components/ServiceIcon';
 
 interface Service {
   id: string;
@@ -334,7 +335,7 @@ export default function ReceiveSms() {
                 : 'hover:bg-gray-50 text-foreground'
             }`}
           >
-            <span className="text-lg flex-shrink-0">{service.icon}</span>
+            <ServiceIcon icon={service.icon} name={service.name} size="md" className="flex-shrink-0" />
             <span className="font-medium text-sm truncate">{service.name}</span>
           </button>
         ))}
@@ -391,7 +392,7 @@ export default function ReceiveSms() {
             <h1 className="text-xl lg:text-2xl font-bold text-foreground">{t('receiveSms.services')}</h1>
             {selectedService && isMobile && (
               <div className="flex items-center gap-2 ml-auto bg-primary/10 px-3 py-1.5 rounded-full">
-                <span className="text-sm">{selectedService.icon}</span>
+                <ServiceIcon icon={selectedService.icon} name={selectedService.name} size="sm" />
                 <span className="text-sm font-medium text-primary">{selectedService.name}</span>
               </div>
             )}
