@@ -1,13 +1,14 @@
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
 import {
   HeroSection,
-  HowToSection,
+  ServiceSearchSection,
   WhyNeedSection,
   PartnersSection,
   DisposableNumbersSection,
   AboutPlatformSection,
-  StatsSection,
+  WhyChooseSection,
   GuideSection,
+  PurchaseGuideSection,
   FAQSection,
 } from '@/components/landing';
 
@@ -18,13 +19,14 @@ const Index = () => {
       <AnnouncementBar />
       <main className="flex-1">
         <HeroSection />
-        <HowToSection />
+        <ServiceSearchSection />
         <WhyNeedSection />
         <PartnersSection />
         <DisposableNumbersSection />
         <AboutPlatformSection />
-        <StatsSection />
+        <WhyChooseSection />
         <GuideSection />
+        <PurchaseGuideSection />
         <FAQSection />
       </main>
       <Footer />

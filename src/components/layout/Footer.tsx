@@ -1,92 +1,64 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Mail, Send } from 'lucide-react';
-import logoImage from '@/assets/logo.png';
 
 export function Footer() {
   const { t } = useTranslation();
 
+  const mainLinks = [
+    { label: t('footer.about'), href: '/about' },
+    { label: t('footer.contact'), href: '/contact' },
+    { label: t('footer.rules'), href: '/rules' },
+    { label: t('footer.api'), href: '/api' },
+    { label: t('footer.affiliate'), href: '/affiliate' },
+    { label: t('footer.loyalty'), href: '/loyalty' },
+    { label: t('footer.supplier'), href: '/supplier' },
+  ];
+
+  const legalLinks = [
+    { label: t('footer.terms'), href: '/terms' },
+    { label: t('footer.privacy'), href: '/privacy' },
+    { label: t('footer.refund'), href: '/refund' },
+    { label: t('footer.refund2'), href: '/refund' },
+  ];
+
   return (
-    <footer className="bg-foreground text-white py-16">
+    <footer className="bg-[#2d3a5f] text-white py-12">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="space-y-4">
-            <div className="flex items-center">
-              <img src={logoImage} alt="HEROSMS" className="h-8 w-auto brightness-0 invert" />
-            </div>
-            <p className="text-white/60 text-sm leading-relaxed">
-              {t('footer.description')}
-            </p>
-          </div>
+        {/* Main Links Row */}
+        <div className="flex flex-wrap items-center justify-between gap-6 mb-8">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <span className="text-2xl font-bold">
+              <span className="text-primary">HERO</span>
+              <span className="text-white/70">SMS</span>
+            </span>
+          </Link>
 
-          {/* Links */}
-          <div>
-            <h4 className="font-semibold text-base mb-4">{t('footer.links.title')}</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/" className="text-white/60 hover:text-white transition-colors text-sm">
-                  {t('footer.links.home')}
-                </Link>
-              </li>
-              <li>
-                <Link to="/pricing" className="text-white/60 hover:text-white transition-colors text-sm">
-                  {t('footer.links.pricing')}
-                </Link>
-              </li>
-              <li>
-                <Link to="/api" className="text-white/60 hover:text-white transition-colors text-sm">
-                  {t('footer.links.api')}
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="text-white/60 hover:text-white transition-colors text-sm">
-                  {t('footer.links.about')}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <h4 className="font-semibold text-base mb-4">{t('footer.legal.title')}</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/terms" className="text-white/60 hover:text-white transition-colors text-sm">
-                  {t('footer.legal.terms')}
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy" className="text-white/60 hover:text-white transition-colors text-sm">
-                  {t('footer.legal.privacy')}
-                </Link>
-              </li>
-              <li>
-                <Link to="/refund" className="text-white/60 hover:text-white transition-colors text-sm">
-                  {t('footer.legal.refund')}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="font-semibold text-base mb-4">{t('footer.contact.title')}</h4>
-            <ul className="space-y-3">
-              <li className="flex items-center space-x-2 text-white/60 text-sm">
-                <Mail className="w-4 h-4" />
-                <span>{t('footer.contact.email')}</span>
-              </li>
-              <li className="flex items-center space-x-2 text-white/60 text-sm">
-                <Send className="w-4 h-4" />
-                <span>{t('footer.contact.telegram')}</span>
-              </li>
-            </ul>
-          </div>
+          {/* Main Navigation */}
+          <nav className="flex flex-wrap gap-8">
+            {mainLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                className="text-white/80 hover:text-white transition-colors text-sm"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-8 text-center text-white/40 text-sm">
-          {t('footer.copyright')}
+        {/* Legal Links Row */}
+        <div className="flex flex-wrap gap-8 pt-6 border-t border-white/10">
+          {legalLinks.map((link, index) => (
+            <Link
+              key={index}
+              to={link.href}
+              className="text-white/50 hover:text-white/80 transition-colors text-xs"
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
       </div>
     </footer>

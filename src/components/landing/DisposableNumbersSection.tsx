@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { List, DollarSign, Package, Target } from 'lucide-react';
 
 export function DisposableNumbersSection() {
   const { t } = useTranslation();
@@ -9,33 +8,29 @@ export function DisposableNumbersSection() {
       number: '1', 
       title: t('disposable.feature1.title'), 
       description: t('disposable.feature1.description'),
-      icon: List
     },
     { 
       number: '2', 
       title: t('disposable.feature2.title'), 
       description: t('disposable.feature2.description'),
-      icon: DollarSign
     },
     { 
       number: '3', 
       title: t('disposable.feature3.title'), 
       description: t('disposable.feature3.description'),
-      icon: Package
     },
     { 
       number: '4', 
       title: t('disposable.feature4.title'), 
       description: t('disposable.feature4.description'),
-      icon: Target
     },
   ];
 
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
             {t('disposable.title')}
           </h2>
           <p className="text-muted-foreground">
@@ -43,21 +38,25 @@ export function DisposableNumbersSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="bg-card rounded-2xl p-6 border border-border relative"
+              className="bg-card rounded-2xl p-8 border border-border shadow-sm"
             >
-              <div className="absolute -top-3 -left-3 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
-                {feature.number}
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0">
+                  {feature.number}
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2 mt-2">
-                {feature.title}
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                {feature.description}
-              </p>
             </div>
           ))}
         </div>
