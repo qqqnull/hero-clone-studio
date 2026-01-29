@@ -341,7 +341,19 @@ export default function AdminServicesPage() {
                     {filteredServices.map((service) => (
                       <TableRow key={service.id}>
                         <TableCell>
-                          <span className="text-2xl">{service.icon}</span>
+                          {service.icon?.startsWith('/') ? (
+                            <img 
+                              src={service.icon} 
+                              alt={service.name}
+                              className="w-8 h-8 object-contain"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                                (e.target as HTMLImageElement).parentElement!.innerHTML = '📱';
+                              }}
+                            />
+                          ) : (
+                            <span className="text-2xl">{service.icon || '📱'}</span>
+                          )}
                         </TableCell>
                         <TableCell className="font-medium">{service.name}</TableCell>
                         <TableCell className="text-muted-foreground">{service.code}</TableCell>
@@ -420,12 +432,29 @@ export default function AdminServicesPage() {
                   </button>
                 ))}
               </div>
-              <Input
-                value={formData.icon}
-                onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-                placeholder="或输入自定义图标/emoji"
-                className="mt-2"
-              />
+              <div className="mt-2 flex gap-2">
+                <Input
+                  value={formData.icon}
+                  onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
+                  placeholder="或输入自定义图标/SVG路径"
+                  className="flex-1"
+                />
+                {formData.icon?.startsWith('/') && (
+                  <div className="flex items-center px-3 bg-muted rounded-lg">
+                    <img 
+                      src={formData.icon} 
+                      alt="预览" 
+                      className="w-6 h-6 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                支持emoji或SVG路径（如：/icons/services/telegram.svg）
+              </p>
             </div>
 
             <div>

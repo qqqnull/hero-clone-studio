@@ -209,6 +209,12 @@ export function Navbar() {
                       <>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
+                          <Link to="/admin/services" className="cursor-pointer flex items-center gap-2">
+                            <Settings className="w-4 h-4" />
+                            {t('nav.adminServices')}
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link to="/admin/settings" className="cursor-pointer flex items-center gap-2">
                             <Settings className="w-4 h-4" />
                             {t('nav.adminSettings')}

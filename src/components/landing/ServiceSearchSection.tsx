@@ -3,6 +3,7 @@ import { Search, RefreshCw } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { ServiceIcon } from '@/components/ServiceIcon';
 
 interface Service {
   id: string;
@@ -111,7 +112,7 @@ export function ServiceSearchSection() {
                     className="flex items-center justify-between py-3 px-2 hover:bg-muted/50 rounded-lg transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-xl">{item.service.icon}</span>
+                      <ServiceIcon icon={item.service.icon} name={item.service.name} size="lg" />
                       <span className="font-medium text-foreground">{item.service.name}</span>
                     </div>
                     <div className="flex items-center gap-4">
