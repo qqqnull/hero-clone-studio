@@ -1,0 +1,165 @@
+{
+  "nav": {
+    "receiveSms": "Receive SMS",
+    "affiliate": "Affiliate",
+    "loyalty": "Loyalty Program",
+    "supplier": "Become Supplier",
+    "api": "API",
+    "about": "About Us",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "dashboard": "Dashboard"
+  },
+  "announcement": {
+    "text": "🎉 Russian numbers are now on sale!!! Get your virtual number now!"
+  },
+  "hero": {
+    "title": "Buy Virtual Numbers to Receive SMS",
+    "subtitle": "With HEROSMS, you can register for any service online without using your own phone number. Protect your privacy with virtual numbers.",
+    "features": {
+      "countries": "180+ Countries",
+      "numbers": "500,000+ Numbers",
+      "services": "700+ Services",
+      "support": "24/7 Support"
+    },
+    "cta": "Get Started",
+    "ctaSecondary": "View Pricing"
+  },
+  "phone": {
+    "messages": {
+      "twitter": "Your Twitter code is: 847293",
+      "facebook": "Facebook code: 582947",
+      "instagram": "Instagram: 394857 is your code",
+      "telegram": "Telegram code: 29485",
+      "whatsapp": "Your WhatsApp code is 847592"
+    }
+  },
+  "steps": {
+    "title": "How It Works",
+    "subtitle": "Start receiving SMS in just 5 simple steps",
+    "step1": {
+      "title": "Create Account",
+      "description": "Sign up for a free account in seconds"
+    },
+    "step2": {
+      "title": "Add Balance",
+      "description": "Top up your account with cryptocurrency"
+    },
+    "step3": {
+      "title": "Choose Service",
+      "description": "Select from 700+ supported services"
+    },
+    "step4": {
+      "title": "Get Number",
+      "description": "Choose a country and get your virtual number"
+    },
+    "step5": {
+      "title": "Receive Code",
+      "description": "Get your verification code in seconds"
+    }
+  },
+  "useCases": {
+    "title": "Use Cases",
+    "subtitle": "Multiple uses for virtual numbers",
+    "case1": {
+      "title": "Social Media Registration",
+      "description": "Register for Twitter, Facebook, Instagram without exposing your real number"
+    },
+    "case2": {
+      "title": "Get Discounts",
+      "description": "Use new numbers to get signup bonuses and discount codes"
+    },
+    "case3": {
+      "title": "Privacy Protection",
+      "description": "Protect your real phone number from spam messages"
+    },
+    "case4": {
+      "title": "Business Verification",
+      "description": "Create multiple verified accounts for your business"
+    },
+    "case5": {
+      "title": "Development Testing",
+      "description": "Test applications that require SMS verification"
+    },
+    "case6": {
+      "title": "International Services",
+      "description": "Access services limited to specific countries"
+    }
+  },
+  "features": {
+    "title": "Why Choose Us",
+    "subtitle": "Advantages of one-time numbers",
+    "feature1": {
+      "title": "Instant Delivery",
+      "description": "Get your virtual number in seconds"
+    },
+    "feature2": {
+      "title": "High Success Rate",
+      "description": "99.9% SMS delivery success rate"
+    },
+    "feature3": {
+      "title": "Low Prices",
+      "description": "Most competitive pricing available"
+    },
+    "feature4": {
+      "title": "API Access",
+      "description": "Full API for automated integration"
+    }
+  },
+  "stats": {
+    "countries": "Countries",
+    "services": "Services",
+    "users": "Users",
+    "messages": "Messages Received"
+  },
+  "footer": {
+    "description": "Leading virtual number service provider, helping you protect your privacy and complete online verification easily.",
+    "links": {
+      "title": "Links",
+      "home": "Home",
+      "pricing": "Pricing",
+      "api": "API Docs",
+      "about": "About Us"
+    },
+    "legal": {
+      "title": "Legal",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "refund": "Refund Policy"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "email": "support@herosms.com",
+      "telegram": "@herosms_support"
+    },
+    "copyright": "© 2024 HEROSMS. All rights reserved."
+  },
+  "auth": {
+    "login": {
+      "title": "Login to Your Account",
+      "email": "Email Address",
+      "password": "Password",
+      "submit": "Login",
+      "forgotPassword": "Forgot Password?",
+      "noAccount": "Don't have an account?",
+      "register": "Register Now"
+    },
+    "register": {
+      "title": "Create New Account",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Register",
+      "hasAccount": "Already have an account?",
+      "login": "Login Now"
+    },
+    "errors": {
+      "invalidEmail": "Please enter a valid email address",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "loginFailed": "Login failed, please check your credentials",
+      "registerFailed": "Registration failed, please try again"
+    }
+  }
+}
