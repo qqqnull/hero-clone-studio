@@ -18,6 +18,7 @@ import RechargePage from "./pages/RechargePage";
 import RechargeUsdtPage from "./pages/RechargeUsdtPage";
 import AdminSettingsPage from "./pages/admin/SettingsPage";
 import AdminServicesPage from "./pages/admin/ServicesPage";
+import AdminServicePricesPage from "./pages/admin/ServicePricesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -82,6 +83,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AdminServicesPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/service-prices" 
+              element={
+                <ProtectedRoute>
+                  <AdminServicePricesPage />
                 </ProtectedRoute>
               } 
             />

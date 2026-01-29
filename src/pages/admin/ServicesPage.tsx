@@ -369,6 +369,14 @@ export default function AdminServicesPage() {
                             <Button
                               variant="ghost"
                               size="icon"
+                              title="查看价格"
+                              onClick={() => navigate(`/admin/service-prices?service=${service.id}`)}
+                            >
+                              <Package className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               onClick={() => openEditDialog(service)}
                             >
                               <Edit2 className="h-4 w-4" />

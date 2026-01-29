@@ -11,7 +11,8 @@
     "logout": "Logout",
     "dashboard": "Dashboard",
     "adminSettings": "Admin Settings",
-    "adminServices": "Product Management"
+    "adminServices": "Product Management",
+    "adminPrices": "Price Management"
   },
   "announcement": {
     "text": "Only on our platform: Russian numbers are now on sale!!!"
