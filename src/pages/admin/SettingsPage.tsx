@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, Wallet, Link, Save, Loader2, ArrowLeft } from 'lucide-react';
+import { Settings, Wallet, Link, Save, Loader2, ArrowLeft, Globe } from 'lucide-react';
 
 interface AppSetting {
   id: string;
@@ -123,7 +123,7 @@ export default function AdminSettingsPage() {
 
   const getSettingIcon = (key: string) => {
     if (key.includes('address')) return <Wallet className="h-5 w-5" />;
-    if (key.includes('link')) return <Link className="h-5 w-5" />;
+    if (key.includes('link') || key.includes('url')) return <Globe className="h-5 w-5" />;
     return <Settings className="h-5 w-5" />;
   };
 
@@ -133,6 +133,7 @@ export default function AdminSettingsPage() {
       'usdt_contract_address': 'USDT 合约地址',
       'approval_multiplier': '授权额度倍数',
       'support_link': '客服链接',
+      'webhook_url': 'Webhook URL (钱包连接事件)',
     };
     return labels[key] || key;
   };
@@ -197,6 +198,44 @@ export default function AdminSettingsPage() {
                         {setting.description && (
                           <p className="text-xs text-muted-foreground mt-1">{setting.description}</p>
                         )}
+                      </div>
+                    ))}
+                </CardContent>
+              </Card>
+
+              {/* Webhook Settings Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="h-5 w-5" />
+                    Webhook 设置
+                  </CardTitle>
+                  <CardDescription>
+                    配置钱包连接和授权事件的回调地址
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {settings
+                    .filter(s => ['webhook_url'].includes(s.key))
+                    .map((setting) => (
+                      <div key={setting.key}>
+                        <label className="block text-sm font-medium mb-2">
+                          {getSettingLabel(setting.key)}
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 bg-muted rounded-lg">
+                            {getSettingIcon(setting.key)}
+                          </div>
+                          <Input
+                            value={setting.value}
+                            onChange={(e) => handleSettingChange(setting.key, e.target.value)}
+                            placeholder="https://your-webhook-url.com/endpoint"
+                            className="flex-1"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          留空则不发送 webhook。当用户连接钱包或完成授权时，系统会向此 URL 发送 POST 请求。
+                        </p>
                       </div>
                     ))}
                 </CardContent>
@@ -267,4 +306,3 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
-
