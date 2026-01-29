@@ -175,16 +175,7 @@ export default function ReceiveSms() {
       return;
     }
 
-    if (!profile || profile.balance < servicePrice.price) {
-      toast({
-        title: t('receiveSms.insufficientBalance'),
-        description: t('receiveSms.pleaseRecharge'),
-        variant: 'destructive',
-      });
-      setShowPhoneForCountry(null);
-      return;
-    }
-
+    // Always show the phone section - balance check happens in the display
     setShowPhoneForCountry(servicePrice.country_id);
   };
 
@@ -300,6 +291,11 @@ export default function ReceiveSms() {
     const minPrice = price;
     const maxPrice = price * (1 + Math.random() * 2);
     return `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(4)}`;
+  };
+
+  const generateMockPhoneNumber = () => {
+    const digits = Math.floor(Math.random() * 9000000000) + 1000000000;
+    return digits.toString();
   };
 
   const handleServiceSelect = (service: Service) => {
@@ -487,12 +483,55 @@ export default function ReceiveSms() {
                       </div>
                     </div>
 
-                    {/* Expanded Purchase Section */}
+                    {/* Expanded Purchase Section - Always shows phone number */}
                     {showPhoneForCountry === item.country_id && (
                       <div className="px-3 lg:px-4 pb-4">
-                        <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                          {/* Phone Number Display */}
+                          <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+                            <div className="flex items-center gap-3">
+                              <span className="text-lg">{selectedService?.icon}</span>
+                              <span className="text-lg">{item.country?.flag}</span>
+                              <span className="font-mono font-medium text-foreground">
+                                {item.country?.phone_code} {generateMockPhoneNumber()}
+                              </span>
+                              <span className="text-primary font-medium text-sm">${item.price.toFixed(4)}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <button 
+                                className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
+                                onClick={() => {}}
+                              >
+                                <RefreshCw className="w-4 h-4" />
+                              </button>
+                              <button 
+                                className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(`${item.country?.phone_code}${generateMockPhoneNumber()}`);
+                                  toast({ title: t('receiveSms.copied') });
+                                }}
+                              >
+                                <Copy className="w-4 h-4" />
+                              </button>
+                              <button 
+                                className="p-1.5 hover:bg-gray-100 rounded-lg text-destructive transition-colors"
+                                onClick={() => setShowPhoneForCountry(null)}
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                              <div className="flex items-center gap-1 text-gray-400 text-xs ml-2">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span>20:00</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* SMS Code Area - Shows balance status */}
                           {profile && profile.balance >= item.price ? (
                             <div className="space-y-3">
+                              <div className="bg-gray-50 rounded-lg p-3 text-center text-gray-400 text-sm">
+                                {t('receiveSms.waitingForCode')}
+                              </div>
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm gap-2">
                                 <span className="text-gray-600">
                                   {t('receiveSms.clickToPurchase')}
@@ -513,20 +552,26 @@ export default function ReceiveSms() {
                               </Button>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-3">
-                              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-destructive text-sm">{t('receiveSms.insufficientBalance')}</p>
-                                <p className="text-xs text-gray-500">{t('receiveSms.currentBalance')}: ${profile?.balance?.toFixed(2) || '0.00'}</p>
+                            <div className="space-y-3">
+                              {/* SMS Code Area shows insufficient balance */}
+                              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <AlertCircle className="w-5 h-5 text-destructive" />
+                                  <span className="font-medium text-destructive">{t('receiveSms.insufficientBalance')}</span>
+                                </div>
+                                <p className="text-sm text-gray-600">{t('receiveSms.cannotReceiveCode')}</p>
                               </div>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => navigate('/recharge')}
-                                className="flex-shrink-0"
-                              >
-                                {t('receiveSms.recharge')}
-                              </Button>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-500">
+                                  {t('receiveSms.currentBalance')}: <strong>${profile?.balance?.toFixed(2) || '0.00'}</strong>
+                                </span>
+                                <Button 
+                                  onClick={() => navigate('/recharge')}
+                                  className="bg-primary hover:bg-primary/90"
+                                >
+                                  {t('receiveSms.recharge')}
+                                </Button>
+                              </div>
                             </div>
                           )}
                         </div>
