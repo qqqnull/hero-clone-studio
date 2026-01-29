@@ -44,6 +44,33 @@ export type Database = {
         }
         Relationships: []
       }
+      app_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       countries: {
         Row: {
           code: string
@@ -325,7 +352,9 @@ export type Database = {
         Row: {
           amount: number
           balance_after: number | null
+          completed_at: string | null
           created_at: string | null
+          currency: string | null
           id: string
           note: string | null
           order_id: string | null
@@ -335,11 +364,14 @@ export type Database = {
           tx_hash: string | null
           type: string
           user_id: string
+          wallet_address: string | null
         }
         Insert: {
           amount: number
           balance_after?: number | null
+          completed_at?: string | null
           created_at?: string | null
+          currency?: string | null
           id?: string
           note?: string | null
           order_id?: string | null
@@ -349,11 +381,14 @@ export type Database = {
           tx_hash?: string | null
           type: string
           user_id: string
+          wallet_address?: string | null
         }
         Update: {
           amount?: number
           balance_after?: number | null
+          completed_at?: string | null
           created_at?: string | null
+          currency?: string | null
           id?: string
           note?: string | null
           order_id?: string | null
@@ -363,6 +398,7 @@ export type Database = {
           tx_hash?: string | null
           type?: string
           user_id?: string
+          wallet_address?: string | null
         }
         Relationships: [
           {

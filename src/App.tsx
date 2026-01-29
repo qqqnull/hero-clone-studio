@@ -15,6 +15,8 @@ import AffiliatePage from "./pages/AffiliatePage";
 import SupplierPage from "./pages/SupplierPage";
 import UserCenterPage from "./pages/UserCenterPage";
 import RechargePage from "./pages/RechargePage";
+import RechargeUsdtPage from "./pages/RechargeUsdtPage";
+import AdminSettingsPage from "./pages/admin/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +57,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <RechargePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/recharge-usdt" 
+              element={
+                <ProtectedRoute>
+                  <RechargeUsdtPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/settings" 
+              element={
+                <ProtectedRoute>
+                  <AdminSettingsPage />
                 </ProtectedRoute>
               } 
             />
