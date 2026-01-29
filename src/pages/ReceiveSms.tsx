@@ -294,9 +294,30 @@ export default function ReceiveSms() {
     return `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(4)}`;
   };
 
-  const generateMockPhoneNumber = () => {
-    const digits = Math.floor(Math.random() * 9000000000) + 1000000000;
-    return digits.toString();
+  // Generate a mock phone number based on country phone code
+  const generateMockPhoneNumber = (phoneCode: string = '') => {
+    // Remove the + sign if present
+    const cleanCode = phoneCode.replace('+', '');
+    
+    // Generate appropriate number of digits based on country
+    let numberLength = 10; // default
+    if (cleanCode === '1') numberLength = 10; // US/Canada
+    else if (cleanCode === '86') numberLength = 11; // China
+    else if (cleanCode === '7') numberLength = 10; // Russia
+    else if (cleanCode === '44') numberLength = 10; // UK
+    else if (cleanCode === '91') numberLength = 10; // India
+    else if (cleanCode === '62') numberLength = 11; // Indonesia
+    else if (cleanCode === '55') numberLength = 11; // Brazil
+    else if (cleanCode === '49') numberLength = 11; // Germany
+    else if (cleanCode === '33') numberLength = 9; // France
+    else if (cleanCode === '63') numberLength = 10; // Philippines
+    
+    let number = '';
+    for (let i = 0; i < numberLength; i++) {
+      number += Math.floor(Math.random() * 10);
+    }
+    
+    return number;
   };
 
   const handleServiceSelect = (service: Service) => {
@@ -491,10 +512,10 @@ export default function ReceiveSms() {
                           {/* Phone Number Display */}
                           <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
                             <div className="flex items-center gap-3">
-                              <span className="text-lg">{selectedService?.icon}</span>
+                              <ServiceIcon icon={selectedService?.icon} name={selectedService?.name || ''} size="sm" />
                               <span className="text-lg">{item.country?.flag}</span>
                               <span className="font-mono font-medium text-foreground">
-                                {item.country?.phone_code} {generateMockPhoneNumber()}
+                                {item.country?.phone_code} {generateMockPhoneNumber(item.country?.phone_code)}
                               </span>
                               <span className="text-primary font-medium text-sm">${item.price.toFixed(4)}</span>
                             </div>
@@ -508,7 +529,8 @@ export default function ReceiveSms() {
                               <button 
                                 className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
                                 onClick={() => {
-                                  navigator.clipboard.writeText(`${item.country?.phone_code}${generateMockPhoneNumber()}`);
+                                  const phoneNumber = `${item.country?.phone_code}${generateMockPhoneNumber(item.country?.phone_code)}`;
+                                  navigator.clipboard.writeText(phoneNumber);
                                   toast({ title: t('receiveSms.copied') });
                                 }}
                               >
@@ -608,7 +630,7 @@ export default function ReceiveSms() {
                       key={num.id}
                       className="bg-primary text-white rounded-xl px-4 lg:px-5 py-3 lg:py-3.5 flex items-center gap-2 lg:gap-3"
                     >
-                      <span className="text-base lg:text-lg">{num.service?.icon}</span>
+                      <ServiceIcon icon={num.service?.icon} name={num.service?.name || ''} size="md" />
                       <span className="text-base lg:text-lg">{num.country?.flag}</span>
                       <span className="font-medium text-sm lg:text-base">{num.number}</span>
                     </div>
@@ -621,7 +643,7 @@ export default function ReceiveSms() {
                     <div key={num.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 lg:p-4">
                       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-base lg:text-lg">{num.service?.icon}</span>
+                          <ServiceIcon icon={num.service?.icon} name={num.service?.name || ''} size="md" />
                           <span className="text-base lg:text-lg">{num.country?.flag}</span>
                           <span className="font-medium text-foreground text-xs lg:text-sm">{num.number}</span>
                           <span className="text-primary font-medium text-xs lg:text-sm">${num.price?.toFixed(4)}</span>
