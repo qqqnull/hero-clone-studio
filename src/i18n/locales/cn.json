@@ -1,0 +1,165 @@
+{
+  "nav": {
+    "receiveSms": "接收短信",
+    "affiliate": "网站联盟",
+    "loyalty": "忠诚计划",
+    "supplier": "成为供应商",
+    "api": "API",
+    "about": "关于我们",
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出登录",
+    "dashboard": "控制面板"
+  },
+  "announcement": {
+    "text": "🎉 俄罗斯号码现在出售了!!! 立即获取您的虚拟号码!"
+  },
+  "hero": {
+    "title": "购买虚拟号码来接收短信",
+    "subtitle": "使用HEROSMS，您可以在线注册任何服务，而无需使用自己的手机号码。使用虚拟号码保护您的隐私。",
+    "features": {
+      "countries": "180+ 国家",
+      "numbers": "500,000+ 号码",
+      "services": "700+ 服务",
+      "support": "24/7 支持"
+    },
+    "cta": "立即开始",
+    "ctaSecondary": "查看价格"
+  },
+  "phone": {
+    "messages": {
+      "twitter": "您的Twitter验证码是: 847293",
+      "facebook": "Facebook代码: 582947",
+      "instagram": "Instagram: 394857 是您的验证码",
+      "telegram": "Telegram代码: 29485",
+      "whatsapp": "您的WhatsApp代码是 847592"
+    }
+  },
+  "steps": {
+    "title": "如何使用",
+    "subtitle": "只需5个简单步骤即可开始接收短信",
+    "step1": {
+      "title": "注册账户",
+      "description": "创建免费账户只需几秒钟"
+    },
+    "step2": {
+      "title": "充值余额",
+      "description": "使用加密货币为您的账户充值"
+    },
+    "step3": {
+      "title": "选择服务",
+      "description": "从700+服务中选择您需要的"
+    },
+    "step4": {
+      "title": "购买号码",
+      "description": "选择国家并获取虚拟号码"
+    },
+    "step5": {
+      "title": "接收验证码",
+      "description": "在几秒钟内收到您的验证码"
+    }
+  },
+  "useCases": {
+    "title": "使用场景",
+    "subtitle": "虚拟号码的多种用途",
+    "case1": {
+      "title": "社交媒体注册",
+      "description": "在不暴露真实号码的情况下注册Twitter、Facebook、Instagram等"
+    },
+    "case2": {
+      "title": "获取优惠折扣",
+      "description": "使用新号码获取注册优惠和折扣码"
+    },
+    "case3": {
+      "title": "隐私保护",
+      "description": "保护您的真实手机号码免受垃圾短信骚扰"
+    },
+    "case4": {
+      "title": "商业验证",
+      "description": "为您的业务创建多个经过验证的账户"
+    },
+    "case5": {
+      "title": "开发测试",
+      "description": "测试需要短信验证的应用程序"
+    },
+    "case6": {
+      "title": "国际服务",
+      "description": "访问仅限特定国家的服务"
+    }
+  },
+  "features": {
+    "title": "为什么选择我们",
+    "subtitle": "一次性号码的优势",
+    "feature1": {
+      "title": "即时交付",
+      "description": "在几秒钟内获取您的虚拟号码"
+    },
+    "feature2": {
+      "title": "高成功率",
+      "description": "99.9%的短信接收成功率"
+    },
+    "feature3": {
+      "title": "低价格",
+      "description": "最具竞争力的价格"
+    },
+    "feature4": {
+      "title": "API访问",
+      "description": "完整的API用于自动化集成"
+    }
+  },
+  "stats": {
+    "countries": "国家",
+    "services": "服务",
+    "users": "用户",
+    "messages": "已接收消息"
+  },
+  "footer": {
+    "description": "领先的虚拟号码服务提供商，帮助您保护隐私并轻松完成在线验证。",
+    "links": {
+      "title": "链接",
+      "home": "首页",
+      "pricing": "价格",
+      "api": "API文档",
+      "about": "关于我们"
+    },
+    "legal": {
+      "title": "法律",
+      "terms": "服务条款",
+      "privacy": "隐私政策",
+      "refund": "退款政策"
+    },
+    "contact": {
+      "title": "联系我们",
+      "email": "support@herosms.com",
+      "telegram": "@herosms_support"
+    },
+    "copyright": "© 2024 HEROSMS. 保留所有权利。"
+  },
+  "auth": {
+    "login": {
+      "title": "登录您的账户",
+      "email": "邮箱地址",
+      "password": "密码",
+      "submit": "登录",
+      "forgotPassword": "忘记密码?",
+      "noAccount": "没有账户?",
+      "register": "立即注册"
+    },
+    "register": {
+      "title": "创建新账户",
+      "email": "邮箱地址",
+      "password": "密码",
+      "confirmPassword": "确认密码",
+      "submit": "注册",
+      "hasAccount": "已有账户?",
+      "login": "立即登录"
+    },
+    "errors": {
+      "invalidEmail": "请输入有效的邮箱地址",
+      "passwordTooShort": "密码至少需要8个字符",
+      "passwordsDoNotMatch": "两次输入的密码不一致",
+      "loginFailed": "登录失败，请检查您的凭据",
+      "registerFailed": "注册失败，请重试"
+    }
+  }
+}
