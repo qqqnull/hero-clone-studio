@@ -155,7 +155,8 @@
     "error": "操作失败",
     "noServicesFound": "未找到服务",
     "noCountriesFound": "未找到国家",
-    "noActiveNumbers": "这个模块包含你所有的有效号码。你现在没有效号码。请选择服务并购买一个号码"
+    "noActiveNumbers": "这个模块包含你所有的有效号码。你现在没有效号码。请选择服务并购买一个号码",
+    "cannotReceiveCode": "余额不足，无法接收验证码，请先充值后再购买号码"
   },
   "announcement": {
     "text": "独一无二：俄罗斯号码现在出售了!!!"

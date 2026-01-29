@@ -17,6 +17,7 @@ import UserCenterPage from "./pages/UserCenterPage";
 import RechargePage from "./pages/RechargePage";
 import RechargeUsdtPage from "./pages/RechargeUsdtPage";
 import AdminSettingsPage from "./pages/admin/SettingsPage";
+import AdminServicesPage from "./pages/admin/ServicesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AdminSettingsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/services" 
+              element={
+                <ProtectedRoute>
+                  <AdminServicesPage />
                 </ProtectedRoute>
               } 
             />
