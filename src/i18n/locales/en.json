@@ -12,19 +12,24 @@
     "dashboard": "Dashboard"
   },
   "announcement": {
-    "text": "🎉 Russian numbers are now on sale!!! Get your virtual number now!"
+    "text": "Only on our platform: Russian numbers are now on sale!!!"
   },
   "hero": {
-    "title": "Buy Virtual Numbers to Receive SMS",
-    "subtitle": "With HEROSMS, you can register for any service online without using your own phone number. Protect your privacy with virtual numbers.",
+    "title": "Receive SMS online & API Access",
+    "subtitle": "Receive SMS online to virtual numbers — use directly on site or via API to register accounts of any service and application, receive profits and discounts",
+    "advantages": {
+      "item1": "Market-leading activation software (powered by HeroSMS's technical infrastructure)",
+      "item2": "Global coverage – 180+ countries",
+      "item3": "Reliable providers only: 500K+ numbers daily"
+    },
     "features": {
       "countries": "180+ Countries",
       "numbers": "500,000+ Numbers",
       "services": "700+ Services",
       "support": "24/7 Support"
     },
-    "cta": "Get Started",
-    "ctaSecondary": "View Pricing"
+    "cta": "Receive SMS",
+    "ctaSecondary": "API Access"
   },
   "phone": {
     "messages": {

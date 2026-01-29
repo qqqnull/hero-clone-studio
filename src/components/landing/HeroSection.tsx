@@ -1,59 +1,55 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Check, Globe, Phone, Headphones, MessageSquare } from 'lucide-react';
+import phoneMockup from '@/assets/phone-mockup.png';
 
 export function HeroSection() {
   const { t } = useTranslation();
 
-  const features = [
-    { icon: Globe, text: t('hero.features.countries') },
-    { icon: Phone, text: t('hero.features.numbers') },
-    { icon: MessageSquare, text: t('hero.features.services') },
-    { icon: Headphones, text: t('hero.features.support') },
+  const advantages = [
+    t('hero.advantages.item1'),
+    t('hero.advantages.item2'),
+    t('hero.advantages.item3'),
   ];
 
   return (
-    <section className="bg-hero-gradient min-h-[80vh] flex items-center py-20">
+    <section className="bg-hero-gradient min-h-[calc(100vh-112px)] flex items-center py-16 lg:py-24">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className="text-white space-y-8">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+          <div className="text-white space-y-6">
+            <h1 className="text-4xl md:text-5xl lg:text-[56px] font-bold leading-tight">
               {t('hero.title')}
             </h1>
-            <p className="text-lg md:text-xl text-white/80 leading-relaxed">
+            <p className="text-lg md:text-xl text-white/80 leading-relaxed max-w-xl">
               {t('hero.subtitle')}
             </p>
 
-            {/* Features Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="flex items-center space-x-3 bg-white/10 rounded-lg px-4 py-3"
-                >
-                  <feature.icon className="w-5 h-5 text-accent" />
-                  <span className="text-sm font-medium">{feature.text}</span>
-                </div>
+            {/* Advantages List */}
+            <ul className="space-y-3 pt-4">
+              {advantages.map((item, index) => (
+                <li key={index} className="flex items-start gap-3">
+                  <span className="w-2 h-2 rounded-full bg-accent mt-2.5 flex-shrink-0" />
+                  <span className="text-white/90 text-base">{item}</span>
+                </li>
               ))}
-            </div>
+            </ul>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-4">
-              <Link to="/auth">
+            <div className="flex flex-wrap gap-4 pt-6">
+              <Link to="/receive-sms">
                 <Button
                   size="lg"
-                  className="bg-accent hover:bg-accent/90 text-white font-semibold px-8 py-6 text-lg border-accent-glow"
+                  className="bg-primary hover:bg-primary-dark text-white font-semibold px-8 py-6 text-base rounded-full border-2 border-primary"
                 >
                   {t('hero.cta')}
                 </Button>
               </Link>
-              <Link to="/pricing">
+              <Link to="/api">
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 px-8 py-6 text-lg"
+                  className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-6 text-base rounded-full"
                 >
                   {t('hero.ctaSecondary')}
                 </Button>
@@ -63,59 +59,18 @@ export function HeroSection() {
 
           {/* Right Content - Phone Mockup */}
           <div className="relative flex justify-center lg:justify-end">
-            <PhoneMockup />
+            <div className="relative">
+              <img 
+                src={phoneMockup} 
+                alt="SMS Messages" 
+                className="w-[320px] md:w-[380px] lg:w-[420px] h-auto drop-shadow-2xl"
+              />
+              {/* Glow Effect */}
+              <div className="absolute -inset-8 bg-primary/20 blur-3xl rounded-full -z-10" />
+            </div>
           </div>
         </div>
       </div>
     </section>
-  );
-}
-
-function PhoneMockup() {
-  const { t } = useTranslation();
-
-  const messages = [
-    { service: 'Twitter', icon: '🐦', code: t('phone.messages.twitter') },
-    { service: 'Facebook', icon: '📘', code: t('phone.messages.facebook') },
-    { service: 'Instagram', icon: '📷', code: t('phone.messages.instagram') },
-    { service: 'Telegram', icon: '✈️', code: t('phone.messages.telegram') },
-    { service: 'WhatsApp', icon: '💬', code: t('phone.messages.whatsapp') },
-  ];
-
-  return (
-    <div className="relative animate-float">
-      {/* Phone Frame */}
-      <div className="w-72 h-[580px] bg-foreground rounded-[3rem] p-3 shadow-2xl">
-        {/* Screen */}
-        <div className="w-full h-full bg-muted rounded-[2.5rem] overflow-hidden relative">
-          {/* Notch */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-foreground rounded-b-2xl" />
-          
-          {/* Screen Content */}
-          <div className="pt-10 px-4 space-y-3 overflow-hidden">
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className="bg-white/10 backdrop-blur rounded-xl p-3 animate-fade-in"
-                style={{ animationDelay: `${index * 0.2}s` }}
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-lg">
-                    {msg.icon}
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-white font-semibold text-sm">{msg.service}</div>
-                    <div className="text-white/70 text-xs mt-1">{msg.code}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Glow Effect */}
-      <div className="absolute -inset-4 bg-primary/20 blur-3xl rounded-full -z-10" />
-    </div>
   );
 }
