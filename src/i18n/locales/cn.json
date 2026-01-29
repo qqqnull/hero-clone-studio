@@ -22,101 +22,127 @@
       "item2": "全球覆盖范围：180多个国家",
       "item3": "仅限可靠供应商：每日提供 50万多个号码"
     },
-    "features": {
-      "countries": "180+ 国家",
-      "numbers": "500,000+ 号码",
-      "services": "700+ 服务",
-      "support": "24/7 支持"
-    },
     "cta": "接收短信",
-    "ctaSecondary": "API 接口"
+    "ctaSecondary": "获取 API 密钥"
   },
-  "phone": {
-    "messages": {
-      "twitter": "Your X code: 75 363 You can also tap on this link to log in: https://t.me/login/75363oLeq9A...",
-      "facebook": "33371 is your Facebook confirmation code.",
-      "instagram": "567 840 is your Instagram code. Don't share it.",
-      "telegram": "Telegram code: 29485",
-      "whatsapp": "您的WhatsApp代码是 847592"
-    }
+  "howTo": {
+    "title": "在我们的网站上直接接收带验证码的短信",
+    "subtitle": "验证码仅限买家获取：注册过程安全且匿名",
+    "stepsTitle": "如何获取验证码:",
+    "steps": {
+      "step1": "在我们的网站上注册",
+      "step2": "使用加密货币充值余额",
+      "step3": "选择需要的服务和国家。如果找不到需要的服务，可选择任何其他（ \"Any Other\"）",
+      "step4": "购买号码",
+      "step5": "在你的个人账户中直接接收验证码"
+    },
+    "cta": "立即开始"
   },
-  "steps": {
-    "title": "如何使用",
-    "subtitle": "只需5个简单步骤即可开始接收短信",
-    "step1": {
-      "title": "注册账户",
-      "description": "创建免费账户只需几秒钟"
+  "whyNeed": {
+    "title": "为什么需要用于接收验证码的号码?",
+    "subtitle": "你为何可能需要使用虚拟号码注册账户？以下是我们客户的一些使用例子：",
+    "reasons": {
+      "reason1": "无需额外 SIM卡即可在社交网络或聊天工具上注册新账户",
+      "reason2": "注册电商平台及其他服务时获取奖励、促销码和折扣",
+      "reason3": "批量创建账户、将账户整合成网络、在交易所出售或用于个人用途",
+      "reason4": "使用不同国家号码注册时，可绕过地域限制",
+      "reason5": "无需个人账户即可进行商业邮件发送、推广商品或服务",
+      "reason6": "在社交网络、聊天工具及论坛中保持匿名"
     },
-    "step2": {
-      "title": "充值余额",
-      "description": "使用加密货币为您的账户充值"
-    },
-    "step3": {
-      "title": "选择服务",
-      "description": "从700+服务中选择您需要的"
-    },
-    "step4": {
-      "title": "购买号码",
-      "description": "选择国家并获取虚拟号码"
-    },
-    "step5": {
-      "title": "接收验证码",
-      "description": "在几秒钟内收到您的验证码"
-    }
+    "conclusion": "无论你的目标是什么，HeroSMS 都是批量或零售购买号码接收在线短信的最佳解决方案"
   },
-  "useCases": {
-    "title": "使用场景",
-    "subtitle": "虚拟号码的多种用途",
-    "case1": {
-      "title": "社交媒体注册",
-      "description": "在不暴露真实号码的情况下注册Twitter、Facebook、Instagram等"
-    },
-    "case2": {
-      "title": "获取优惠折扣",
-      "description": "使用新号码获取注册优惠和折扣码"
-    },
-    "case3": {
-      "title": "隐私保护",
-      "description": "保护您的真实手机号码免受垃圾短信骚扰"
-    },
-    "case4": {
-      "title": "商业验证",
-      "description": "为您的业务创建多个经过验证的账户"
-    },
-    "case5": {
-      "title": "开发测试",
-      "description": "测试需要短信验证的应用程序"
-    },
-    "case6": {
-      "title": "国际服务",
-      "description": "访问仅限特定国家的服务"
-    }
+  "partners": {
+    "title": "使用我们的合作伙伴软件每日注册数千个账户",
+    "subtitle": "我们的软件解决方案助你规避限制并自动化常规任务。通过可信赖的合作伙伴购买 HeroSMS 号码",
+    "comingSoon": "即将推出"
   },
-  "features": {
-    "title": "一次性号码的优势",
-    "subtitle": "为什么选择我们的服务",
+  "disposable": {
+    "title": "立即获取接收短信的一次性号码",
+    "subtitle": "适用于在 20分钟内的通过一次验证",
     "feature1": {
-      "title": "即时交付",
-      "description": "在几秒钟内获取您的虚拟号码"
+      "title": "丰富服务选择",
+      "description": "如果所需服务未在列表中，请选择 \"任何其他\"（Any Other）"
     },
     "feature2": {
-      "title": "高成功率",
-      "description": "99.9%的短信接收成功率"
+      "title": "公道价格",
+      "description": "无需为额外验证码和使用时长支付超额费用"
     },
     "feature3": {
-      "title": "低价格",
-      "description": "最具竞争力的价格"
+      "title": "量大",
+      "description": "每日新增 50万多个号码"
     },
     "feature4": {
-      "title": "API访问",
-      "description": "完整的API用于自动化集成"
+      "title": "适用于多数任务类型",
+      "description": "经常使用用途是创建账户"
+    }
+  },
+  "aboutPlatform": {
+    "title": "使用临时手机号码来在线接收短信",
+    "description": "HeroSMS 作为你值得信赖的虚拟号码合作伙伴，助你充分释放在线活动的潜力。无论你热衷于社交网络、聊天工具还是各类在线服务，我们的平台都能为你提供接收短信的号码，既保障隐私安全，又确保注册流程顺畅无阻。选择 HeroSMS 提供的在线临时号码或一次性号码，自由创建匿名账户用于个人用途、社交媒体推广或管理网络流量，尽享绝对隐私保障。",
+    "whyChoose": {
+      "title": "为何选择 HeroSMS？",
+      "items": [
+        "在线接受来自 180 多个国家的短信。我们持续拓展覆盖地域",
+        "适合 700 多个站点和应用程序的号码，以及适用于其他服务的\"任何其他\"（Any other）选项",
+        "使用加密货币方便充值",
+        "老客户专享折扣与批发价",
+        "优惠的网站联盟。邀请用户加入 HeroSMS 并赚钱",
+        "你正在开发注册类软件吗？我们提供 API 接口与优惠合作条件！"
+      ]
     }
   },
   "stats": {
     "countries": "国家",
-    "services": "服务",
-    "users": "用户",
-    "messages": "已接收消息"
+    "countriesSub": "我们持续拓展服务地域",
+    "servicesSub": "网站及应用专用号码"
+  },
+  "guide": {
+    "title": "网站与其服务的指南",
+    "subtitle": "HeroSMS 接码平台是用户获取一次性手机号码接收在线短信的核心资源",
+    "howToBuy": "如何购买短信激活服务",
+    "step1": {
+      "title": "选择",
+      "description": "请先在号码页面选择合适的服务。若未找到具体需求，请选择\"任何其他\"（Any other）"
+    },
+    "step2": {
+      "title": "配置",
+      "description": "请选择你需要的国家/地区以及所需临时号码的数量"
+    },
+    "step3": {
+      "title": "购买",
+      "description": "点击购物车图标继续操作，即可保留你的号码"
+    },
+    "step4": {
+      "title": "激活",
+      "description": "用于通过验证的临时电话号码在激活页面会显示"
+    },
+    "step5": {
+      "title": "接收短信",
+      "description": "验证码显示在你的虚拟号码旁边，立即可输入"
+    }
+  },
+  "faq": {
+    "title": "FAQ:",
+    "q1": {
+      "question": "我们的平台如何运作?",
+      "answer": "HeroSMS 平台让你能够在线接收短信，该短信与你本人、你的位置或护照信息毫无关联。无需购买 SIM卡，使用虚拟号码接收短信，即可在 HeroSMS 网站获取验证码"
+    },
+    "q2": {
+      "question": "什么是临时号码?",
+      "answer": "这是一种无需实体 SIM卡即可使用、且不绑定特定设备的一次性手机号码。通信通过特定软件经互联网实现。此类虚拟号码通常仅支持接收带有验证码的短信，但 HeroSMS 平台还支持语音通话及语音机器人验证。"
+    },
+    "q3": {
+      "question": "为何选择 HeroSMS 是明智之选？",
+      "answer": "HeroSMS 是基于市场领导者 SMS-Activate 打造的新平台。该项目继承了 SMS-Activate 的核心技术优势，同时凭借更先进的技术和更优惠的条款脱颖而出"
+    },
+    "q4": {
+      "question": "临时手机号码适用于哪些目标？",
+      "answer": "这是进行一次性或批量账户注册最划算的选择。接收在线短信无需一天或更久租用号码，20分钟即可满足需求。若在此期间未收到短信，钱自动返还至你的个人账户余额。"
+    },
+    "q5": {
+      "question": "虚拟号码如何使用?",
+      "answer": "用于接受短信的虚拟号码对应特定服务（Facebook、WhatsApp、Google 等），并定期更新。请根据需求选择对应服务，我们确保操作便捷顺畅。"
+    }
   },
   "footer": {
     "description": "领先的虚拟号码服务提供商，帮助您保护隐私并轻松完成在线验证。",
