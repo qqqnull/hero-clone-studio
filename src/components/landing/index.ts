@@ -1,9 +1,10 @@
 export { HeroSection } from './HeroSection';
-export { HowToSection } from './HowToSection';
+export { ServiceSearchSection } from './ServiceSearchSection';
 export { WhyNeedSection } from './WhyNeedSection';
 export { PartnersSection } from './PartnersSection';
 export { DisposableNumbersSection } from './DisposableNumbersSection';
 export { AboutPlatformSection } from './AboutPlatformSection';
-export { StatsSection } from './StatsSection';
+export { WhyChooseSection } from './WhyChooseSection';
 export { GuideSection } from './GuideSection';
+export { PurchaseGuideSection } from './PurchaseGuideSection';
 export { FAQSection } from './FAQSection';
