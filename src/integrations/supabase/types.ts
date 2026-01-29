@@ -14,6 +14,202 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          key_hash: string
+          last_used_at: string | null
+          name: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key_hash: string
+          last_used_at?: string | null
+          name?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key_hash?: string
+          last_used_at?: string | null
+          name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      countries: {
+        Row: {
+          code: string
+          created_at: string | null
+          flag: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          phone_code: string | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          flag?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          phone_code?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          flag?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          phone_code?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          country_id: string | null
+          created_at: string | null
+          id: string
+          phone_number: string | null
+          phone_number_id: string | null
+          price: number | null
+          service_id: string | null
+          sms_code: string | null
+          sms_content: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          country_id?: string | null
+          created_at?: string | null
+          id?: string
+          phone_number?: string | null
+          phone_number_id?: string | null
+          price?: number | null
+          service_id?: string | null
+          sms_code?: string | null
+          sms_content?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          country_id?: string | null
+          created_at?: string | null
+          id?: string
+          phone_number?: string | null
+          phone_number_id?: string | null
+          price?: number | null
+          service_id?: string | null
+          sms_code?: string | null
+          sms_content?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_phone_number_id_fkey"
+            columns: ["phone_number_id"]
+            isOneToOne: false
+            referencedRelation: "phone_numbers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      phone_numbers: {
+        Row: {
+          activated_at: string | null
+          country_id: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          number: string
+          price: number | null
+          service_id: string | null
+          sms_code: string | null
+          sms_content: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          country_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          number: string
+          price?: number | null
+          service_id?: string | null
+          sms_code?: string | null
+          sms_content?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          country_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          number?: string
+          price?: number | null
+          service_id?: string | null
+          sms_code?: string | null
+          sms_content?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phone_numbers_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phone_numbers_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           balance: number | null
@@ -43,6 +239,140 @@ export type Database = {
           vip_level?: number | null
         }
         Relationships: []
+      }
+      service_prices: {
+        Row: {
+          country_id: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          price: number
+          service_id: string | null
+          stock: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          country_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          price?: number
+          service_id?: string | null
+          stock?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          country_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          price?: number
+          service_id?: string | null
+          stock?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_prices_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_prices_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          code: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          balance_after: number | null
+          created_at: string | null
+          id: string
+          note: string | null
+          order_id: string | null
+          payment_address: string | null
+          payment_method: string | null
+          status: string | null
+          tx_hash: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after?: number | null
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          payment_address?: string | null
+          payment_method?: string | null
+          status?: string | null
+          tx_hash?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number | null
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          payment_address?: string | null
+          payment_method?: string | null
+          status?: string | null
+          tx_hash?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -77,6 +407,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      make_user_admin: { Args: { user_email: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
