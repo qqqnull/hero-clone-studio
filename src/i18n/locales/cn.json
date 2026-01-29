@@ -12,26 +12,31 @@
     "dashboard": "控制面板"
   },
   "announcement": {
-    "text": "🎉 俄罗斯号码现在出售了!!! 立即获取您的虚拟号码!"
+    "text": "独一无二：俄罗斯号码现在出售了!!!"
   },
   "hero": {
-    "title": "购买虚拟号码来接收短信",
-    "subtitle": "使用HEROSMS，您可以在线注册任何服务，而无需使用自己的手机号码。使用虚拟号码保护您的隐私。",
+    "title": "在线接收短信 & API 访问",
+    "subtitle": "在线接收发送到虚拟号码的短信。可直接在网站使用或通过 API 接口来注册各类服务与应用账户，获取收益与折扣",
+    "advantages": {
+      "item1": "市场领先的接码软件（由 HeroSMS 技术基础设施提供支持）",
+      "item2": "全球覆盖范围：180多个国家",
+      "item3": "仅限可靠供应商：每日提供 50万多个号码"
+    },
     "features": {
       "countries": "180+ 国家",
       "numbers": "500,000+ 号码",
       "services": "700+ 服务",
       "support": "24/7 支持"
     },
-    "cta": "立即开始",
-    "ctaSecondary": "查看价格"
+    "cta": "接收短信",
+    "ctaSecondary": "API 接口"
   },
   "phone": {
     "messages": {
-      "twitter": "您的Twitter验证码是: 847293",
-      "facebook": "Facebook代码: 582947",
-      "instagram": "Instagram: 394857 是您的验证码",
-      "telegram": "Telegram代码: 29485",
+      "twitter": "Your X code: 75 363 You can also tap on this link to log in: https://t.me/login/75363oLeq9A...",
+      "facebook": "33371 is your Facebook confirmation code.",
+      "instagram": "567 840 is your Instagram code. Don't share it.",
+      "telegram": "Telegram code: 29485",
       "whatsapp": "您的WhatsApp代码是 847592"
     }
   },
@@ -88,8 +93,8 @@
     }
   },
   "features": {
-    "title": "为什么选择我们",
-    "subtitle": "一次性号码的优势",
+    "title": "一次性号码的优势",
+    "subtitle": "为什么选择我们的服务",
     "feature1": {
       "title": "即时交付",
       "description": "在几秒钟内获取您的虚拟号码"

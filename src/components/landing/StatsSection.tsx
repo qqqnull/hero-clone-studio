@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 export function StatsSection() {
   const { t } = useTranslation();
@@ -12,7 +12,7 @@ export function StatsSection() {
   ];
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-16 bg-background border-y border-border">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, index) => (
@@ -26,8 +26,28 @@ export function StatsSection() {
 
 function StatCard({ value, suffix, label }: { value: number; suffix: string; label: string }) {
   const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+          animateCount();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasAnimated, value]);
+
+  const animateCount = () => {
     const duration = 2000;
     const steps = 60;
     const increment = value / steps;
@@ -42,9 +62,7 @@ function StatCard({ value, suffix, label }: { value: number; suffix: string; lab
         setCount(Math.floor(current));
       }
     }, duration / steps);
-
-    return () => clearInterval(timer);
-  }, [value]);
+  };
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) {
@@ -57,11 +75,11 @@ function StatCard({ value, suffix, label }: { value: number; suffix: string; lab
   };
 
   return (
-    <div className="text-center">
+    <div ref={ref} className="text-center">
       <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
         {formatNumber(count)}{suffix}
       </div>
-      <div className="text-muted-foreground font-medium">
+      <div className="text-muted-foreground font-medium text-sm">
         {label}
       </div>
     </div>

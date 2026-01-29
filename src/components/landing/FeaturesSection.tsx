@@ -23,19 +23,19 @@ export function FeaturesSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="glass-card rounded-2xl p-6 text-center hover:bg-white/20 transition-colors"
+              className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/15 transition-colors border border-white/10"
             >
-              <div className="w-16 h-16 bg-accent/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <feature.icon className="w-8 h-8 text-accent" />
+              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <feature.icon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">
+              <h3 className="text-lg font-semibold mb-2">
                 {feature.title}
               </h3>
-              <p className="text-white/70">
+              <p className="text-white/70 text-sm leading-relaxed">
                 {feature.description}
               </p>
             </div>

@@ -14,7 +14,7 @@ export function UseCasesSection() {
   ];
 
   return (
-    <section className="py-20 bg-secondary/30">
+    <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -29,15 +29,15 @@ export function UseCasesSection() {
           {useCases.map((useCase, index) => (
             <div
               key={index}
-              className="bg-card rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-border group"
+              className="bg-card rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow border border-border group"
             >
-              <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <useCase.icon className="w-7 h-7 text-primary" />
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <useCase.icon className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 {useCase.title}
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 {useCase.description}
               </p>
             </div>

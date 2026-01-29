@@ -24,30 +24,30 @@ export function StepsSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {steps.map((step, index) => (
             <div key={index} className="relative">
               {/* Connector Line */}
               {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-12 left-1/2 w-full h-0.5 bg-gradient-to-r from-primary to-primary/30" />
+                <div className="hidden lg:block absolute top-10 left-[60%] w-[calc(100%-20px)] h-0.5 bg-primary/20" />
               )}
 
               <div className="flex flex-col items-center text-center relative z-10">
-                {/* Step Number */}
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent text-white rounded-full flex items-center justify-center text-xs font-bold">
+                {/* Step Number Badge */}
+                <div className="absolute -top-1 -right-1 w-6 h-6 bg-accent text-white rounded-full flex items-center justify-center text-xs font-bold z-20">
                   {index + 1}
                 </div>
 
-                {/* Icon */}
-                <div className="w-24 h-24 bg-primary/10 rounded-2xl flex items-center justify-center mb-4 group hover:bg-primary/20 transition-colors">
-                  <step.icon className="w-10 h-10 text-primary" />
+                {/* Icon Container */}
+                <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mb-4 group hover:bg-primary/20 transition-colors">
+                  <step.icon className="w-8 h-8 text-primary" />
                 </div>
 
                 {/* Content */}
-                <h3 className="text-lg font-semibold text-foreground mb-2">
+                <h3 className="text-base font-semibold text-foreground mb-2">
                   {step.title}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {step.description}
                 </p>
               </div>
