@@ -61,6 +61,7 @@ export default function ReceiveSms() {
   const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [showPhoneForCountry, setShowPhoneForCountry] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState('popular');
 
   useEffect(() => {
     fetchServices();
@@ -96,12 +97,12 @@ export default function ReceiveSms() {
       .from('profiles')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
     setProfile(data);
   };
 
   const fetchCountriesForService = async (serviceId: string) => {
-    const { data } = await supabase
+    let query = supabase
       .from('service_prices')
       .select(`
         *,
@@ -109,8 +110,17 @@ export default function ReceiveSms() {
       `)
       .eq('service_id', serviceId)
       .eq('is_active', true)
-      .gt('stock', 0)
-      .order('stock', { ascending: false });
+      .gt('stock', 0);
+    
+    if (sortBy === 'popular') {
+      query = query.order('stock', { ascending: false });
+    } else if (sortBy === 'price') {
+      query = query.order('price', { ascending: true });
+    } else if (sortBy === 'stock') {
+      query = query.order('stock', { ascending: false });
+    }
+    
+    const { data } = await query;
     
     if (data) {
       setCountries(data as ServicePrice[]);
@@ -161,7 +171,6 @@ export default function ReceiveSms() {
       return;
     }
 
-    // Check balance first
     if (!profile || profile.balance < servicePrice.price) {
       toast({
         title: t('receiveSms.insufficientBalance'),
@@ -172,7 +181,6 @@ export default function ReceiveSms() {
       return;
     }
 
-    // Show phone number for this country
     setShowPhoneForCountry(servicePrice.country_id);
   };
 
@@ -181,7 +189,6 @@ export default function ReceiveSms() {
 
     setPurchaseLoading(servicePrice.country_id);
 
-    // Check balance again
     if (!profile || profile.balance < servicePrice.price) {
       toast({
         title: t('receiveSms.insufficientBalance'),
@@ -193,7 +200,6 @@ export default function ReceiveSms() {
     }
 
     try {
-      // Get an available phone number
       const { data: phoneNumber, error: phoneError } = await supabase
         .from('phone_numbers')
         .select('*')
@@ -201,7 +207,7 @@ export default function ReceiveSms() {
         .eq('service_id', selectedService.id)
         .eq('status', 'available')
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (phoneError || !phoneNumber) {
         toast({
@@ -213,18 +219,16 @@ export default function ReceiveSms() {
         return;
       }
 
-      // Update phone number status
       await supabase
         .from('phone_numbers')
         .update({
           status: 'in_use',
           user_id: user.id,
           activated_at: new Date().toISOString(),
-          expires_at: new Date(Date.now() + 20 * 60 * 1000).toISOString(), // 20 minutes
+          expires_at: new Date(Date.now() + 20 * 60 * 1000).toISOString(),
         })
         .eq('id', phoneNumber.id);
 
-      // Deduct balance
       await supabase
         .from('profiles')
         .update({
@@ -232,7 +236,6 @@ export default function ReceiveSms() {
         })
         .eq('user_id', user.id);
 
-      // Create order
       await supabase
         .from('orders')
         .insert({
@@ -245,7 +248,6 @@ export default function ReceiveSms() {
           status: 'active',
         });
 
-      // Create transaction
       await supabase
         .from('transactions')
         .insert({
@@ -261,7 +263,6 @@ export default function ReceiveSms() {
         description: phoneNumber.number,
       });
 
-      // Refresh data
       fetchProfile();
       fetchActiveNumbers();
       fetchCountriesForService(selectedService.id);
@@ -291,168 +292,200 @@ export default function ReceiveSms() {
     toast({ title: t('receiveSms.copied') });
   };
 
+  // Generate price range display
+  const getPriceRange = (price: number) => {
+    const minPrice = price;
+    const maxPrice = price * (1 + Math.random() * 2);
+    return `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(4)}`;
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <RefreshCw className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-[#faf9ff]">
       <Navbar />
       <AnnouncementBar />
       
       <main className="flex-1 py-8">
-        <div className="container mx-auto px-4">
-          <h1 className="text-2xl font-bold text-foreground mb-8">{t('receiveSms.services')}</h1>
+        <div className="container mx-auto px-4 max-w-6xl">
+          {/* Page Title */}
+          <h1 className="text-2xl font-bold text-foreground mb-6">{t('receiveSms.services')}</h1>
 
-          <div className="grid lg:grid-cols-2 gap-8 mb-12">
-            {/* Services Panel */}
-            <div className="bg-card rounded-2xl border border-border p-6">
-              <div className="relative mb-4">
-                <input
-                  type="text"
-                  placeholder={t('receiveSms.findService')}
-                  value={serviceSearch}
-                  onChange={(e) => setServiceSearch(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          {/* Main Content Grid */}
+          <div className="grid lg:grid-cols-[320px_1fr] gap-6 mb-12">
+            {/* Services Panel - Left */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              {/* Search Input */}
+              <div className="p-4 border-b border-gray-100">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder={t('receiveSms.findService')}
+                    value={serviceSearch}
+                    onChange={(e) => setServiceSearch(e.target.value)}
+                    className="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-lg bg-white text-foreground placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                  />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                </div>
               </div>
 
-              <div className="space-y-1 max-h-[400px] overflow-y-auto">
+              {/* Services List */}
+              <div className="max-h-[500px] overflow-y-auto">
                 {filteredServices.map((service) => (
                   <button
                     key={service.id}
                     onClick={() => setSelectedService(service)}
-                    className={`w-full flex items-center gap-3 py-3 px-4 rounded-lg transition-colors text-left ${
+                    className={`w-full flex items-center gap-3 py-3 px-4 transition-all text-left border-b border-gray-50 last:border-b-0 ${
                       selectedService?.id === service.id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'hover:bg-muted/50'
+                        ? 'bg-primary text-white'
+                        : 'hover:bg-gray-50 text-foreground'
                     }`}
                   >
-                    <span className="text-xl">{service.icon}</span>
-                    <span className="font-medium">{service.name}</span>
+                    <span className="text-lg flex-shrink-0">{service.icon}</span>
+                    <span className="font-medium text-sm truncate">{service.name}</span>
                   </button>
                 ))}
+                {filteredServices.length === 0 && (
+                  <div className="p-4 text-center text-gray-400 text-sm">
+                    {t('receiveSms.noServicesFound')}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Countries Panel */}
-            <div className="bg-card rounded-2xl border border-border p-6">
-              <div className="flex gap-4 mb-4">
+            {/* Countries Panel - Right */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              {/* Search and Sort Row */}
+              <div className="p-4 border-b border-gray-100 flex gap-4">
                 <div className="relative flex-1">
                   <input
                     type="text"
                     placeholder={t('receiveSms.findCountry')}
                     value={countrySearch}
                     onChange={(e) => setCountrySearch(e.target.value)}
-                    className="w-full px-4 py-3 pr-12 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-lg bg-white text-foreground placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                   />
-                  <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
-                <select className="px-4 py-3 border border-border rounded-lg bg-background text-foreground">
-                  <option>{t('receiveSms.sortByPopular')}</option>
-                  <option>{t('receiveSms.sortByPrice')}</option>
-                  <option>{t('receiveSms.sortByStock')}</option>
+                <select 
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-2.5 border border-gray-200 rounded-lg bg-white text-foreground text-sm min-w-[140px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                >
+                  <option value="popular">{t('receiveSms.sortByPopular')}</option>
+                  <option value="price">{t('receiveSms.sortByPrice')}</option>
+                  <option value="stock">{t('receiveSms.sortByStock')}</option>
                 </select>
               </div>
 
-              <div className="space-y-2 max-h-[400px] overflow-y-auto">
+              {/* Countries List */}
+              <div className="max-h-[500px] overflow-y-auto">
                 {filteredCountries.map((item) => (
-                  <div key={item.id} className="border border-border rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{item.country?.flag}</span>
-                        <div>
-                          <span className="font-medium text-foreground">
-                            {item.country?.name} {item.country?.phone_code}
-                          </span>
-                          <span className="text-muted-foreground text-sm ml-2">
-                            {item.stock.toLocaleString()} {t('receiveSms.available')}
-                          </span>
-                        </div>
+                  <div key={item.id} className="border-b border-gray-50 last:border-b-0">
+                    <div className="flex items-center justify-between px-4 py-3 hover:bg-gray-50/50 transition-colors">
+                      {/* Country Info */}
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-xl flex-shrink-0">{item.country?.flag}</span>
+                        <span className="font-medium text-foreground text-sm">
+                          {item.country?.name} {item.country?.phone_code}
+                        </span>
+                        <span className="text-gray-400 text-xs">
+                          {item.stock.toLocaleString()}个
+                        </span>
                       </div>
+
+                      {/* Quantity & Price */}
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center border border-border rounded-lg">
+                        {/* Quantity Controls */}
+                        <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
                           <button 
                             onClick={() => updateQuantity(item.country_id, -1)}
-                            className="p-2 hover:bg-muted/50"
+                            className="p-2 hover:bg-gray-100 text-gray-500 transition-colors"
                           >
-                            <Minus className="w-4 h-4" />
+                            <Minus className="w-3 h-3" />
                           </button>
-                          <span className="px-3 text-sm">{quantities[item.country_id] || 1}</span>
+                          <span className="px-3 text-sm text-foreground font-medium min-w-[40px] text-center">
+                            {quantities[item.country_id] || 1} 个
+                          </span>
                           <button 
                             onClick={() => updateQuantity(item.country_id, 1)}
-                            className="p-2 hover:bg-muted/50"
+                            className="p-2 hover:bg-gray-100 text-gray-500 transition-colors"
                           >
-                            <Plus className="w-4 h-4" />
+                            <Plus className="w-3 h-3" />
                           </button>
                         </div>
-                        <Button 
+
+                        {/* Price Button */}
+                        <button 
                           onClick={() => handlePriceClick(item)}
-                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
                           disabled={purchaseLoading === item.country_id}
+                          className="bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm hover:shadow min-w-[140px] disabled:opacity-50"
                         >
                           {purchaseLoading === item.country_id ? (
-                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            <RefreshCw className="w-4 h-4 animate-spin mx-auto" />
                           ) : (
-                            `$${item.price.toFixed(4)}`
+                            getPriceRange(item.price)
                           )}
-                        </Button>
+                        </button>
                       </div>
                     </div>
 
-                    {/* Phone Number Display - Only shows after clicking price */}
+                    {/* Expanded Purchase Section */}
                     {showPhoneForCountry === item.country_id && (
-                      <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-                        {profile && profile.balance >= item.price ? (
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">
-                                {t('receiveSms.clickToPurchase')}
-                              </span>
-                              <span className="text-sm">
-                                {t('receiveSms.yourBalance')}: <strong>${profile.balance.toFixed(2)}</strong>
-                              </span>
+                      <div className="px-4 pb-4">
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          {profile && profile.balance >= item.price ? (
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">
+                                  {t('receiveSms.clickToPurchase')}
+                                </span>
+                                <span className="text-foreground">
+                                  {t('receiveSms.yourBalance')}: <strong className="text-primary">${profile.balance.toFixed(2)}</strong>
+                                </span>
+                              </div>
+                              <Button 
+                                onClick={() => handlePurchase(item)} 
+                                className="w-full bg-primary hover:bg-primary/90"
+                                disabled={purchaseLoading === item.country_id}
+                              >
+                                {purchaseLoading === item.country_id && (
+                                  <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                                )}
+                                {t('receiveSms.confirmPurchase')} - ${item.price.toFixed(4)}
+                              </Button>
                             </div>
-                            <Button 
-                              onClick={() => handlePurchase(item)} 
-                              className="w-full"
-                              disabled={purchaseLoading === item.country_id}
-                            >
-                              {purchaseLoading === item.country_id ? (
-                                <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                              ) : null}
-                              {t('receiveSms.confirmPurchase')} - ${item.price.toFixed(4)}
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-3 text-destructive">
-                            <AlertCircle className="w-5 h-5" />
-                            <div>
-                              <p className="font-medium">{t('receiveSms.insufficientBalance')}</p>
-                              <p className="text-sm">{t('receiveSms.currentBalance')}: ${profile?.balance?.toFixed(2) || '0.00'}</p>
+                          ) : (
+                            <div className="flex items-center gap-3">
+                              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-destructive text-sm">{t('receiveSms.insufficientBalance')}</p>
+                                <p className="text-xs text-gray-500">{t('receiveSms.currentBalance')}: ${profile?.balance?.toFixed(2) || '0.00'}</p>
+                              </div>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => navigate('/recharge')}
+                                className="flex-shrink-0"
+                              >
+                                {t('receiveSms.recharge')}
+                              </Button>
                             </div>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="ml-auto"
-                              onClick={() => navigate('/recharge')}
-                            >
-                              {t('receiveSms.recharge')}
-                            </Button>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
                 ))}
 
                 {filteredCountries.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="p-8 text-center text-gray-400 text-sm">
                     {t('receiveSms.noCountriesFound')}
                   </div>
                 )}
@@ -461,81 +494,91 @@ export default function ReceiveSms() {
           </div>
 
           {/* My Numbers Section */}
-          {activeNumbers.length > 0 && (
-            <div className="grid lg:grid-cols-2 gap-8">
-              <div>
-                <h2 className="text-xl font-bold text-foreground mb-4">{t('receiveSms.myNumbers')}</h2>
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-foreground">{t('receiveSms.myNumbers')}</h2>
+              <select className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-600 focus:outline-none">
+                <option>{t('receiveSms.deliveryStats')}</option>
+              </select>
+            </div>
+            
+            {activeNumbers.length > 0 ? (
+              <div className="grid lg:grid-cols-2 gap-4">
+                {/* Active Numbers List */}
                 <div className="space-y-2">
                   {activeNumbers.map((num) => (
                     <div 
                       key={num.id}
-                      className="bg-primary text-primary-foreground rounded-xl px-6 py-4 flex items-center gap-3"
+                      className="bg-primary text-white rounded-xl px-5 py-3.5 flex items-center gap-3"
                     >
-                      <span className="text-xl">{num.service?.icon}</span>
-                      <span className="text-xl">{num.country?.flag}</span>
+                      <span className="text-lg">{num.service?.icon}</span>
+                      <span className="text-lg">{num.country?.flag}</span>
                       <span className="font-medium">{num.number}</span>
                     </div>
                   ))}
                 </div>
-              </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-muted-foreground">{t('receiveSms.deliveryStats')}</span>
-                </div>
-                
-                {activeNumbers.map((num) => (
-                  <div key={num.id} className="bg-card rounded-xl border border-border p-4 mb-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl">{num.service?.icon}</span>
-                        <span className="text-xl">{num.country?.flag}</span>
-                        <span className="font-medium text-foreground">{num.number}</span>
-                        <span className="text-primary font-medium">${num.price?.toFixed(4)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button 
-                          className="p-2 hover:bg-muted/50 rounded-lg"
-                          onClick={() => fetchActiveNumbers()}
-                        >
-                          <RefreshCw className="w-4 h-4" />
-                        </button>
-                        <button 
-                          className="p-2 hover:bg-muted/50 rounded-lg"
-                          onClick={() => copyNumber(num.number)}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </button>
-                        <button 
-                          className="p-2 hover:bg-muted/50 rounded-lg text-destructive"
-                          onClick={() => handleCancelNumber(num.id)}
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                        <div className="flex items-center gap-1 text-muted-foreground text-sm">
-                          <Clock className="w-4 h-4" />
-                          <span>{new Date(num.activated_at).toLocaleTimeString()}</span>
+                {/* SMS Display */}
+                <div className="space-y-4">
+                  {activeNumbers.map((num) => (
+                    <div key={num.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{num.service?.icon}</span>
+                          <span className="text-lg">{num.country?.flag}</span>
+                          <span className="font-medium text-foreground text-sm">{num.number}</span>
+                          <span className="text-primary font-medium text-sm">${num.price?.toFixed(4)}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button 
+                            className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
+                            onClick={() => fetchActiveNumbers()}
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                          </button>
+                          <button 
+                            className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
+                            onClick={() => copyNumber(num.number)}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                          <button 
+                            className="p-1.5 hover:bg-gray-100 rounded-lg text-destructive transition-colors"
+                            onClick={() => handleCancelNumber(num.id)}
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                          <div className="flex items-center gap-1 text-gray-400 text-xs ml-2">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{new Date(num.activated_at).toLocaleTimeString()}</span>
+                          </div>
                         </div>
                       </div>
+                      {num.sms_code ? (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                          <div className="text-green-700 font-medium text-sm mb-1">{t('receiveSms.codeReceived')}</div>
+                          <div className="text-2xl font-bold text-green-600">{num.sms_code}</div>
+                          {num.sms_content && (
+                            <div className="text-sm text-green-600 mt-1">{num.sms_content}</div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="bg-gray-50 rounded-lg p-3 text-center text-gray-400 text-sm">
+                          {t('receiveSms.waitingForCode')}
+                        </div>
+                      )}
                     </div>
-                    {num.sms_code ? (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <div className="text-green-800 font-medium mb-1">{t('receiveSms.codeReceived')}</div>
-                        <div className="text-2xl font-bold text-green-700">{num.sms_code}</div>
-                        {num.sms_content && (
-                          <div className="text-sm text-green-600 mt-2">{num.sms_content}</div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="bg-muted/30 rounded-lg p-4 text-center text-muted-foreground text-sm">
-                        {t('receiveSms.waitingForCode')}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12">
+                <p className="text-center text-primary">
+                  {t('receiveSms.noActiveNumbers')}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </main>
 
