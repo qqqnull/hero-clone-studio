@@ -8,6 +8,13 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ReceiveSms from "./pages/ReceiveSms";
+import AboutPage from "./pages/AboutPage";
+import ApiDocsPage from "./pages/ApiDocsPage";
+import LoyaltyPage from "./pages/LoyaltyPage";
+import AffiliatePage from "./pages/AffiliatePage";
+import SupplierPage from "./pages/SupplierPage";
+import UserCenterPage from "./pages/UserCenterPage";
+import RechargePage from "./pages/RechargePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +29,11 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/api" element={<ApiDocsPage />} />
+            <Route path="/loyalty" element={<LoyaltyPage />} />
+            <Route path="/affiliate" element={<AffiliatePage />} />
+            <Route path="/supplier" element={<SupplierPage />} />
             <Route 
               path="/receive-sms" 
               element={
@@ -30,7 +42,22 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route 
+              path="/user-center" 
+              element={
+                <ProtectedRoute>
+                  <UserCenterPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/recharge" 
+              element={
+                <ProtectedRoute>
+                  <RechargePage />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

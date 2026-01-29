@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, User, LogOut } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -23,7 +23,7 @@ export function Navbar() {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];
 
@@ -32,10 +32,18 @@ export function Navbar() {
   };
 
   const navItems = [
-    { label: t('nav.receiveSms'), href: '/receive-sms', isActive: true },
-    { label: t('nav.affiliate'), href: '/affiliate' },
+    { label: t('nav.receiveSms'), href: '/receive-sms', isHighlighted: true },
+    { label: t('nav.myNumbers'), href: '/user-center?tab=numbers' },
+    { 
+      label: t('nav.partners'), 
+      href: '#',
+      isDropdown: true,
+      children: [
+        { label: t('nav.affiliate'), href: '/affiliate' },
+        { label: t('nav.supplier'), href: '/supplier' },
+      ]
+    },
     { label: t('nav.loyalty'), href: '/loyalty' },
-    { label: t('nav.supplier'), href: '/supplier' },
     { label: t('nav.api'), href: '/api' },
     { label: t('nav.about'), href: '/about' },
   ];
@@ -43,6 +51,8 @@ export function Navbar() {
   const handleSignOut = async () => {
     await signOut();
   };
+
+  const userId = profile?.id?.slice(0, 6) || '---';
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
@@ -56,17 +66,37 @@ export function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
             {navItems.map((item, index) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  index === 0 
-                    ? 'bg-primary text-white hover:bg-primary-dark' 
-                    : 'text-foreground hover:text-primary hover:bg-primary/5'
-                }`}
-              >
-                {item.label}
-              </Link>
+              item.isDropdown ? (
+                <DropdownMenu key={item.href}>
+                  <DropdownMenuTrigger asChild>
+                    <button className="px-4 py-2 rounded-full text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 flex items-center gap-1">
+                      {item.label}
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {item.children?.map((child) => (
+                      <DropdownMenuItem key={child.href} asChild>
+                        <Link to={child.href} className="cursor-pointer">
+                          {child.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    item.isHighlighted 
+                      ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                      : 'text-foreground hover:text-primary hover:bg-primary/5'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              )
             ))}
           </div>
 
@@ -100,42 +130,75 @@ export function Navbar() {
 
             {/* User Menu or Login Button */}
             {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="border-primary text-primary hover:bg-primary hover:text-white font-medium px-4 flex items-center gap-2"
-                  >
-                    <User className="w-4 h-4" />
-                    <span className="hidden sm:inline max-w-[120px] truncate">{user.email}</span>
-                    <ChevronDown className="w-4 h-4" />
+              <>
+                {/* User Info Display */}
+                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted rounded-lg">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <div className="text-sm">
+                    <span className="text-muted-foreground">ID: </span>
+                    <span className="font-medium">{userId}</span>
+                  </div>
+                  <div className="text-sm text-primary font-medium">
+                    ${profile?.balance?.toFixed(2) || '0.00'}
+                  </div>
+                </div>
+
+                {/* Recharge Button */}
+                <Link to="/recharge">
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                    {t('nav.recharge')}
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-[180px]">
-                  <DropdownMenuItem className="text-muted-foreground text-sm">
-                    {user.email}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/receive-sms" className="cursor-pointer">
-                      {t('nav.receiveSms')}
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onClick={handleSignOut}
-                    className="cursor-pointer text-destructive flex items-center gap-2"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    {t('nav.logout')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </Link>
+
+                {/* User Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <User className="w-5 h-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[200px]">
+                    <div className="px-3 py-2 text-sm">
+                      <div className="text-muted-foreground">{user.email}</div>
+                      <div className="font-medium text-primary">${profile?.balance?.toFixed(2) || '0.00'}</div>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/user-center?tab=profile" className="cursor-pointer">
+                        {t('nav.profile')}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/user-center?tab=numbers" className="cursor-pointer">
+                        {t('nav.activationHistory')}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/user-center?tab=security" className="cursor-pointer">
+                        {t('nav.security')}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/user-center?tab=affiliate" className="cursor-pointer">
+                        {t('nav.affiliateMenu')}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={handleSignOut}
+                      className="cursor-pointer text-destructive"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      {t('nav.logout')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
               <Link to="/auth">
                 <Button 
                   variant="outline" 
-                  className="border-primary text-primary hover:bg-primary hover:text-white font-medium px-6"
+                  className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-medium px-6"
                 >
                   {t('nav.login')}
                 </Button>
@@ -156,19 +219,37 @@ export function Navbar() {
         {isOpen && (
           <div className="lg:hidden py-4 border-t border-border">
             <div className="flex flex-col space-y-2">
-              {navItems.map((item, index) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium ${
-                    index === 0 
-                      ? 'bg-primary text-white' 
-                      : 'text-foreground hover:bg-muted'
-                  }`}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.label}
-                </Link>
+              {navItems.map((item) => (
+                item.isDropdown ? (
+                  <div key={item.href} className="space-y-1">
+                    <div className="px-4 py-2 text-sm font-medium text-muted-foreground">
+                      {item.label}
+                    </div>
+                    {item.children?.map((child) => (
+                      <Link
+                        key={child.href}
+                        to={child.href}
+                        className="block px-8 py-2 text-sm font-medium text-foreground hover:bg-muted rounded-lg"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className={`px-4 py-3 rounded-lg text-sm font-medium ${
+                      item.isHighlighted 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'text-foreground hover:bg-muted'
+                    }`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                )
               ))}
               {user && (
                 <button
