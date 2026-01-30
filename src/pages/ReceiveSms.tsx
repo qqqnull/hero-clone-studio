@@ -337,99 +337,153 @@ export default function ReceiveSms() {
     return `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(4)}`;
   };
 
-  // Generate a mock phone number based on country phone code (consistent per session)
-  const getPhoneNumber = (countryId: string, phoneCode: string = '') => {
+  // Fetch phone number from database for a specific country and service
+  const fetchPhoneNumberFromDb = useCallback(async (countryId: string, serviceId: string) => {
+    const { data: phoneNumber, error } = await supabase
+      .from('phone_numbers')
+      .select('id, number')
+      .eq('country_id', countryId)
+      .eq('service_id', serviceId)
+      .eq('status', 'available')
+      .limit(1)
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error fetching phone number:', error);
+      return null;
+    }
+    
+    return phoneNumber;
+  }, []);
+
+  // Get phone number - either from cache or fetch from database
+  const getPhoneNumber = useCallback((countryId: string, phoneCode: string = '') => {
     // If we already have a phone for this country, return it
     if (generatedPhones[countryId]) {
       return generatedPhones[countryId];
     }
     
-    // Remove the + sign if present
-    const cleanCode = phoneCode.replace('+', '');
-    
-    // Generate appropriate number of digits based on country
-    // Following the logic from happy-sms-portal
-    let numberLength = 10; // default
-    let prefix = '';
-    
-    if (cleanCode === '1') { numberLength = 10; prefix = '2'; } // US/Canada
-    else if (cleanCode === '86') { numberLength = 11; prefix = '1'; } // China
-    else if (cleanCode === '7') { numberLength = 10; prefix = '9'; } // Russia
-    else if (cleanCode === '44') { numberLength = 10; prefix = '7'; } // UK
-    else if (cleanCode === '91') { numberLength = 10; prefix = '9'; } // India
-    else if (cleanCode === '62') { numberLength = 11; prefix = '8'; } // Indonesia
-    else if (cleanCode === '55') { numberLength = 11; prefix = '9'; } // Brazil
-    else if (cleanCode === '49') { numberLength = 11; prefix = '1'; } // Germany
-    else if (cleanCode === '33') { numberLength = 9; prefix = '6'; } // France
-    else if (cleanCode === '63') { numberLength = 10; prefix = '9'; } // Philippines
-    else if (cleanCode === '81') { numberLength = 10; prefix = '9'; } // Japan
-    else if (cleanCode === '82') { numberLength = 10; prefix = '1'; } // Korea
-    else if (cleanCode === '84') { numberLength = 9; prefix = '9'; } // Vietnam
-    else if (cleanCode === '66') { numberLength = 9; prefix = '8'; } // Thailand
-    else if (cleanCode === '60') { numberLength = 10; prefix = '1'; } // Malaysia
-    else if (cleanCode === '65') { numberLength = 8; prefix = '8'; } // Singapore
-    else if (cleanCode === '852') { numberLength = 8; prefix = '5'; } // Hong Kong
-    else if (cleanCode === '886') { numberLength = 9; prefix = '9'; } // Taiwan
-    else if (cleanCode === '61') { numberLength = 9; prefix = '4'; } // Australia
-    else if (cleanCode === '64') { numberLength = 9; prefix = '2'; } // New Zealand
-    else if (cleanCode === '34') { numberLength = 9; prefix = '6'; } // Spain
-    else if (cleanCode === '39') { numberLength = 10; prefix = '3'; } // Italy
-    else if (cleanCode === '31') { numberLength = 9; prefix = '6'; } // Netherlands
-    else if (cleanCode === '48') { numberLength = 9; prefix = '5'; } // Poland
-    
-    // Generate number with appropriate prefix
-    let number = prefix;
-    for (let i = number.length; i < numberLength; i++) {
-      number += Math.floor(Math.random() * 10);
+    // If no cached number, fetch from database asynchronously
+    if (selectedService) {
+      fetchPhoneNumberFromDb(countryId, selectedService.id).then((phoneData) => {
+        if (phoneData) {
+          // Extract just the number part (remove country code prefix if present)
+          let displayNumber = phoneData.number;
+          // If number starts with +(...), extract the local part
+          const match = displayNumber.match(/\+\([^)]+\)(.+)/);
+          if (match) {
+            displayNumber = match[1];
+          }
+          setGeneratedPhones(prev => ({ ...prev, [countryId]: displayNumber }));
+        } else {
+          // Fallback: generate a mock number if no DB number available
+          const cleanCode = phoneCode.replace('+', '');
+          let numberLength = 10;
+          let prefix = '';
+          
+          if (cleanCode === '1') { numberLength = 10; prefix = '2'; }
+          else if (cleanCode === '86') { numberLength = 11; prefix = '1'; }
+          else if (cleanCode === '7') { numberLength = 10; prefix = '9'; }
+          else if (cleanCode === '44') { numberLength = 10; prefix = '7'; }
+          else if (cleanCode === '91') { numberLength = 10; prefix = '9'; }
+          else if (cleanCode === '62') { numberLength = 11; prefix = '8'; }
+          else if (cleanCode === '55') { numberLength = 11; prefix = '9'; }
+          else if (cleanCode === '49') { numberLength = 11; prefix = '1'; }
+          else if (cleanCode === '33') { numberLength = 9; prefix = '6'; }
+          else if (cleanCode === '63') { numberLength = 10; prefix = '9'; }
+          else if (cleanCode === '81') { numberLength = 10; prefix = '9'; }
+          else if (cleanCode === '82') { numberLength = 10; prefix = '1'; }
+          else if (cleanCode === '84') { numberLength = 9; prefix = '9'; }
+          else if (cleanCode === '66') { numberLength = 9; prefix = '8'; }
+          else if (cleanCode === '60') { numberLength = 10; prefix = '1'; }
+          else if (cleanCode === '65') { numberLength = 8; prefix = '8'; }
+          else if (cleanCode === '852') { numberLength = 8; prefix = '5'; }
+          else if (cleanCode === '886') { numberLength = 9; prefix = '9'; }
+          else if (cleanCode === '61') { numberLength = 9; prefix = '4'; }
+          else if (cleanCode === '64') { numberLength = 9; prefix = '2'; }
+          else if (cleanCode === '34') { numberLength = 9; prefix = '6'; }
+          else if (cleanCode === '39') { numberLength = 10; prefix = '3'; }
+          else if (cleanCode === '31') { numberLength = 9; prefix = '6'; }
+          else if (cleanCode === '48') { numberLength = 9; prefix = '5'; }
+          
+          let number = prefix;
+          for (let i = number.length; i < numberLength; i++) {
+            number += Math.floor(Math.random() * 10);
+          }
+          setGeneratedPhones(prev => ({ ...prev, [countryId]: number }));
+        }
+      });
+      
+      // Return loading placeholder while fetching
+      return '...';
     }
     
-    // Store and return
-    setGeneratedPhones(prev => ({ ...prev, [countryId]: number }));
-    return number;
-  };
+    return '...';
+  }, [selectedService, fetchPhoneNumberFromDb, generatedPhones]);
   
-  // Refresh phone number for a specific country
-  const refreshPhoneNumber = (countryId: string, phoneCode: string = '') => {
-    const cleanCode = phoneCode.replace('+', '');
+  // Refresh phone number - fetch a different one from database
+  const refreshPhoneNumber = useCallback(async (countryId: string, phoneCode: string = '') => {
+    if (!selectedService) return;
     
-    let numberLength = 10;
-    let prefix = '';
+    // Clear current cached number first
+    setGeneratedPhones(prev => {
+      const updated = { ...prev };
+      delete updated[countryId];
+      return updated;
+    });
     
-    if (cleanCode === '1') { numberLength = 10; prefix = '2'; }
-    else if (cleanCode === '86') { numberLength = 11; prefix = '1'; }
-    else if (cleanCode === '7') { numberLength = 10; prefix = '9'; }
-    else if (cleanCode === '44') { numberLength = 10; prefix = '7'; }
-    else if (cleanCode === '91') { numberLength = 10; prefix = '9'; }
-    else if (cleanCode === '62') { numberLength = 11; prefix = '8'; }
-    else if (cleanCode === '55') { numberLength = 11; prefix = '9'; }
-    else if (cleanCode === '49') { numberLength = 11; prefix = '1'; }
-    else if (cleanCode === '33') { numberLength = 9; prefix = '6'; }
-    else if (cleanCode === '63') { numberLength = 10; prefix = '9'; }
-    else if (cleanCode === '81') { numberLength = 10; prefix = '9'; }
-    else if (cleanCode === '82') { numberLength = 10; prefix = '1'; }
-    else if (cleanCode === '84') { numberLength = 9; prefix = '9'; }
-    else if (cleanCode === '66') { numberLength = 9; prefix = '8'; }
-    else if (cleanCode === '60') { numberLength = 10; prefix = '1'; }
-    else if (cleanCode === '65') { numberLength = 8; prefix = '8'; }
-    else if (cleanCode === '852') { numberLength = 8; prefix = '5'; }
-    else if (cleanCode === '886') { numberLength = 9; prefix = '9'; }
-    else if (cleanCode === '61') { numberLength = 9; prefix = '4'; }
-    else if (cleanCode === '64') { numberLength = 9; prefix = '2'; }
-    else if (cleanCode === '34') { numberLength = 9; prefix = '6'; }
-    else if (cleanCode === '39') { numberLength = 10; prefix = '3'; }
-    else if (cleanCode === '31') { numberLength = 9; prefix = '6'; }
-    else if (cleanCode === '48') { numberLength = 9; prefix = '5'; }
+    // Fetch a new number from database
+    const phoneData = await fetchPhoneNumberFromDb(countryId, selectedService.id);
     
-    let number = prefix;
-    for (let i = number.length; i < numberLength; i++) {
-      number += Math.floor(Math.random() * 10);
+    if (phoneData) {
+      let displayNumber = phoneData.number;
+      const match = displayNumber.match(/\+\([^)]+\)(.+)/);
+      if (match) {
+        displayNumber = match[1];
+      }
+      setGeneratedPhones(prev => ({ ...prev, [countryId]: displayNumber }));
+    } else {
+      // Fallback: generate a mock number
+      const cleanCode = phoneCode.replace('+', '');
+      let numberLength = 10;
+      let prefix = '';
+      
+      if (cleanCode === '1') { numberLength = 10; prefix = '2'; }
+      else if (cleanCode === '86') { numberLength = 11; prefix = '1'; }
+      else if (cleanCode === '7') { numberLength = 10; prefix = '9'; }
+      else if (cleanCode === '44') { numberLength = 10; prefix = '7'; }
+      else if (cleanCode === '91') { numberLength = 10; prefix = '9'; }
+      else if (cleanCode === '62') { numberLength = 11; prefix = '8'; }
+      else if (cleanCode === '55') { numberLength = 11; prefix = '9'; }
+      else if (cleanCode === '49') { numberLength = 11; prefix = '1'; }
+      else if (cleanCode === '33') { numberLength = 9; prefix = '6'; }
+      else if (cleanCode === '63') { numberLength = 10; prefix = '9'; }
+      else if (cleanCode === '81') { numberLength = 10; prefix = '9'; }
+      else if (cleanCode === '82') { numberLength = 10; prefix = '1'; }
+      else if (cleanCode === '84') { numberLength = 9; prefix = '9'; }
+      else if (cleanCode === '66') { numberLength = 9; prefix = '8'; }
+      else if (cleanCode === '60') { numberLength = 10; prefix = '1'; }
+      else if (cleanCode === '65') { numberLength = 8; prefix = '8'; }
+      else if (cleanCode === '852') { numberLength = 8; prefix = '5'; }
+      else if (cleanCode === '886') { numberLength = 9; prefix = '9'; }
+      else if (cleanCode === '61') { numberLength = 9; prefix = '4'; }
+      else if (cleanCode === '64') { numberLength = 9; prefix = '2'; }
+      else if (cleanCode === '34') { numberLength = 9; prefix = '6'; }
+      else if (cleanCode === '39') { numberLength = 10; prefix = '3'; }
+      else if (cleanCode === '31') { numberLength = 9; prefix = '6'; }
+      else if (cleanCode === '48') { numberLength = 9; prefix = '5'; }
+      
+      let number = prefix;
+      for (let i = number.length; i < numberLength; i++) {
+        number += Math.floor(Math.random() * 10);
+      }
+      setGeneratedPhones(prev => ({ ...prev, [countryId]: number }));
     }
     
-    setGeneratedPhones(prev => ({ ...prev, [countryId]: number }));
     // Reset countdown timer to 20 minutes when refreshing number
     setCountdownTimers(prev => ({ ...prev, [countryId]: 1200 }));
     toast({ title: t('receiveSms.numberRefreshed') || '号码已刷新' });
-  };
+  }, [selectedService, fetchPhoneNumberFromDb, t, toast]);
   
   // Format seconds to MM:SS
   const formatCountdown = (seconds: number) => {
