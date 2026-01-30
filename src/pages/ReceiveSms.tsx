@@ -71,10 +71,11 @@ export default function ReceiveSms() {
   const [generatedPhones, setGeneratedPhones] = useState<Record<string, string>>({});
   // Store countdown timers for each country (in seconds)
   const [countdownTimers, setCountdownTimers] = useState<Record<string, number>>({});
-  
   // Ref to prevent scroll on service/country selection
   const countryListRef = useRef<HTMLDivElement>(null);
+  const serviceListRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef<number>(0);
+  const serviceScrollRef = useRef<number>(0);
 
   useEffect(() => {
     fetchServices();
@@ -438,12 +439,22 @@ export default function ReceiveSms() {
   };
 
   const handleServiceSelect = (service: Service) => {
+    // Save service list scroll position before selection
+    if (serviceListRef.current) {
+      serviceScrollRef.current = serviceListRef.current.scrollTop;
+    }
     setSelectedService(service);
     // Reset show phone state when switching services
     setShowPhoneForCountry(null);
     if (isMobile) {
       setSidebarOpen(false);
     }
+    // Restore scroll position after state update
+    requestAnimationFrame(() => {
+      if (serviceListRef.current) {
+        serviceListRef.current.scrollTop = serviceScrollRef.current;
+      }
+    });
   };
 
   // Service List Component (reused in both desktop and mobile)
@@ -464,7 +475,7 @@ export default function ReceiveSms() {
       </div>
 
       {/* Services List */}
-      <div className="max-h-[calc(100vh-200px)] lg:max-h-[500px] overflow-y-auto">
+      <div ref={serviceListRef} className="max-h-[calc(100vh-200px)] lg:max-h-[500px] overflow-y-auto">
         {filteredServices.map((service) => (
           <button
             key={service.id}
