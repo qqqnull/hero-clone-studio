@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { Wallet, Zap, Shield, ArrowLeft, HelpCircle, Bitcoin, ExternalLink } from 'lucide-react';
 
 // Chain configuration
@@ -59,6 +60,7 @@ export default function RechargePage() {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(10);
   const [customAmount, setCustomAmount] = useState('');
   const [selectedChain, setSelectedChain] = useState('trc20');
+  const [supportLink, setSupportLink] = useState<string>('https://t.me/herosms_support');
 
   const fromReceiveCode = searchParams.get('from') === 'receive-code';
 
@@ -67,6 +69,26 @@ export default function RechargePage() {
       navigate('/auth');
     }
   }, [user, navigate]);
+
+  // Fetch support link from app_settings
+  useEffect(() => {
+    const fetchSupportLink = async () => {
+      try {
+        const { data } = await supabase
+          .from('app_settings')
+          .select('value')
+          .eq('key', 'support_link')
+          .maybeSingle();
+
+        if (data?.value) {
+          setSupportLink(data.value);
+        }
+      } catch (e) {
+        console.error('Error fetching support link:', e);
+      }
+    };
+    fetchSupportLink();
+  }, []);
 
   const amounts = [5, 10, 20, 50, 100];
 
@@ -311,7 +333,7 @@ export default function RechargePage() {
             </Button>
 
             <a
-              href="https://t.me/herosms_support"
+              href={supportLink}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 bg-destructive/10 border-2 border-destructive text-destructive rounded-lg hover:bg-destructive/20 transition-colors"
