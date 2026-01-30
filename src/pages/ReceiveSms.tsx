@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, Minus, Plus, Copy, RefreshCw, X, Clock, AlertCircle, Menu, ChevronLeft } from 'lucide-react';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
@@ -69,6 +69,12 @@ export default function ReceiveSms() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Store generated phone numbers for each country to maintain consistency
   const [generatedPhones, setGeneratedPhones] = useState<Record<string, string>>({});
+  // Store countdown timers for each country (in seconds)
+  const [countdownTimers, setCountdownTimers] = useState<Record<string, number>>({});
+  
+  // Ref to prevent scroll on service/country selection
+  const countryListRef = useRef<HTMLDivElement>(null);
+  const scrollPositionRef = useRef<number>(0);
 
   useEffect(() => {
     fetchServices();
@@ -80,9 +86,29 @@ export default function ReceiveSms() {
 
   useEffect(() => {
     if (selectedService) {
+      // Save scroll position before fetching
+      scrollPositionRef.current = window.scrollY;
       fetchCountriesForService(selectedService.id);
     }
   }, [selectedService]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCountdownTimers(prev => {
+        const updated = { ...prev };
+        let hasChanges = false;
+        Object.keys(updated).forEach(key => {
+          if (updated[key] > 0) {
+            updated[key] = updated[key] - 1;
+            hasChanges = true;
+          }
+        });
+        return hasChanges ? updated : prev;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchServices = async () => {
     const { data } = await supabase
@@ -136,6 +162,10 @@ export default function ReceiveSms() {
         initQuantities[item.country_id] = 1;
       });
       setQuantities(initQuantities);
+      // Restore scroll position after data loads
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollPositionRef.current);
+      });
     }
   };
 
@@ -183,6 +213,11 @@ export default function ReceiveSms() {
 
     // Always show the phone section - balance check happens in the display
     setShowPhoneForCountry(servicePrice.country_id);
+    
+    // Start countdown timer (20 minutes = 1200 seconds) if not already started
+    if (!countdownTimers[servicePrice.country_id] || countdownTimers[servicePrice.country_id] <= 0) {
+      setCountdownTimers(prev => ({ ...prev, [servicePrice.country_id]: 1200 }));
+    }
   };
 
   const handlePurchase = async (servicePrice: ServicePrice) => {
@@ -390,7 +425,16 @@ export default function ReceiveSms() {
     }
     
     setGeneratedPhones(prev => ({ ...prev, [countryId]: number }));
+    // Reset countdown timer to 20 minutes when refreshing number
+    setCountdownTimers(prev => ({ ...prev, [countryId]: 1200 }));
     toast({ title: t('receiveSms.numberRefreshed') || '号码已刷新' });
+  };
+  
+  // Format seconds to MM:SS
+  const formatCountdown = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleServiceSelect = (service: Service) => {
@@ -622,9 +666,13 @@ export default function ReceiveSms() {
                               >
                                 <X className="w-4 h-4" />
                               </button>
-                              <div className="flex items-center gap-1 text-gray-400 text-xs ml-2">
+                              <div className={`flex items-center gap-1 text-xs ml-2 ${
+                                countdownTimers[item.country_id] && countdownTimers[item.country_id] < 120 
+                                  ? 'text-destructive' 
+                                  : 'text-gray-400'
+                              }`}>
                                 <Clock className="w-3.5 h-3.5" />
-                                <span>20:00</span>
+                                <span>{formatCountdown(countdownTimers[item.country_id] || 1200)}</span>
                               </div>
                             </div>
                           </div>
