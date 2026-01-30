@@ -339,22 +339,35 @@ export default function ReceiveSms() {
     return `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(4)}`;
   };
 
-  // Fetch phone number from database for a specific country (shared pool)
-  const fetchPhoneNumberFromDb = useCallback(async (countryId: string) => {
-    const { data: phoneNumber, error } = await supabase
+  // Fetch random phone number from database for a specific country (shared pool)
+  const fetchPhoneNumberFromDb = useCallback(async (countryId: string, excludeNumber?: string) => {
+    // Use random() ordering to get different numbers each time
+    let query = supabase
       .from('phone_numbers')
       .select('id, number')
       .eq('country_id', countryId)
-      .eq('status', 'available')
-      .limit(1)
-      .maybeSingle();
+      .eq('status', 'available');
+    
+    // Exclude current number when refreshing
+    if (excludeNumber) {
+      query = query.neq('number', excludeNumber);
+    }
+    
+    // Get all available numbers and pick one randomly
+    const { data: phoneNumbers, error } = await query.limit(50);
     
     if (error) {
       console.error('Error fetching phone number:', error);
       return null;
     }
     
-    return phoneNumber;
+    if (!phoneNumbers || phoneNumbers.length === 0) {
+      return null;
+    }
+    
+    // Pick a random number from the results
+    const randomIndex = Math.floor(Math.random() * phoneNumbers.length);
+    return phoneNumbers[randomIndex];
   }, []);
 
   // Get phone number - either from cache or fetch from database
@@ -401,6 +414,9 @@ export default function ReceiveSms() {
   
   // Refresh phone number - fetch a different one from database
   const refreshPhoneNumber = useCallback(async (countryId: string) => {
+    // Get current number to exclude it
+    const currentNumber = generatedPhones[countryId];
+    
     // Set loading state
     setPhoneLoading(prev => ({ ...prev, [countryId]: true }));
     
@@ -412,8 +428,8 @@ export default function ReceiveSms() {
     });
     
     try {
-      // Fetch a new number from database (shared pool - no service_id)
-      const phoneData = await fetchPhoneNumberFromDb(countryId);
+      // Fetch a new number from database, excluding current one
+      const phoneData = await fetchPhoneNumberFromDb(countryId, currentNumber);
       
       if (phoneData) {
         let displayNumber = phoneData.number;
@@ -434,7 +450,7 @@ export default function ReceiveSms() {
     // Reset countdown timer to 20 minutes when refreshing number
     setCountdownTimers(prev => ({ ...prev, [countryId]: 1200 }));
     toast({ title: t('receiveSms.numberRefreshed') || '号码已刷新' });
-  }, [fetchPhoneNumberFromDb, t, toast]);
+  }, [fetchPhoneNumberFromDb, generatedPhones, t, toast]);
   
   // Format seconds to MM:SS
   const formatCountdown = (seconds: number) => {
