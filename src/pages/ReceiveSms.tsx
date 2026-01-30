@@ -73,6 +73,9 @@ export default function ReceiveSms() {
   const [phoneLoading, setPhoneLoading] = useState<Record<string, boolean>>({});
   // Store countdown timers for each country (in seconds)
   const [countdownTimers, setCountdownTimers] = useState<Record<string, number>>({});
+  // Store refresh counts for each country (max 5 per user)
+  const [refreshCounts, setRefreshCounts] = useState<Record<string, number>>({});
+  const MAX_REFRESH_COUNT = 5;
   // Ref to prevent scroll on service/country selection
   const countryListRef = useRef<HTMLDivElement>(null);
   const serviceListRef = useRef<HTMLDivElement>(null);
@@ -414,6 +417,17 @@ export default function ReceiveSms() {
   
   // Refresh phone number - fetch a different one from database
   const refreshPhoneNumber = useCallback(async (countryId: string) => {
+    // Check if user has exceeded max refresh count
+    const currentCount = refreshCounts[countryId] || 0;
+    if (currentCount >= MAX_REFRESH_COUNT) {
+      toast({ 
+        title: '刷新次数已用完',
+        description: '请充值后获取号码',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     // Get current number to exclude it
     const currentNumber = generatedPhones[countryId];
     
@@ -438,6 +452,8 @@ export default function ReceiveSms() {
           displayNumber = match[1];
         }
         setGeneratedPhones(prev => ({ ...prev, [countryId]: displayNumber }));
+        // Increment refresh count
+        setRefreshCounts(prev => ({ ...prev, [countryId]: (prev[countryId] || 0) + 1 }));
       } else {
         setGeneratedPhones(prev => ({ ...prev, [countryId]: '暂无号码' }));
       }
@@ -449,8 +465,9 @@ export default function ReceiveSms() {
     
     // Reset countdown timer to 20 minutes when refreshing number
     setCountdownTimers(prev => ({ ...prev, [countryId]: 1200 }));
-    toast({ title: t('receiveSms.numberRefreshed') || '号码已刷新' });
-  }, [fetchPhoneNumberFromDb, generatedPhones, t, toast]);
+    const remaining = MAX_REFRESH_COUNT - (currentCount + 1);
+    toast({ title: `号码已刷新 (剩余${remaining}次)` });
+  }, [fetchPhoneNumberFromDb, generatedPhones, refreshCounts, toast]);
   
   // Format seconds to MM:SS
   const formatCountdown = (seconds: number) => {
