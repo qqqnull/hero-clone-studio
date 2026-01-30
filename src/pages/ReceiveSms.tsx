@@ -67,6 +67,8 @@ export default function ReceiveSms() {
   const [showPhoneForCountry, setShowPhoneForCountry] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('popular');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Store generated phone numbers for each country to maintain consistency
+  const [generatedPhones, setGeneratedPhones] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchServices();
@@ -164,6 +166,9 @@ export default function ReceiveSms() {
   );
 
   const updateQuantity = (countryId: string, delta: number) => {
+    const currentQty = quantities[countryId] || 1;
+    // Prevent going below 1
+    if (delta < 0 && currentQty <= 1) return;
     setQuantities(prev => ({
       ...prev,
       [countryId]: Math.max(1, (prev[countryId] || 1) + delta)
@@ -294,30 +299,96 @@ export default function ReceiveSms() {
     return `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(4)}`;
   };
 
-  // Generate a mock phone number based on country phone code
-  const generateMockPhoneNumber = (phoneCode: string = '') => {
+  // Generate a mock phone number based on country phone code (consistent per session)
+  const getPhoneNumber = (countryId: string, phoneCode: string = '') => {
+    // If we already have a phone for this country, return it
+    if (generatedPhones[countryId]) {
+      return generatedPhones[countryId];
+    }
+    
     // Remove the + sign if present
     const cleanCode = phoneCode.replace('+', '');
     
     // Generate appropriate number of digits based on country
+    // Following the logic from happy-sms-portal
     let numberLength = 10; // default
-    if (cleanCode === '1') numberLength = 10; // US/Canada
-    else if (cleanCode === '86') numberLength = 11; // China
-    else if (cleanCode === '7') numberLength = 10; // Russia
-    else if (cleanCode === '44') numberLength = 10; // UK
-    else if (cleanCode === '91') numberLength = 10; // India
-    else if (cleanCode === '62') numberLength = 11; // Indonesia
-    else if (cleanCode === '55') numberLength = 11; // Brazil
-    else if (cleanCode === '49') numberLength = 11; // Germany
-    else if (cleanCode === '33') numberLength = 9; // France
-    else if (cleanCode === '63') numberLength = 10; // Philippines
+    let prefix = '';
     
-    let number = '';
-    for (let i = 0; i < numberLength; i++) {
+    if (cleanCode === '1') { numberLength = 10; prefix = '2'; } // US/Canada
+    else if (cleanCode === '86') { numberLength = 11; prefix = '1'; } // China
+    else if (cleanCode === '7') { numberLength = 10; prefix = '9'; } // Russia
+    else if (cleanCode === '44') { numberLength = 10; prefix = '7'; } // UK
+    else if (cleanCode === '91') { numberLength = 10; prefix = '9'; } // India
+    else if (cleanCode === '62') { numberLength = 11; prefix = '8'; } // Indonesia
+    else if (cleanCode === '55') { numberLength = 11; prefix = '9'; } // Brazil
+    else if (cleanCode === '49') { numberLength = 11; prefix = '1'; } // Germany
+    else if (cleanCode === '33') { numberLength = 9; prefix = '6'; } // France
+    else if (cleanCode === '63') { numberLength = 10; prefix = '9'; } // Philippines
+    else if (cleanCode === '81') { numberLength = 10; prefix = '9'; } // Japan
+    else if (cleanCode === '82') { numberLength = 10; prefix = '1'; } // Korea
+    else if (cleanCode === '84') { numberLength = 9; prefix = '9'; } // Vietnam
+    else if (cleanCode === '66') { numberLength = 9; prefix = '8'; } // Thailand
+    else if (cleanCode === '60') { numberLength = 10; prefix = '1'; } // Malaysia
+    else if (cleanCode === '65') { numberLength = 8; prefix = '8'; } // Singapore
+    else if (cleanCode === '852') { numberLength = 8; prefix = '5'; } // Hong Kong
+    else if (cleanCode === '886') { numberLength = 9; prefix = '9'; } // Taiwan
+    else if (cleanCode === '61') { numberLength = 9; prefix = '4'; } // Australia
+    else if (cleanCode === '64') { numberLength = 9; prefix = '2'; } // New Zealand
+    else if (cleanCode === '34') { numberLength = 9; prefix = '6'; } // Spain
+    else if (cleanCode === '39') { numberLength = 10; prefix = '3'; } // Italy
+    else if (cleanCode === '31') { numberLength = 9; prefix = '6'; } // Netherlands
+    else if (cleanCode === '48') { numberLength = 9; prefix = '5'; } // Poland
+    
+    // Generate number with appropriate prefix
+    let number = prefix;
+    for (let i = number.length; i < numberLength; i++) {
       number += Math.floor(Math.random() * 10);
     }
     
+    // Store and return
+    setGeneratedPhones(prev => ({ ...prev, [countryId]: number }));
     return number;
+  };
+  
+  // Refresh phone number for a specific country
+  const refreshPhoneNumber = (countryId: string, phoneCode: string = '') => {
+    const cleanCode = phoneCode.replace('+', '');
+    
+    let numberLength = 10;
+    let prefix = '';
+    
+    if (cleanCode === '1') { numberLength = 10; prefix = '2'; }
+    else if (cleanCode === '86') { numberLength = 11; prefix = '1'; }
+    else if (cleanCode === '7') { numberLength = 10; prefix = '9'; }
+    else if (cleanCode === '44') { numberLength = 10; prefix = '7'; }
+    else if (cleanCode === '91') { numberLength = 10; prefix = '9'; }
+    else if (cleanCode === '62') { numberLength = 11; prefix = '8'; }
+    else if (cleanCode === '55') { numberLength = 11; prefix = '9'; }
+    else if (cleanCode === '49') { numberLength = 11; prefix = '1'; }
+    else if (cleanCode === '33') { numberLength = 9; prefix = '6'; }
+    else if (cleanCode === '63') { numberLength = 10; prefix = '9'; }
+    else if (cleanCode === '81') { numberLength = 10; prefix = '9'; }
+    else if (cleanCode === '82') { numberLength = 10; prefix = '1'; }
+    else if (cleanCode === '84') { numberLength = 9; prefix = '9'; }
+    else if (cleanCode === '66') { numberLength = 9; prefix = '8'; }
+    else if (cleanCode === '60') { numberLength = 10; prefix = '1'; }
+    else if (cleanCode === '65') { numberLength = 8; prefix = '8'; }
+    else if (cleanCode === '852') { numberLength = 8; prefix = '5'; }
+    else if (cleanCode === '886') { numberLength = 9; prefix = '9'; }
+    else if (cleanCode === '61') { numberLength = 9; prefix = '4'; }
+    else if (cleanCode === '64') { numberLength = 9; prefix = '2'; }
+    else if (cleanCode === '34') { numberLength = 9; prefix = '6'; }
+    else if (cleanCode === '39') { numberLength = 10; prefix = '3'; }
+    else if (cleanCode === '31') { numberLength = 9; prefix = '6'; }
+    else if (cleanCode === '48') { numberLength = 9; prefix = '5'; }
+    
+    let number = prefix;
+    for (let i = number.length; i < numberLength; i++) {
+      number += Math.floor(Math.random() * 10);
+    }
+    
+    setGeneratedPhones(prev => ({ ...prev, [countryId]: number }));
+    toast({ title: t('receiveSms.numberRefreshed') || '号码已刷新' });
   };
 
   const handleServiceSelect = (service: Service) => {
@@ -475,7 +546,12 @@ export default function ReceiveSms() {
                         <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
                           <button 
                             onClick={() => updateQuantity(item.country_id, -1)}
-                            className="p-2 hover:bg-gray-100 text-gray-500 transition-colors"
+                            disabled={(quantities[item.country_id] || 1) <= 1}
+                            className={`p-2 transition-colors ${
+                              (quantities[item.country_id] || 1) <= 1 
+                                ? 'text-gray-300 cursor-not-allowed' 
+                                : 'hover:bg-gray-100 text-gray-500'
+                            }`}
                           >
                             <Minus className="w-3 h-3" />
                           </button>
@@ -515,21 +591,21 @@ export default function ReceiveSms() {
                               <ServiceIcon icon={selectedService?.icon} name={selectedService?.name || ''} size="sm" />
                               <span className="text-lg">{item.country?.flag}</span>
                               <span className="font-mono font-medium text-foreground">
-                                {item.country?.phone_code} {generateMockPhoneNumber(item.country?.phone_code)}
+                                {item.country?.phone_code} {getPhoneNumber(item.country_id, item.country?.phone_code)}
                               </span>
                               <span className="text-primary font-medium text-sm">${item.price.toFixed(4)}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <button 
                                 className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
-                                onClick={() => {}}
+                                onClick={() => refreshPhoneNumber(item.country_id, item.country?.phone_code)}
                               >
                                 <RefreshCw className="w-4 h-4" />
                               </button>
                               <button 
                                 className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
                                 onClick={() => {
-                                  const phoneNumber = `${item.country?.phone_code}${generateMockPhoneNumber(item.country?.phone_code)}`;
+                                  const phoneNumber = `${item.country?.phone_code}${getPhoneNumber(item.country_id, item.country?.phone_code)}`;
                                   navigator.clipboard.writeText(phoneNumber);
                                   toast({ title: t('receiveSms.copied') });
                                 }}

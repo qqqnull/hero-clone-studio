@@ -1,4 +1,7 @@
 {
+  "receiveSms": {
+    "numberRefreshed": "号码已刷新"
+  },
   "nav": {
     "receiveSms": "获取号码",
     "myNumbers": "我的号码",

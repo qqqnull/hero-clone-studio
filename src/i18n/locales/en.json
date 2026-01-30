@@ -169,5 +169,8 @@
       "loginFailed": "Login failed, please check your credentials",
       "registerFailed": "Registration failed, please try again"
     }
+  },
+  "receiveSms": {
+    "numberRefreshed": "Number refreshed"
   }
 }
