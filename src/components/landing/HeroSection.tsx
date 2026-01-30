@@ -12,6 +12,7 @@ interface Service {
   id: string;
   name: string;
   icon: string;
+  sort_order?: number;
 }
 
 interface ServicePrice {
@@ -40,36 +41,46 @@ export function HeroSection() {
 
   const fetchServices = async () => {
     setLoading(true);
-    // Get all active services
-    const { data: servicesData } = await supabase
-      .from('services')
-      .select('id, name, icon')
+    
+    // Single optimized query: get all services with their aggregated prices
+    const { data: pricesData } = await supabase
+      .from('service_prices')
+      .select(`
+        service_id,
+        price,
+        stock,
+        service:services!inner(id, name, icon, is_active, sort_order)
+      `)
       .eq('is_active', true)
-      .order('sort_order');
+      .eq('service.is_active', true);
 
-    if (servicesData) {
-      // Get price data for each service
-      const servicesWithPrices: ServicePrice[] = [];
+    if (pricesData) {
+      // Group by service and calculate aggregates
+      const serviceMap = new Map<string, ServicePrice>();
       
-      for (const service of servicesData) {
-        const { data: priceData } = await supabase
-          .from('service_prices')
-          .select('price, stock')
-          .eq('service_id', service.id)
-          .eq('is_active', true);
+      for (const item of pricesData) {
+        const serviceId = item.service_id;
+        const service = item.service as unknown as Service;
         
-        if (priceData && priceData.length > 0) {
-          const totalStock = priceData.reduce((sum, p) => sum + (p.stock || 0), 0);
-          const minPrice = Math.min(...priceData.map(p => p.price));
-          
-          servicesWithPrices.push({
-            service_id: service.id,
-            total_stock: totalStock,
-            min_price: minPrice,
+        if (!serviceId || !service) continue;
+        
+        if (serviceMap.has(serviceId)) {
+          const existing = serviceMap.get(serviceId)!;
+          existing.total_stock += (item.stock || 0);
+          existing.min_price = Math.min(existing.min_price, item.price);
+        } else {
+          serviceMap.set(serviceId, {
+            service_id: serviceId,
+            total_stock: item.stock || 0,
+            min_price: item.price,
             service: service
           });
         }
       }
+      
+      // Sort by sort_order and convert to array
+      const servicesWithPrices = Array.from(serviceMap.values())
+        .sort((a, b) => (a.service.sort_order || 0) - (b.service.sort_order || 0));
       
       setServices(servicesWithPrices);
     }
