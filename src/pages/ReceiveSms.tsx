@@ -69,6 +69,8 @@ export default function ReceiveSms() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Store generated phone numbers for each country to maintain consistency
   const [generatedPhones, setGeneratedPhones] = useState<Record<string, string>>({});
+  // Store loading state for phone numbers
+  const [phoneLoading, setPhoneLoading] = useState<Record<string, boolean>>({});
   // Store countdown timers for each country (in seconds)
   const [countdownTimers, setCountdownTimers] = useState<Record<string, number>>({});
   // Ref to prevent scroll on service/country selection
@@ -363,8 +365,16 @@ export default function ReceiveSms() {
       return generatedPhones[countryId];
     }
     
-    // If no cached number, fetch from database asynchronously
-    if (selectedService) {
+    // If already loading, return loading indicator
+    if (phoneLoading[countryId]) {
+      return '...';
+    }
+    
+    // Start loading and fetch from database
+    if (selectedService && !phoneLoading[countryId]) {
+      // Set loading state
+      setPhoneLoading(prev => ({ ...prev, [countryId]: true }));
+      
       fetchPhoneNumberFromDb(countryId, selectedService.id).then((phoneData) => {
         if (phoneData) {
           // Extract just the number part (remove country code prefix if present)
@@ -376,108 +386,52 @@ export default function ReceiveSms() {
           }
           setGeneratedPhones(prev => ({ ...prev, [countryId]: displayNumber }));
         } else {
-          // Fallback: generate a mock number if no DB number available
-          const cleanCode = phoneCode.replace('+', '');
-          let numberLength = 10;
-          let prefix = '';
-          
-          if (cleanCode === '1') { numberLength = 10; prefix = '2'; }
-          else if (cleanCode === '86') { numberLength = 11; prefix = '1'; }
-          else if (cleanCode === '7') { numberLength = 10; prefix = '9'; }
-          else if (cleanCode === '44') { numberLength = 10; prefix = '7'; }
-          else if (cleanCode === '91') { numberLength = 10; prefix = '9'; }
-          else if (cleanCode === '62') { numberLength = 11; prefix = '8'; }
-          else if (cleanCode === '55') { numberLength = 11; prefix = '9'; }
-          else if (cleanCode === '49') { numberLength = 11; prefix = '1'; }
-          else if (cleanCode === '33') { numberLength = 9; prefix = '6'; }
-          else if (cleanCode === '63') { numberLength = 10; prefix = '9'; }
-          else if (cleanCode === '81') { numberLength = 10; prefix = '9'; }
-          else if (cleanCode === '82') { numberLength = 10; prefix = '1'; }
-          else if (cleanCode === '84') { numberLength = 9; prefix = '9'; }
-          else if (cleanCode === '66') { numberLength = 9; prefix = '8'; }
-          else if (cleanCode === '60') { numberLength = 10; prefix = '1'; }
-          else if (cleanCode === '65') { numberLength = 8; prefix = '8'; }
-          else if (cleanCode === '852') { numberLength = 8; prefix = '5'; }
-          else if (cleanCode === '886') { numberLength = 9; prefix = '9'; }
-          else if (cleanCode === '61') { numberLength = 9; prefix = '4'; }
-          else if (cleanCode === '64') { numberLength = 9; prefix = '2'; }
-          else if (cleanCode === '34') { numberLength = 9; prefix = '6'; }
-          else if (cleanCode === '39') { numberLength = 10; prefix = '3'; }
-          else if (cleanCode === '31') { numberLength = 9; prefix = '6'; }
-          else if (cleanCode === '48') { numberLength = 9; prefix = '5'; }
-          
-          let number = prefix;
-          for (let i = number.length; i < numberLength; i++) {
-            number += Math.floor(Math.random() * 10);
-          }
-          setGeneratedPhones(prev => ({ ...prev, [countryId]: number }));
+          // No number available, show placeholder
+          setGeneratedPhones(prev => ({ ...prev, [countryId]: '暂无号码' }));
         }
+        setPhoneLoading(prev => ({ ...prev, [countryId]: false }));
+      }).catch(() => {
+        setPhoneLoading(prev => ({ ...prev, [countryId]: false }));
+        setGeneratedPhones(prev => ({ ...prev, [countryId]: '加载失败' }));
       });
-      
-      // Return loading placeholder while fetching
-      return '...';
     }
     
+    // Return loading placeholder while fetching
     return '...';
-  }, [selectedService, fetchPhoneNumberFromDb, generatedPhones]);
+  }, [selectedService, fetchPhoneNumberFromDb, generatedPhones, phoneLoading]);
   
   // Refresh phone number - fetch a different one from database
-  const refreshPhoneNumber = useCallback(async (countryId: string, phoneCode: string = '') => {
+  const refreshPhoneNumber = useCallback(async (countryId: string) => {
     if (!selectedService) return;
     
-    // Clear current cached number first
+    // Set loading state
+    setPhoneLoading(prev => ({ ...prev, [countryId]: true }));
+    
+    // Clear current cached number
     setGeneratedPhones(prev => {
       const updated = { ...prev };
       delete updated[countryId];
       return updated;
     });
     
-    // Fetch a new number from database
-    const phoneData = await fetchPhoneNumberFromDb(countryId, selectedService.id);
-    
-    if (phoneData) {
-      let displayNumber = phoneData.number;
-      const match = displayNumber.match(/\+\([^)]+\)(.+)/);
-      if (match) {
-        displayNumber = match[1];
-      }
-      setGeneratedPhones(prev => ({ ...prev, [countryId]: displayNumber }));
-    } else {
-      // Fallback: generate a mock number
-      const cleanCode = phoneCode.replace('+', '');
-      let numberLength = 10;
-      let prefix = '';
+    try {
+      // Fetch a new number from database
+      const phoneData = await fetchPhoneNumberFromDb(countryId, selectedService.id);
       
-      if (cleanCode === '1') { numberLength = 10; prefix = '2'; }
-      else if (cleanCode === '86') { numberLength = 11; prefix = '1'; }
-      else if (cleanCode === '7') { numberLength = 10; prefix = '9'; }
-      else if (cleanCode === '44') { numberLength = 10; prefix = '7'; }
-      else if (cleanCode === '91') { numberLength = 10; prefix = '9'; }
-      else if (cleanCode === '62') { numberLength = 11; prefix = '8'; }
-      else if (cleanCode === '55') { numberLength = 11; prefix = '9'; }
-      else if (cleanCode === '49') { numberLength = 11; prefix = '1'; }
-      else if (cleanCode === '33') { numberLength = 9; prefix = '6'; }
-      else if (cleanCode === '63') { numberLength = 10; prefix = '9'; }
-      else if (cleanCode === '81') { numberLength = 10; prefix = '9'; }
-      else if (cleanCode === '82') { numberLength = 10; prefix = '1'; }
-      else if (cleanCode === '84') { numberLength = 9; prefix = '9'; }
-      else if (cleanCode === '66') { numberLength = 9; prefix = '8'; }
-      else if (cleanCode === '60') { numberLength = 10; prefix = '1'; }
-      else if (cleanCode === '65') { numberLength = 8; prefix = '8'; }
-      else if (cleanCode === '852') { numberLength = 8; prefix = '5'; }
-      else if (cleanCode === '886') { numberLength = 9; prefix = '9'; }
-      else if (cleanCode === '61') { numberLength = 9; prefix = '4'; }
-      else if (cleanCode === '64') { numberLength = 9; prefix = '2'; }
-      else if (cleanCode === '34') { numberLength = 9; prefix = '6'; }
-      else if (cleanCode === '39') { numberLength = 10; prefix = '3'; }
-      else if (cleanCode === '31') { numberLength = 9; prefix = '6'; }
-      else if (cleanCode === '48') { numberLength = 9; prefix = '5'; }
-      
-      let number = prefix;
-      for (let i = number.length; i < numberLength; i++) {
-        number += Math.floor(Math.random() * 10);
+      if (phoneData) {
+        let displayNumber = phoneData.number;
+        const match = displayNumber.match(/\+\([^)]+\)(.+)/);
+        if (match) {
+          displayNumber = match[1];
+        }
+        setGeneratedPhones(prev => ({ ...prev, [countryId]: displayNumber }));
+      } else {
+        setGeneratedPhones(prev => ({ ...prev, [countryId]: '暂无号码' }));
       }
-      setGeneratedPhones(prev => ({ ...prev, [countryId]: number }));
+    } catch {
+      setGeneratedPhones(prev => ({ ...prev, [countryId]: '加载失败' }));
+    } finally {
+      setPhoneLoading(prev => ({ ...prev, [countryId]: false }));
     }
     
     // Reset countdown timer to 20 minutes when refreshing number
@@ -711,7 +665,7 @@ export default function ReceiveSms() {
                             <div className="flex items-center gap-1">
                               <button 
                                 className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
-                                onClick={() => refreshPhoneNumber(item.country_id, item.country?.phone_code)}
+                                onClick={() => refreshPhoneNumber(item.country_id)}
                               >
                                 <RefreshCw className="w-4 h-4" />
                               </button>
