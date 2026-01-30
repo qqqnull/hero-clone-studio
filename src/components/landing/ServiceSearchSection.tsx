@@ -31,13 +31,12 @@ export function ServiceSearchSection() {
 
   const fetchServices = async () => {
     setLoading(true);
-    // Get services with aggregated prices
+    // Get all active services
     const { data: servicesData } = await supabase
       .from('services')
       .select('id, name, icon')
       .eq('is_active', true)
-      .order('sort_order')
-      .limit(8);
+      .order('sort_order');
 
     if (servicesData) {
       // Get price data for each service
@@ -98,13 +97,13 @@ export function ServiceSearchSection() {
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             </div>
 
-            {/* Service List */}
+            {/* Service List with scroll */}
             {loading ? (
               <div className="flex items-center justify-center py-8">
                 <RefreshCw className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : (
-              <div className="space-y-1">
+              <div className="max-h-[400px] overflow-y-auto space-y-1 pr-2">
                 {filteredServices.map((item) => (
                   <div 
                     key={item.service_id}
