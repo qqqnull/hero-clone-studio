@@ -293,9 +293,11 @@ export default function ReceiveSms() {
     toast({ title: t('receiveSms.copied') });
   };
 
-  const getPriceRange = (price: number) => {
-    const minPrice = price;
-    const maxPrice = price * (1 + Math.random() * 2);
+  const getPriceRange = (price: number, countryId: string) => {
+    const quantity = quantities[countryId] || 1;
+    const totalPrice = price * quantity;
+    const minPrice = totalPrice;
+    const maxPrice = totalPrice * (1 + Math.random() * 2);
     return `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(4)}`;
   };
 
@@ -393,6 +395,8 @@ export default function ReceiveSms() {
 
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service);
+    // Reset show phone state when switching services
+    setShowPhoneForCountry(null);
     if (isMobile) {
       setSidebarOpen(false);
     }
@@ -575,7 +579,7 @@ export default function ReceiveSms() {
                           {purchaseLoading === item.country_id ? (
                             <RefreshCw className="w-4 h-4 animate-spin mx-auto" />
                           ) : (
-                            getPriceRange(item.price)
+                            getPriceRange(item.price, item.country_id)
                           )}
                         </button>
                       </div>

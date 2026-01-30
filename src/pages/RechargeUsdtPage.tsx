@@ -17,7 +17,7 @@ const PAYMENT_TIMEOUT = 15 * 60; // 15 minutes in seconds
 const generatePaymentOrderId = () => {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-  return `UST${timestamp}${random}`;
+  return `USTHERO${timestamp}${random}`;
 };
 
 export default function RechargeUsdtPage() {
