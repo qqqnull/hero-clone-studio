@@ -65,7 +65,6 @@ export default function ReceiveSms() {
   const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [showPhoneForCountry, setShowPhoneForCountry] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState('popular');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Store generated phone numbers for each country to maintain consistency
   const [generatedPhones, setGeneratedPhones] = useState<Record<string, string>>({});
@@ -141,30 +140,27 @@ export default function ReceiveSms() {
   };
 
   const fetchCountriesForService = async (serviceId: string) => {
-    let query = supabase
+    // Fetch all service prices for this service (remove stock > 0 filter to show all countries)
+    const { data } = await supabase
       .from('service_prices')
       .select(`
         *,
         country:countries(*)
       `)
       .eq('service_id', serviceId)
-      .eq('is_active', true)
-      .gt('stock', 0);
-    
-    if (sortBy === 'popular') {
-      query = query.order('stock', { ascending: false });
-    } else if (sortBy === 'price') {
-      query = query.order('price', { ascending: true });
-    } else if (sortBy === 'stock') {
-      query = query.order('stock', { ascending: false });
-    }
-    
-    const { data } = await query;
+      .eq('is_active', true);
     
     if (data) {
-      setCountries(data as ServicePrice[]);
+      // Sort by country's sort_order (wealth-based, set in database)
+      const sortedData = [...data].sort((a, b) => {
+        const orderA = a.country?.sort_order ?? 999;
+        const orderB = b.country?.sort_order ?? 999;
+        return orderA - orderB;
+      });
+      
+      setCountries(sortedData as ServicePrice[]);
       const initQuantities: Record<string, number> = {};
-      data.forEach(item => {
+      sortedData.forEach(item => {
         initQuantities[item.country_id] = 1;
       });
       setQuantities(initQuantities);
@@ -596,9 +592,9 @@ export default function ReceiveSms() {
 
             {/* Countries Panel */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              {/* Search and Sort Row */}
-              <div className="p-3 lg:p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <div className="relative flex-1">
+              {/* Search Row */}
+              <div className="p-3 lg:p-4 border-b border-gray-100">
+                <div className="relative">
                   <input
                     type="text"
                     placeholder={t('receiveSms.findCountry')}
@@ -608,15 +604,6 @@ export default function ReceiveSms() {
                   />
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
-                <select 
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2.5 border border-gray-200 rounded-lg bg-white text-foreground text-sm min-w-[140px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                >
-                  <option value="popular">{t('receiveSms.sortByPopular')}</option>
-                  <option value="price">{t('receiveSms.sortByPrice')}</option>
-                  <option value="stock">{t('receiveSms.sortByStock')}</option>
-                </select>
               </div>
 
               {/* Countries List */}
