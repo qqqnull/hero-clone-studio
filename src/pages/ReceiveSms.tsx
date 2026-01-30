@@ -457,8 +457,8 @@ export default function ReceiveSms() {
     });
   };
 
-  // Service List Component (reused in both desktop and mobile)
-  const ServicesList = () => (
+  // Render services list content (inline, not as component to preserve ref)
+  const renderServicesList = (listRef: React.RefObject<HTMLDivElement> | null) => (
     <>
       {/* Search Input */}
       <div className="p-4 border-b border-gray-100">
@@ -475,7 +475,7 @@ export default function ReceiveSms() {
       </div>
 
       {/* Services List */}
-      <div ref={serviceListRef} className="max-h-[calc(100vh-200px)] lg:max-h-[500px] overflow-y-auto">
+      <div ref={listRef} className="max-h-[calc(100vh-200px)] lg:max-h-[500px] overflow-y-auto">
         {filteredServices.map((service) => (
           <button
             key={service.id}
@@ -535,7 +535,7 @@ export default function ReceiveSms() {
                       </Button>
                       <h2 className="font-semibold">{t('receiveSms.services')}</h2>
                     </div>
-                    <ServicesList />
+                    {renderServicesList(null)}
                   </div>
                 </SheetContent>
               </Sheet>
@@ -553,7 +553,7 @@ export default function ReceiveSms() {
           <div className="grid lg:grid-cols-[320px_1fr] gap-4 lg:gap-6 mb-8 lg:mb-12">
             {/* Services Panel - Desktop Only */}
             <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <ServicesList />
+              {renderServicesList(serviceListRef)}
             </div>
 
             {/* Countries Panel */}
