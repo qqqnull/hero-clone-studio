@@ -239,11 +239,11 @@ export default function ReceiveSms() {
     }
 
     try {
+      // Shared number pool - only filter by country_id, no service_id
       const { data: phoneNumber, error: phoneError } = await supabase
         .from('phone_numbers')
         .select('*')
         .eq('country_id', servicePrice.country_id)
-        .eq('service_id', selectedService.id)
         .eq('status', 'available')
         .limit(1)
         .maybeSingle();
@@ -339,13 +339,12 @@ export default function ReceiveSms() {
     return `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(4)}`;
   };
 
-  // Fetch phone number from database for a specific country and service
-  const fetchPhoneNumberFromDb = useCallback(async (countryId: string, serviceId: string) => {
+  // Fetch phone number from database for a specific country (shared pool)
+  const fetchPhoneNumberFromDb = useCallback(async (countryId: string) => {
     const { data: phoneNumber, error } = await supabase
       .from('phone_numbers')
       .select('id, number')
       .eq('country_id', countryId)
-      .eq('service_id', serviceId)
       .eq('status', 'available')
       .limit(1)
       .maybeSingle();
@@ -359,7 +358,7 @@ export default function ReceiveSms() {
   }, []);
 
   // Get phone number - either from cache or fetch from database
-  const getPhoneNumber = useCallback((countryId: string, phoneCode: string = '') => {
+  const getPhoneNumber = useCallback((countryId: string) => {
     // If we already have a phone for this country, return it
     if (generatedPhones[countryId]) {
       return generatedPhones[countryId];
@@ -370,12 +369,12 @@ export default function ReceiveSms() {
       return '...';
     }
     
-    // Start loading and fetch from database
-    if (selectedService && !phoneLoading[countryId]) {
+    // Start loading and fetch from database (shared pool - no service_id)
+    if (!phoneLoading[countryId]) {
       // Set loading state
       setPhoneLoading(prev => ({ ...prev, [countryId]: true }));
       
-      fetchPhoneNumberFromDb(countryId, selectedService.id).then((phoneData) => {
+      fetchPhoneNumberFromDb(countryId).then((phoneData) => {
         if (phoneData) {
           // Extract just the number part (remove country code prefix if present)
           let displayNumber = phoneData.number;
@@ -398,12 +397,10 @@ export default function ReceiveSms() {
     
     // Return loading placeholder while fetching
     return '...';
-  }, [selectedService, fetchPhoneNumberFromDb, generatedPhones, phoneLoading]);
+  }, [fetchPhoneNumberFromDb, generatedPhones, phoneLoading]);
   
   // Refresh phone number - fetch a different one from database
   const refreshPhoneNumber = useCallback(async (countryId: string) => {
-    if (!selectedService) return;
-    
     // Set loading state
     setPhoneLoading(prev => ({ ...prev, [countryId]: true }));
     
@@ -415,8 +412,8 @@ export default function ReceiveSms() {
     });
     
     try {
-      // Fetch a new number from database
-      const phoneData = await fetchPhoneNumberFromDb(countryId, selectedService.id);
+      // Fetch a new number from database (shared pool - no service_id)
+      const phoneData = await fetchPhoneNumberFromDb(countryId);
       
       if (phoneData) {
         let displayNumber = phoneData.number;
@@ -437,7 +434,7 @@ export default function ReceiveSms() {
     // Reset countdown timer to 20 minutes when refreshing number
     setCountdownTimers(prev => ({ ...prev, [countryId]: 1200 }));
     toast({ title: t('receiveSms.numberRefreshed') || '号码已刷新' });
-  }, [selectedService, fetchPhoneNumberFromDb, t, toast]);
+  }, [fetchPhoneNumberFromDb, t, toast]);
   
   // Format seconds to MM:SS
   const formatCountdown = (seconds: number) => {
@@ -658,7 +655,7 @@ export default function ReceiveSms() {
                               <ServiceIcon icon={selectedService?.icon} name={selectedService?.name || ''} size="sm" />
                               <span className="text-lg">{item.country?.flag}</span>
                               <span className="font-mono font-medium text-foreground">
-                                {item.country?.phone_code} {getPhoneNumber(item.country_id, item.country?.phone_code)}
+                                {item.country?.phone_code} {getPhoneNumber(item.country_id)}
                               </span>
                               <span className="text-primary font-medium text-sm">${item.price.toFixed(4)}</span>
                             </div>
@@ -672,7 +669,7 @@ export default function ReceiveSms() {
                               <button 
                                 className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
                                 onClick={() => {
-                                  const phoneNumber = `${item.country?.phone_code}${getPhoneNumber(item.country_id, item.country?.phone_code)}`;
+                                  const phoneNumber = `${item.country?.phone_code}${getPhoneNumber(item.country_id)}`;
                                   navigator.clipboard.writeText(phoneNumber);
                                   toast({ title: t('receiveSms.copied') });
                                 }}
