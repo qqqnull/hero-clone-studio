@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
+import { SEO } from '@/components/SEO';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -114,6 +115,13 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO 
+        title={isLogin ? "登录" : "注册"}
+        description="登录或注册HEROSMS账户，开始使用虚拟号码接收短信验证码服务。"
+        keywords="HEROSMS登录,HEROSMS注册,接码平台账户"
+        url="/auth"
+        noindex={true}
+      />
       <Navbar />
       <AnnouncementBar />
       <main className="flex-1 flex items-center justify-center py-16 bg-muted/30">

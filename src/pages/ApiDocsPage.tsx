@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Book, ShieldCheck, List, Code, AlertTriangle, Copy, Check } from 'lucide-react';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
+import { SEO } from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -100,6 +101,12 @@ export default function ApiDocsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEO 
+        title="API文档"
+        description="HEROSMS API开发文档，提供完整的接口说明、认证方式、代码示例。支持Python、JavaScript等多种语言。"
+        keywords="HEROSMS API,接码API,虚拟号码API,短信验证码API,SMS API"
+        url="/api"
+      />
       <Navbar />
       <AnnouncementBar />
       

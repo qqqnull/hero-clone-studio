@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
+import { SEO } from '@/components/SEO';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,6 +51,12 @@ export default function AffiliatePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEO 
+        title="网站联盟计划"
+        description="加入HEROSMS网站联盟计划，推广虚拟号码服务赚取佣金。免费注册，高佣金比例，专业支持。"
+        keywords="HEROSMS联盟,接码推广,虚拟号码联盟,推广赚钱"
+        url="/affiliate"
+      />
       <Navbar />
       <AnnouncementBar />
       

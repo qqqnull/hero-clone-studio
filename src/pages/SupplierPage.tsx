@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
+import { SEO } from '@/components/SEO';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,6 +54,12 @@ export default function SupplierPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEO 
+        title="成为供应商"
+        description="成为HEROSMS号码供应商，85%高佣金分成，低提现费用，免费注册。出租您的手机号码赚取收入。"
+        keywords="号码供应商,出租手机号,虚拟号码供应,HEROSMS供应商"
+        url="/supplier"
+      />
       <Navbar />
       <AnnouncementBar />
       

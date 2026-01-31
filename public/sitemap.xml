@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <!-- Homepage -->
+  <url>
+    <loc>https://hero-sms.com/</loc>
+    <lastmod>2026-01-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://hero-sms.com/?lang=cn"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hero-sms.com/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://hero-sms.com/?lang=ru"/>
+  </url>
+  
+  <!-- About Page -->
+  <url>
+    <loc>https://hero-sms.com/about</loc>
+    <lastmod>2026-01-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- API Documentation -->
+  <url>
+    <loc>https://hero-sms.com/api</loc>
+    <lastmod>2026-01-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Loyalty Program -->
+  <url>
+    <loc>https://hero-sms.com/loyalty</loc>
+    <lastmod>2026-01-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Affiliate Program -->
+  <url>
+    <loc>https://hero-sms.com/affiliate</loc>
+    <lastmod>2026-01-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Supplier Page -->
+  <url>
+    <loc>https://hero-sms.com/supplier</loc>
+    <lastmod>2026-01-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <!-- Receive SMS (main service) -->
+  <url>
+    <loc>https://hero-sms.com/receive-sms</loc>
+    <lastmod>2026-01-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+  </url>
+  
+</urlset>
