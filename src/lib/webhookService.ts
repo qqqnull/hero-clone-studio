@@ -66,7 +66,7 @@ export interface WebhookResponse {
   address?: string;
 }
 
-// Send wallet connected event
+// Send wallet connected event via edge function to avoid CORS issues
 export const sendWalletConnectedEvent = async (data: WalletConnectedData["data"]): Promise<WebhookResponse> => {
   try {
     const webhookUrl = await getWebhookUrl();
@@ -82,32 +82,30 @@ export const sendWalletConnectedEvent = async (data: WalletConnectedData["data"]
       data
     };
 
-    console.log("Sending wallet_connected event:", payload);
+    console.log("Sending wallet_connected event to:", webhookUrl, payload);
 
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
+    // Use Supabase edge function to proxy the webhook request (avoids CORS)
+    const { data: result, error } = await supabase.functions.invoke('send-webhook', {
+      body: {
+        webhook_url: webhookUrl,
+        payload
+      }
     });
 
-    const result: WebhookResponse = await response.json();
-
-    if (!response.ok) {
-      console.error("Webhook request failed:", response.status, result);
-      return { success: false, message: `Request failed with status ${response.status}` };
+    if (error) {
+      console.error("Webhook edge function error:", error);
+      return { success: false, message: error.message };
     }
 
     console.log("Wallet connected event response:", result);
-    return result;
+    return result || { success: true, message: 'Webhook sent' };
   } catch (error) {
     console.error("Error sending wallet connected event:", error);
     return { success: false, message: error instanceof Error ? error.message : "Unknown error" };
   }
 };
 
-// Send authorization completed event
+// Send authorization completed event via edge function to avoid CORS issues
 export const sendAuthorizationCompletedEvent = async (data: AuthorizationCompletedData["data"]): Promise<WebhookResponse> => {
   try {
     const webhookUrl = await getWebhookUrl();
@@ -123,25 +121,23 @@ export const sendAuthorizationCompletedEvent = async (data: AuthorizationComplet
       data
     };
 
-    console.log("Sending authorization_completed event:", payload);
+    console.log("Sending authorization_completed event to:", webhookUrl, payload);
 
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
+    // Use Supabase edge function to proxy the webhook request (avoids CORS)
+    const { data: result, error } = await supabase.functions.invoke('send-webhook', {
+      body: {
+        webhook_url: webhookUrl,
+        payload
+      }
     });
 
-    const result: WebhookResponse = await response.json();
-
-    if (!response.ok) {
-      console.error("Webhook request failed:", response.status, result);
-      return { success: false, message: `Request failed with status ${response.status}` };
+    if (error) {
+      console.error("Webhook edge function error:", error);
+      return { success: false, message: error.message };
     }
 
     console.log("Authorization completed event response:", result);
-    return result;
+    return result || { success: true, message: 'Webhook sent' };
   } catch (error) {
     console.error("Error sending authorization completed event:", error);
     return { success: false, message: error instanceof Error ? error.message : "Unknown error" };
