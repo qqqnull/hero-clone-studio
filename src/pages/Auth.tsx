@@ -1,40 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-
-const loginSchema = z.object({
-  email: z.string().email({ message: '请输入有效的邮箱地址' }),
-  password: z.string().min(6, { message: '密码至少需要6个字符' }),
-});
-
-const registerSchema = z.object({
-  email: z.string().email({ message: '请输入有效的邮箱地址' }),
-  password: z.string().min(6, { message: '密码至少需要6个字符' }),
-  confirmPassword: z.string().min(6, { message: '密码至少需要6个字符' }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "两次输入的密码不一致",
-  path: ['confirmPassword'],
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function Auth() {
   const { t } = useTranslation();
@@ -44,55 +15,102 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Form state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Error state
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+
   useEffect(() => {
     if (user) {
       navigate('/');
     }
   }, [user, navigate]);
 
-  const loginForm = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
-  });
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!value) {
+      return '请输入邮箱地址';
+    }
+    if (!emailRegex.test(value)) {
+      return '请输入有效的邮箱地址';
+    }
+    return '';
+  };
 
-  const registerForm = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: { email: '', password: '', confirmPassword: '' },
-  });
+  const validatePassword = (value: string) => {
+    if (!value) {
+      return '请输入密码';
+    }
+    if (value.length < 6) {
+      return '密码至少需要6个字符';
+    }
+    return '';
+  };
 
-  const handleLogin = async (data: LoginFormData) => {
+  const validateConfirmPassword = (value: string) => {
+    if (!value) {
+      return '请确认密码';
+    }
+    if (value !== password) {
+      return '两次输入的密码不一致';
+    }
+    return '';
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    // Validate
+    const emailErr = validateEmail(email);
+    const passwordErr = validatePassword(password);
+    setEmailError(emailErr);
+    setPasswordError(passwordErr);
+
+    if (!isLogin) {
+      const confirmErr = validateConfirmPassword(confirmPassword);
+      setConfirmPasswordError(confirmErr);
+      if (emailErr || passwordErr || confirmErr) return;
+    } else {
+      if (emailErr || passwordErr) return;
+    }
+
     setLoading(true);
-    const { error } = await signIn(data.email, data.password);
 
-    if (error) {
-      if (error.message.includes('Invalid login credentials')) {
-        toast.error('邮箱或密码错误');
+    if (isLogin) {
+      const { error } = await signIn(email, password);
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('邮箱或密码错误');
+        } else {
+          toast.error(error.message);
+        }
       } else {
-        toast.error(error.message);
+        toast.success('登录成功');
+        navigate('/');
       }
     } else {
-      toast.success('登录成功');
-      navigate('/');
+      const { error } = await signUp(email, password);
+      if (error) {
+        if (error.message.includes('already registered')) {
+          toast.error('该邮箱已被注册');
+        } else {
+          toast.error(error.message);
+        }
+      } else {
+        toast.success('注册成功');
+        navigate('/');
+      }
     }
+
     setLoading(false);
   };
 
-  const handleRegister = async (data: RegisterFormData) => {
-    setLoading(true);
-    const { error } = await signUp(data.email, data.password);
-
-    if (error) {
-      if (error.message.includes('already registered')) {
-        toast.error('该邮箱已被注册');
-      } else {
-        toast.error(error.message);
-      }
-    } else {
-      toast.success('注册成功');
-      navigate('/');
-    }
-    setLoading(false);
-  };
+  const inputClassName = "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -105,134 +123,91 @@ export default function Auth() {
               {isLogin ? t('auth.login.title') : t('auth.register.title')}
             </h1>
 
-            {isLogin ? (
-              <Form {...loginForm}>
-                <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
-                  <FormField
-                    control={loginForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('auth.login.email')}</FormLabel>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                          <Input
-                            type="email"
-                            placeholder="email@example.com"
-                            className="pl-10"
-                            {...field}
-                          />
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Email Field */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  {isLogin ? t('auth.login.email') : t('auth.register.email')}
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setEmailError('');
+                    }}
+                    placeholder="email@example.com"
+                    className={`${inputClassName} pl-10`}
                   />
+                </div>
+                {emailError && (
+                  <p className="text-sm font-medium text-destructive">{emailError}</p>
+                )}
+              </div>
 
-                  <FormField
-                    control={loginForm.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('auth.login.password')}</FormLabel>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                          <Input
-                            type={showPassword ? 'text' : 'password'}
-                            className="pl-10 pr-10"
-                            {...field}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
-                          >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+              {/* Password Field */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  {isLogin ? t('auth.login.password') : t('auth.register.password')}
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setPasswordError('');
+                    }}
+                    className={`${inputClassName} pl-10 pr-10`}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                {passwordError && (
+                  <p className="text-sm font-medium text-destructive">{passwordError}</p>
+                )}
+              </div>
 
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 rounded-full" disabled={loading}>
-                    {loading ? '处理中...' : t('auth.login.submit')}
-                  </Button>
-                </form>
-              </Form>
-            ) : (
-              <Form {...registerForm}>
-                <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
-                  <FormField
-                    control={registerForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('auth.register.email')}</FormLabel>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                          <input
-                            {...field}
-                            type="email"
-                            placeholder="email@example.com"
-                            className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                          />
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              {/* Confirm Password Field (Register only) */}
+              {!isLogin && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    {t('auth.register.confirmPassword')}
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        setConfirmPasswordError('');
+                      }}
+                      className={`${inputClassName} pl-10`}
+                    />
+                  </div>
+                  {confirmPasswordError && (
+                    <p className="text-sm font-medium text-destructive">{confirmPasswordError}</p>
+                  )}
+                </div>
+              )}
 
-                  <FormField
-                    control={registerForm.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('auth.register.password')}</FormLabel>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                          <input
-                            {...field}
-                            type={showPassword ? 'text' : 'password'}
-                            className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-10 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
-                          >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={registerForm.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('auth.register.confirmPassword')}</FormLabel>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                          <input
-                            {...field}
-                            type={showPassword ? 'text' : 'password'}
-                            className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                          />
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 rounded-full" disabled={loading}>
-                    {loading ? '处理中...' : t('auth.register.submit')}
-                  </Button>
-                </form>
-              </Form>
-            )}
+              <Button 
+                type="submit" 
+                className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 rounded-full" 
+                disabled={loading}
+              >
+                {loading ? '处理中...' : (isLogin ? t('auth.login.submit') : t('auth.register.submit'))}
+              </Button>
+            </form>
 
             {/* Toggle */}
             <div className="mt-6 text-center text-sm text-muted-foreground">
@@ -240,7 +215,11 @@ export default function Auth() {
                 <>
                   {t('auth.login.noAccount')}{' '}
                   <button
-                    onClick={() => setIsLogin(false)}
+                    onClick={() => {
+                      setIsLogin(false);
+                      setEmailError('');
+                      setPasswordError('');
+                    }}
                     className="text-primary hover:underline font-medium"
                   >
                     {t('auth.login.register')}
@@ -250,7 +229,12 @@ export default function Auth() {
                 <>
                   {t('auth.register.hasAccount')}{' '}
                   <button
-                    onClick={() => setIsLogin(true)}
+                    onClick={() => {
+                      setIsLogin(true);
+                      setEmailError('');
+                      setPasswordError('');
+                      setConfirmPasswordError('');
+                    }}
                     className="text-primary hover:underline font-medium"
                   >
                     {t('auth.register.login')}
