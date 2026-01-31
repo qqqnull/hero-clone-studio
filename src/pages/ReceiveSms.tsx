@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, Minus, Plus, Copy, RefreshCw, X, Clock, AlertCircle, Menu, ChevronLeft } from 'lucide-react';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
+import { SEO } from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -543,6 +544,13 @@ export default function ReceiveSms() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf9ff]">
+      <SEO 
+        title="接收短信"
+        description="选择服务和国家，获取虚拟号码接收短信验证码。支持Telegram、WhatsApp、Google等700+服务。"
+        keywords="接收短信,虚拟号码,短信验证码,在线接码"
+        url="/receive-sms"
+        noindex={true}
+      />
       <Navbar />
       <AnnouncementBar />
       

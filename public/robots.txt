@@ -1,14 +1,38 @@
+# HEROSMS Robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /user-center
+Disallow: /recharge
+Disallow: /recharge-usdt
+Disallow: /auth
+
+# Sitemaps
+Sitemap: https://hero-sms.com/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Google
 User-agent: Googlebot
 Allow: /
 
+# Bing
 User-agent: Bingbot
 Allow: /
 
+# Twitter
 User-agent: Twitterbot
 Allow: /
 
+# Facebook
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
+# LinkedIn
+User-agent: LinkedInBot
+Allow: /
+
+# Telegram
+User-agent: TelegramBot
 Allow: /

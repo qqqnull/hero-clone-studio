@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
+import { SEO } from '@/components/SEO';
 import { Check, Zap, Globe, DollarSign, Gift, Shield, Users, Headphones } from 'lucide-react';
 
 const features = [
@@ -24,6 +25,12 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEO 
+        title="关于我们"
+        description="HEROSMS是全球领先的虚拟号码服务平台，提供180+国家覆盖、700+服务支持、1000万+激活次数，24/7客户支持。"
+        keywords="HEROSMS,虚拟号码平台,接码服务商,关于我们"
+        url="/about"
+      />
       <Navbar />
       <AnnouncementBar />
       

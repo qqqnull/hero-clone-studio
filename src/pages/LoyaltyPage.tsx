@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
+import { SEO } from '@/components/SEO';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
@@ -28,6 +29,12 @@ export default function LoyaltyPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEO 
+        title="忠诚计划"
+        description="HEROSMS忠诚计划，充值越多折扣越大，最高可享40%优惠。5个等级，从10美元起步享受专属折扣。"
+        keywords="HEROSMS忠诚计划,接码折扣,VIP会员,充值优惠"
+        url="/loyalty"
+      />
       <Navbar />
       <AnnouncementBar />
       
