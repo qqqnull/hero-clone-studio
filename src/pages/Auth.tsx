@@ -170,11 +170,11 @@ export default function Auth() {
                         <FormLabel>{t('auth.register.email')}</FormLabel>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                          <Input
+                          <input
+                            {...field}
                             type="email"
                             placeholder="email@example.com"
-                            className="pl-10"
-                            {...field}
+                            className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                           />
                         </div>
                         <FormMessage />
@@ -190,10 +190,10 @@ export default function Auth() {
                         <FormLabel>{t('auth.register.password')}</FormLabel>
                         <div className="relative">
                           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                          <Input
-                            type={showPassword ? 'text' : 'password'}
-                            className="pl-10 pr-10"
+                          <input
                             {...field}
+                            type={showPassword ? 'text' : 'password'}
+                            className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-10 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                           />
                           <button
                             type="button"
@@ -216,10 +216,10 @@ export default function Auth() {
                         <FormLabel>{t('auth.register.confirmPassword')}</FormLabel>
                         <div className="relative">
                           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                          <Input
-                            type={showPassword ? 'text' : 'password'}
-                            className="pl-10"
+                          <input
                             {...field}
+                            type={showPassword ? 'text' : 'password'}
+                            className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                           />
                         </div>
                         <FormMessage />
