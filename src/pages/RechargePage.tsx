@@ -103,7 +103,7 @@ export default function RechargePage() {
         });
         return;
       }
-      const orderId = `UST${Date.now()}`;
+      const orderId = `USTHERO${Date.now()}`;
       navigate(`/recharge-usdt?amount=${amount}&order_id=${orderId}`);
     }
   };
