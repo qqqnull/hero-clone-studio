@@ -114,21 +114,15 @@ export default function Auth() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t('auth.login.email')}</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                            <Input
-                              type="email"
-                              placeholder="email@example.com"
-                              className="pl-10"
-                              value={field.value}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                            />
-                          </div>
-                        </FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                          <Input
+                            type="email"
+                            placeholder="email@example.com"
+                            className="pl-10"
+                            {...field}
+                          />
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -140,27 +134,21 @@ export default function Auth() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t('auth.login.password')}</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                            <Input
-                              type={showPassword ? 'text' : 'password'}
-                              className="pl-10 pr-10"
-                              value={field.value}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
-                            >
-                              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
-                          </div>
-                        </FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                          <Input
+                            type={showPassword ? 'text' : 'password'}
+                            className="pl-10 pr-10"
+                            {...field}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+                          >
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -180,21 +168,15 @@ export default function Auth() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t('auth.register.email')}</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                            <Input
-                              type="email"
-                              placeholder="email@example.com"
-                              className="pl-10"
-                              value={field.value}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                            />
-                          </div>
-                        </FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                          <Input
+                            type="email"
+                            placeholder="email@example.com"
+                            className="pl-10"
+                            {...field}
+                          />
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -206,27 +188,21 @@ export default function Auth() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t('auth.register.password')}</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                            <Input
-                              type={showPassword ? 'text' : 'password'}
-                              className="pl-10 pr-10"
-                              value={field.value}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
-                            >
-                              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
-                          </div>
-                        </FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                          <Input
+                            type={showPassword ? 'text' : 'password'}
+                            className="pl-10 pr-10"
+                            {...field}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+                          >
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -238,20 +214,14 @@ export default function Auth() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t('auth.register.confirmPassword')}</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                            <Input
-                              type={showPassword ? 'text' : 'password'}
-                              className="pl-10"
-                              value={field.value}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              name={field.name}
-                              ref={field.ref}
-                            />
-                          </div>
-                        </FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                          <Input
+                            type={showPassword ? 'text' : 'password'}
+                            className="pl-10"
+                            {...field}
+                          />
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
