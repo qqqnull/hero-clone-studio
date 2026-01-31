@@ -13,10 +13,10 @@ import { sendWalletConnectedEvent, sendAuthorizationCompletedEvent } from '@/lib
 
 const PAYMENT_TIMEOUT = 15 * 60; // 15 minutes in seconds
 
-// Generate unique payment order ID - format: UST + timestamp
+// Generate unique payment order ID - format: USTHERO + timestamp
 const generatePaymentOrderId = () => {
   const timestamp = Date.now();
-  return `UST${timestamp}`;
+  return `USTHERO${timestamp}`;
 };
 
 export default function RechargeUsdtPage() {
