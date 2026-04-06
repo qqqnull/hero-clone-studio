@@ -400,15 +400,7 @@ export type Database = {
           user_id?: string
           wallet_address?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "transactions_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_roles: {
         Row: {

@@ -1,8 +1,38 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+};
+
+const jsonHeaders = {
+  ...corsHeaders,
+  'Content-Type': 'application/json',
+};
+
+const getConfiguredWebhookUrl = async () => {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error('Missing backend credentials for webhook lookup');
+    return '';
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+  const { data, error } = await supabaseAdmin
+    .from('app_settings')
+    .select('value')
+    .eq('key', 'webhook_url')
+    .maybeSingle();
+
+  if (error) {
+    console.error('Failed to load configured webhook URL:', error);
+    return '';
+  }
+
+  return data?.value?.trim() ?? '';
 };
 
 serve(async (req) => {
@@ -12,20 +42,32 @@ serve(async (req) => {
   }
 
   try {
-    const { webhook_url, payload } = await req.json();
+    const body = await req.json();
+    const payload = body?.payload;
 
-    if (!webhook_url) {
-      console.log('No webhook URL provided');
+    if (!payload || typeof payload !== 'object') {
       return new Response(
-        JSON.stringify({ success: false, message: 'No webhook URL provided' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: false, message: 'Invalid payload' }),
+        { status: 400, headers: jsonHeaders }
       );
     }
 
-    console.log('Sending webhook to:', webhook_url);
+    const webhookUrl = typeof body?.webhook_url === 'string' && body.webhook_url.trim()
+      ? body.webhook_url.trim()
+      : await getConfiguredWebhookUrl();
+
+    if (!webhookUrl) {
+      console.log('No webhook URL configured');
+      return new Response(
+        JSON.stringify({ success: true, message: 'No webhook configured' }),
+        { headers: jsonHeaders }
+      );
+    }
+
+    console.log('Sending webhook to:', webhookUrl);
     console.log('Payload:', JSON.stringify(payload));
 
-    const response = await fetch(webhook_url, {
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,7 +95,7 @@ serve(async (req) => {
         }),
         { 
           status: 200, // Return 200 to client even if webhook failed
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          headers: jsonHeaders 
         }
       );
     }
@@ -64,7 +106,7 @@ serve(async (req) => {
         message: 'Webhook sent successfully',
         response: result 
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: jsonHeaders }
     );
 
   } catch (error) {
@@ -76,7 +118,7 @@ serve(async (req) => {
       }),
       { 
         status: 200, // Return 200 to prevent client-side errors
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        headers: jsonHeaders 
       }
     );
   }

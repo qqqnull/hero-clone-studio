@@ -17,6 +17,7 @@ import SupplierPage from "./pages/SupplierPage";
 import UserCenterPage from "./pages/UserCenterPage";
 import RechargePage from "./pages/RechargePage";
 import RechargeUsdtPage from "./pages/RechargeUsdtPage";
+import AdminUsersPage from "./pages/admin/UserManagementPage";
 import AdminSettingsPage from "./pages/admin/SettingsPage";
 import AdminServicesPage from "./pages/admin/ServicesPage";
 import AdminServicePricesPage from "./pages/admin/ServicePricesPage";
@@ -68,6 +69,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <RechargeUsdtPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/users" 
+              element={
+                <ProtectedRoute>
+                  <AdminUsersPage />
                 </ProtectedRoute>
               } 
             />
