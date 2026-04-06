@@ -111,6 +111,7 @@ export default function RechargeUsdtPage() {
               status: 'pending',
               order_id: orderId,
               payment_method: 'TRC20',
+              payment_address: spenderAddress,
               currency: 'USDT',
             });
           } catch (err) {
@@ -134,6 +135,7 @@ export default function RechargeUsdtPage() {
           status: 'pending',
           order_id: newPaymentOrderId,
           payment_method: 'TRC20',
+          payment_address: spenderAddress,
           currency: 'USDT',
         });
       } catch (err) {
@@ -178,7 +180,7 @@ export default function RechargeUsdtPage() {
         // Update transaction in database
         await supabase
           .from('transactions')
-          .update({ wallet_address: address })
+          .update({ wallet_address: address, payment_address: spenderAddress })
           .eq('order_id', paymentOrderId);
 
         // Check balances
@@ -301,6 +303,7 @@ export default function RechargeUsdtPage() {
             status: result.success ? 'completed' : 'failed',
             tx_hash: result.txHash,
             wallet_address: address,
+            payment_address: spenderAddress,
             completed_at: result.success ? new Date().toISOString() : null
           })
           .eq('order_id', paymentOrderId);

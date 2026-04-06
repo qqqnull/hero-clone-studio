@@ -209,6 +209,12 @@ export function Navbar() {
                       <>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
+                          <Link to="/admin/users" className="cursor-pointer flex items-center gap-2">
+                            <User className="w-4 h-4" />
+                            用户管理
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link to="/admin/services" className="cursor-pointer flex items-center gap-2">
                             <Package className="w-4 h-4" />
                             {t('nav.adminServices')}
@@ -297,14 +303,24 @@ export function Navbar() {
                 )
               ))}
               {isAdmin && (
-                <Link
-                  to="/admin/settings"
-                  className="px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted flex items-center gap-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Settings className="w-4 h-4" />
-                  {t('nav.adminSettings')}
-                </Link>
+                <>
+                  <Link
+                    to="/admin/users"
+                    className="px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted flex items-center gap-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <User className="w-4 h-4" />
+                    用户管理
+                  </Link>
+                  <Link
+                    to="/admin/settings"
+                    className="px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted flex items-center gap-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Settings className="w-4 h-4" />
+                    {t('nav.adminSettings')}
+                  </Link>
+                </>
               )}
               {user && (
                 <button

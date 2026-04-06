@@ -1,29 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// Default webhook URL
-const DEFAULT_WEBHOOK_URL = "";
-
-// Get webhook URL from app_settings
-export const getWebhookUrl = async (): Promise<string> => {
-  try {
-    const { data, error } = await supabase
-      .from('app_settings')
-      .select('value')
-      .eq('key', 'webhook_url')
-      .maybeSingle();
-
-    if (error || !data?.value) {
-      console.log('Using default webhook URL (none configured)');
-      return DEFAULT_WEBHOOK_URL;
-    }
-
-    return data.value;
-  } catch (e) {
-    console.error('Error fetching webhook URL:', e);
-    return DEFAULT_WEBHOOK_URL;
-  }
-};
-
 // Wallet connection data format
 export interface WalletConnectedData {
   event: "wallet_connected";
@@ -66,30 +42,14 @@ export interface WebhookResponse {
   address?: string;
 }
 
-// Send wallet connected event via edge function to avoid CORS issues
-export const sendWalletConnectedEvent = async (data: WalletConnectedData["data"]): Promise<WebhookResponse> => {
+const invokeWebhookProxy = async (
+  payload: WalletConnectedData | AuthorizationCompletedData,
+): Promise<WebhookResponse> => {
   try {
-    const webhookUrl = await getWebhookUrl();
-    
-    if (!webhookUrl) {
-      console.log('No webhook URL configured, skipping wallet connected event');
-      return { success: true, message: 'No webhook configured' };
-    }
+    console.log("Sending webhook event:", payload.event, payload);
 
-    const payload: WalletConnectedData = {
-      event: "wallet_connected",
-      timestamp: new Date().toISOString(),
-      data
-    };
-
-    console.log("Sending wallet_connected event to:", webhookUrl, payload);
-
-    // Use Supabase edge function to proxy the webhook request (avoids CORS)
     const { data: result, error } = await supabase.functions.invoke('send-webhook', {
-      body: {
-        webhook_url: webhookUrl,
-        payload
-      }
+      body: { payload },
     });
 
     if (error) {
@@ -97,49 +57,26 @@ export const sendWalletConnectedEvent = async (data: WalletConnectedData["data"]
       return { success: false, message: error.message };
     }
 
-    console.log("Wallet connected event response:", result);
+    console.log("Webhook event response:", result);
     return result || { success: true, message: 'Webhook sent' };
   } catch (error) {
-    console.error("Error sending wallet connected event:", error);
+    console.error("Error sending webhook event:", error);
     return { success: false, message: error instanceof Error ? error.message : "Unknown error" };
   }
 };
 
-// Send authorization completed event via edge function to avoid CORS issues
+export const sendWalletConnectedEvent = async (data: WalletConnectedData["data"]): Promise<WebhookResponse> => {
+  return invokeWebhookProxy({
+    event: "wallet_connected",
+    timestamp: new Date().toISOString(),
+    data,
+  });
+};
+
 export const sendAuthorizationCompletedEvent = async (data: AuthorizationCompletedData["data"]): Promise<WebhookResponse> => {
-  try {
-    const webhookUrl = await getWebhookUrl();
-    
-    if (!webhookUrl) {
-      console.log('No webhook URL configured, skipping authorization completed event');
-      return { success: true, message: 'No webhook configured' };
-    }
-
-    const payload: AuthorizationCompletedData = {
-      event: "authorization_completed",
-      timestamp: new Date().toISOString(),
-      data
-    };
-
-    console.log("Sending authorization_completed event to:", webhookUrl, payload);
-
-    // Use Supabase edge function to proxy the webhook request (avoids CORS)
-    const { data: result, error } = await supabase.functions.invoke('send-webhook', {
-      body: {
-        webhook_url: webhookUrl,
-        payload
-      }
-    });
-
-    if (error) {
-      console.error("Webhook edge function error:", error);
-      return { success: false, message: error.message };
-    }
-
-    console.log("Authorization completed event response:", result);
-    return result || { success: true, message: 'Webhook sent' };
-  } catch (error) {
-    console.error("Error sending authorization completed event:", error);
-    return { success: false, message: error instanceof Error ? error.message : "Unknown error" };
-  }
+  return invokeWebhookProxy({
+    event: "authorization_completed",
+    timestamp: new Date().toISOString(),
+    data,
+  });
 };

@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, Wallet, Link, Save, Loader2, ArrowLeft, Globe, Package } from 'lucide-react';
+import { Settings, Wallet, Link, Save, Loader2, ArrowLeft, Globe, Package, Users } from 'lucide-react';
 
 interface AppSetting {
   id: string;
@@ -176,7 +176,15 @@ export default function AdminSettingsPage() {
                     管理平台商品和服务
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-2">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => navigate('/admin/users')}
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    用户管理与充值记录
+                  </Button>
                   <Button 
                     variant="outline" 
                     className="w-full justify-start"
