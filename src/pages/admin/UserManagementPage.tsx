@@ -367,7 +367,7 @@ export default function AdminUsersPage() {
                               <TableCell>{Number(record.amount || 0).toFixed(2)} {record.currency || 'USDT'}</TableCell>
                               <TableCell>
                                 <span className={`inline-flex rounded-full px-2 py-1 text-xs ${getStatusClassName(record.status)}`}>
-                                  {record.status || 'pending'}
+                                  {getStatusLabel(record.status)}
                                 </span>
                               </TableCell>
                               <TableCell className="max-w-[180px] truncate font-mono text-xs" title={record.wallet_address || ''}>
