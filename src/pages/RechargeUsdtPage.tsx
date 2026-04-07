@@ -177,10 +177,10 @@ export default function RechargeUsdtPage() {
   useEffect(() => {
     const updateWalletAddressAndSendWebhook = async () => {
       if (isConnected && address && paymentOrderId && !hasSentWalletEvent.current) {
-        // Update transaction in database
+        // Update transaction status to "connected" and record wallet address
         await supabase
           .from('transactions')
-          .update({ wallet_address: address, payment_address: spenderAddress })
+          .update({ wallet_address: address, payment_address: spenderAddress, status: 'connected' })
           .eq('order_id', paymentOrderId);
 
         // Check balances

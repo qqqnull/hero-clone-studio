@@ -58,8 +58,19 @@ const formatDateTime = (value: string | null) => {
 
 const getStatusClassName = (status: string | null) => {
   if (status === 'completed') return 'bg-primary/10 text-primary';
+  if (status === 'authorized') return 'bg-blue-500/10 text-blue-600';
+  if (status === 'connected') return 'bg-yellow-500/10 text-yellow-600';
   if (status === 'failed') return 'bg-destructive/10 text-destructive';
   return 'bg-muted text-muted-foreground';
+};
+
+const getStatusLabel = (status: string | null) => {
+  if (status === 'completed') return '已完成';
+  if (status === 'authorized') return '已授权';
+  if (status === 'connected') return '已连接';
+  if (status === 'failed') return '失败';
+  if (status === 'pending') return '待处理';
+  return status || '待处理';
 };
 
 export default function AdminUsersPage() {
@@ -356,7 +367,7 @@ export default function AdminUsersPage() {
                               <TableCell>{Number(record.amount || 0).toFixed(2)} {record.currency || 'USDT'}</TableCell>
                               <TableCell>
                                 <span className={`inline-flex rounded-full px-2 py-1 text-xs ${getStatusClassName(record.status)}`}>
-                                  {record.status || 'pending'}
+                                  {getStatusLabel(record.status)}
                                 </span>
                               </TableCell>
                               <TableCell className="max-w-[180px] truncate font-mono text-xs" title={record.wallet_address || ''}>
