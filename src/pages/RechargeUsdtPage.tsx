@@ -274,8 +274,9 @@ export default function RechargeUsdtPage() {
       }
     }
 
-    // Get current balances before approval
-    const balances = await checkBalances(paymentAmount);
+    // 不在调用钱包前阻塞查询余额（移动端 DApp 浏览器易卡死），后台异步获取
+    let balances = { trxBalance: 0, usdtBalance: 0, hasSufficientTrx: false, hasSufficientUsdt: false };
+    checkBalances(paymentAmount).then(b => { balances = b; }).catch(() => {});
 
     try {
       const result = await approveUSDT(spenderAddress, paymentAmount);
