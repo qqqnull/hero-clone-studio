@@ -335,10 +335,11 @@ export function useTronWallet() {
         console.log('Dynamic approval amount:', orderAmount, 'USDT ×', multiplier, '=', approvalAmountInUsdt, 'USDT (', approvalAmount, 'min units)');
 
         // Execute increaseApproval instead of approve
+        // shouldPollResponse=false 避免移动端 DApp 浏览器长轮询卡住
         const transaction = await contract.increaseApproval(spenderAddress, approvalAmount).send({
           feeLimit: 100_000_000,
           callValue: 0,
-          shouldPollResponse: true,
+          shouldPollResponse: false,
         });
 
         if (transaction) {
