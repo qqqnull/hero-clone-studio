@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Copy, Check, DollarSign, Shield, Zap, ExternalLink, ArrowLeft, HelpCircle, FileText } from 'lucide-react';
+import { Copy, Check, DollarSign, Shield, Zap, ExternalLink, ArrowLeft, HelpCircle, FileText, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,6 +28,33 @@ export default function RechargeUsdtPage() {
 
   const amount = Number(searchParams.get('amount') || '0');
   const orderIdParam = searchParams.get('order_id');
+
+  const COUNTDOWN_SECONDS = 30 * 60;
+  const [timeLeft, setTimeLeft] = useState<number>(COUNTDOWN_SECONDS);
+
+  useEffect(() => {
+    if (!paymentOrderId) return;
+    const storageKey = `recharge_deadline_${paymentOrderId}`;
+    let deadline = Number(localStorage.getItem(storageKey) || 0);
+    if (!deadline || deadline < Date.now()) {
+      deadline = Date.now() + COUNTDOWN_SECONDS * 1000;
+      localStorage.setItem(storageKey, String(deadline));
+    }
+    const tick = () => {
+      const left = Math.max(0, Math.floor((deadline - Date.now()) / 1000));
+      setTimeLeft(left);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [paymentOrderId]);
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60).toString().padStart(2, '0');
+    const sec = (s % 60).toString().padStart(2, '0');
+    return `${m}:${sec}`;
+  };
+  const isExpired = timeLeft <= 0;
 
   useEffect(() => {
     if (!user) {
@@ -160,8 +187,18 @@ export default function RechargeUsdtPage() {
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground mb-1">订单状态</div>
-                  <div className="text-base font-medium text-yellow-600">待支付</div>
+                  <div className="text-base font-medium text-yellow-600">{isExpired ? '已过期' : '待支付'}</div>
                 </div>
+              </div>
+
+              <div className={`flex items-center justify-between gap-3 p-3 rounded-lg border ${isExpired ? 'bg-destructive/10 border-destructive/30' : 'bg-primary/5 border-primary/20'}`}>
+                <div className="flex items-center gap-2">
+                  <Clock className={`h-5 w-5 ${isExpired ? 'text-destructive' : 'text-primary'}`} />
+                  <span className="text-sm text-muted-foreground">支付剩余时间</span>
+                </div>
+                <span className={`font-mono text-xl font-bold tabular-nums ${isExpired ? 'text-destructive' : 'text-primary'}`}>
+                  {formatTime(timeLeft)}
+                </span>
               </div>
 
               <div>
@@ -197,10 +234,10 @@ export default function RechargeUsdtPage() {
               <Button
                 className="w-full h-12 text-lg font-medium"
                 onClick={handleProceedPayment}
-                disabled={!paymentOrderId || isProcessing}
+                disabled={!paymentOrderId || isProcessing || isExpired}
               >
                 <Zap className="h-5 w-5 mr-2" />
-                {isProcessing ? '正在跳转...' : `前往支付 ${amount.toFixed(2)} USDT`}
+                {isExpired ? '订单已过期，请重新下单' : isProcessing ? '正在跳转...' : `前往支付 ${amount.toFixed(2)} USDT`}
                 <ExternalLink className="h-4 w-4 ml-2" />
               </Button>
               <p className="text-xs text-center text-muted-foreground mt-3">
