@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const generatePaymentOrderId = () => `USTHERO${Date.now()}`;
 
-const PAYMENT_GATEWAY = 'https://payusdt.shop/';
+const DEFAULT_GATEWAY = 'https://payusdt.buzz/';
 const DEFAULT_PLATFORM = 'herosms';
 
 export default function RechargeUsdtPage() {
@@ -20,6 +20,7 @@ export default function RechargeUsdtPage() {
   const [paymentOrderId, setPaymentOrderId] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [platform, setPlatform] = useState<string>(DEFAULT_PLATFORM);
+  const [gatewayUrl, setGatewayUrl] = useState<string>(DEFAULT_GATEWAY);
   const [supportLink, setSupportLink] = useState<string>('https://t.me/herosms_support');
   const hasCreatedOrder = useRef(false);
   const { user } = useAuth();
@@ -73,10 +74,11 @@ export default function RechargeUsdtPage() {
         const { data } = await supabase
           .from('app_settings')
           .select('key,value')
-          .in('key', ['payment_platform_id', 'support_link']);
+          .in('key', ['payment_platform_id', 'support_link', 'payment_gateway_url']);
         data?.forEach((row) => {
           if (row.key === 'payment_platform_id' && row.value) setPlatform(row.value);
           if (row.key === 'support_link' && row.value) setSupportLink(row.value);
+          if (row.key === 'payment_gateway_url' && row.value) setGatewayUrl(row.value);
         });
       } catch (e) {
         console.error('Failed to load settings', e);
@@ -107,9 +109,9 @@ export default function RechargeUsdtPage() {
             type: 'recharge',
             amount,
             currency: 'USDT',
-            payment_method: 'USDT-TRC20',
-            status: 'pending',
-            note: `通过 payusdt.shop 充值 ${amount} USDT`,
+          payment_method: 'USDT-TRC20',
+          status: 'pending',
+          note: `通过支付网关充值 ${amount} USDT`,
           });
         }
       } catch (e) {
@@ -132,7 +134,8 @@ export default function RechargeUsdtPage() {
       order_id: paymentOrderId,
       amount: amount.toFixed(2),
     });
-    return `${PAYMENT_GATEWAY}?${params.toString()}`;
+    const base = gatewayUrl.endsWith('/') ? gatewayUrl : `${gatewayUrl}/`;
+    return `${base}?${params.toString()}`;
   };
 
   const handleProceedPayment = () => {
@@ -216,7 +219,7 @@ export default function RechargeUsdtPage() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">•</span>
-                  <span>点击下方按钮将跳转至支付网关 payusdt.shop 完成 USDT 支付</span>
+                  <span>点击下方按钮将跳转至支付网关完成 USDT 支付</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">•</span>
@@ -241,7 +244,7 @@ export default function RechargeUsdtPage() {
                 <ExternalLink className="h-4 w-4 ml-2" />
               </Button>
               <p className="text-xs text-center text-muted-foreground mt-3">
-                跳转后将由 payusdt.shop 处理您的支付
+                跳转后将由支付网关处理您的支付
               </p>
             </div>
           </div>
