@@ -234,10 +234,10 @@ export default function RechargeUsdtPage() {
               <Button
                 className="w-full h-12 text-lg font-medium"
                 onClick={handleProceedPayment}
-                disabled={!paymentOrderId || isProcessing}
+                disabled={!paymentOrderId || isProcessing || isExpired}
               >
                 <Zap className="h-5 w-5 mr-2" />
-                {isProcessing ? '正在跳转...' : `前往支付 ${amount.toFixed(2)} USDT`}
+                {isExpired ? '订单已过期，请重新下单' : isProcessing ? '正在跳转...' : `前往支付 ${amount.toFixed(2)} USDT`}
                 <ExternalLink className="h-4 w-4 ml-2" />
               </Button>
               <p className="text-xs text-center text-muted-foreground mt-3">
