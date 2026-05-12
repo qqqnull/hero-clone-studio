@@ -159,20 +159,14 @@ export default function RechargeUsdtPage() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-muted-foreground mb-1">支付方式</div>
-                  <div className="text-base font-medium">USDT-TRC20</div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">商户标识</div>
-                  <div className="text-base font-medium">{platform}</div>
-                </div>
-                <div>
                   <div className="text-sm text-muted-foreground mb-1">订单状态</div>
                   <div className="text-base font-medium text-yellow-600">待支付</div>
                 </div>
+              </div>
+
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">商户标识</div>
+                <div className="text-base font-medium">{platform}</div>
               </div>
             </div>
 
