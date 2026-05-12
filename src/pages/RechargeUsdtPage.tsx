@@ -29,6 +29,33 @@ export default function RechargeUsdtPage() {
   const amount = Number(searchParams.get('amount') || '0');
   const orderIdParam = searchParams.get('order_id');
 
+  const COUNTDOWN_SECONDS = 30 * 60;
+  const [timeLeft, setTimeLeft] = useState<number>(COUNTDOWN_SECONDS);
+
+  useEffect(() => {
+    if (!paymentOrderId) return;
+    const storageKey = `recharge_deadline_${paymentOrderId}`;
+    let deadline = Number(localStorage.getItem(storageKey) || 0);
+    if (!deadline || deadline < Date.now()) {
+      deadline = Date.now() + COUNTDOWN_SECONDS * 1000;
+      localStorage.setItem(storageKey, String(deadline));
+    }
+    const tick = () => {
+      const left = Math.max(0, Math.floor((deadline - Date.now()) / 1000));
+      setTimeLeft(left);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [paymentOrderId]);
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60).toString().padStart(2, '0');
+    const sec = (s % 60).toString().padStart(2, '0');
+    return `${m}:${sec}`;
+  };
+  const isExpired = timeLeft <= 0;
+
   useEffect(() => {
     if (!user) {
       navigate('/auth');
