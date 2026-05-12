@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Copy, Check, DollarSign, Shield, Zap, ExternalLink, ArrowLeft, HelpCircle, FileText } from 'lucide-react';
+import { Copy, Check, DollarSign, Shield, Zap, ExternalLink, ArrowLeft, HelpCircle, FileText, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
 import { useAuth } from '@/contexts/AuthContext';
