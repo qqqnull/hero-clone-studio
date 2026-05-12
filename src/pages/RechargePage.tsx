@@ -227,55 +227,6 @@ export default function RechargePage() {
               </div>
             </div>
 
-            {/* Network Selection */}
-            <div className="p-6 border-b border-border">
-              <label className="block text-sm font-medium text-foreground mb-3">
-                {t('recharge.selectNetwork')}
-              </label>
-              <Select value={selectedChain} onValueChange={handleChainSelect}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t('recharge.selectNetwork')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {chains.map((chain) => (
-                    <SelectItem
-                      key={chain.id}
-                      value={chain.id}
-                      className={!chain.available ? 'opacity-60' : ''}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{chain.name}</span>
-                        <span className="text-muted-foreground">- {chain.fullName}</span>
-                        {chain.recommended && (
-                          <span className="px-2 py-0.5 text-xs bg-green-500 text-white rounded">
-                            {t('recharge.recommended')}
-                          </span>
-                        )}
-                        {!chain.available && (
-                          <span className="px-2 py-0.5 text-xs bg-destructive/10 text-destructive rounded">
-                            暂停
-                          </span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Selected Chain Details */}
-              {selectedChainData && selectedChainData.available && (
-                <div className="mt-4 p-3 bg-muted/50 rounded-lg flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-lg">
-                    ₮
-                  </div>
-                  <div>
-                    <div className="font-medium">{selectedChainData.fullName}</div>
-                    <div className="text-xs text-muted-foreground">{selectedChainData.network}</div>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Recharge Notice */}
             <div className="p-6 border-b border-border">
               <div className="flex items-center gap-2 mb-3">
