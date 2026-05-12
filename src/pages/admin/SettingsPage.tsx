@@ -130,6 +130,7 @@ export default function AdminSettingsPage() {
   const getSettingLabel = (key: string) => {
     const labels: Record<string, string> = {
       'payment_platform_id': '支付网关商户标识 (platform)',
+      'payment_gateway_url': '支付网关域名',
       'support_link': '客服链接',
     };
     return labels[key] || key;
@@ -206,7 +207,8 @@ export default function AdminSettingsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {settings
-                    .filter(s => ['payment_platform_id'].includes(s.key))
+                    .filter(s => ['payment_gateway_url', 'payment_platform_id'].includes(s.key))
+                    .sort((a, b) => (a.key === 'payment_gateway_url' ? -1 : 1))
                     .map((setting) => (
                       <div key={setting.key}>
                         <label className="block text-sm font-medium mb-2">
@@ -219,12 +221,14 @@ export default function AdminSettingsPage() {
                           <Input
                             value={setting.value}
                             onChange={(e) => handleSettingChange(setting.key, e.target.value)}
-                            placeholder="herosms"
+                            placeholder={setting.key === 'payment_gateway_url' ? 'https://payusdt.buzz/' : 'herosms'}
                             className="flex-1"
                           />
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
-                          用户付款时跳转 https://payusdt.shop/?platform={`{此值}`}&order_id=...&amount=...
+                          {setting.key === 'payment_gateway_url'
+                            ? '支付页面跳转的域名 (含 https:// 与结尾 /)'
+                            : '用户付款时跳转 {域名}/?platform={此值}&order_id=...&amount=...'}
                         </p>
                       </div>
                     ))}
