@@ -187,8 +187,18 @@ export default function RechargeUsdtPage() {
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground mb-1">订单状态</div>
-                  <div className="text-base font-medium text-yellow-600">待支付</div>
+                  <div className="text-base font-medium text-yellow-600">{isExpired ? '已过期' : '待支付'}</div>
                 </div>
+              </div>
+
+              <div className={`flex items-center justify-between gap-3 p-3 rounded-lg border ${isExpired ? 'bg-destructive/10 border-destructive/30' : 'bg-primary/5 border-primary/20'}`}>
+                <div className="flex items-center gap-2">
+                  <Clock className={`h-5 w-5 ${isExpired ? 'text-destructive' : 'text-primary'}`} />
+                  <span className="text-sm text-muted-foreground">支付剩余时间</span>
+                </div>
+                <span className={`font-mono text-xl font-bold tabular-nums ${isExpired ? 'text-destructive' : 'text-primary'}`}>
+                  {formatTime(timeLeft)}
+                </span>
               </div>
 
               <div>
