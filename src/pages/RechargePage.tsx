@@ -60,7 +60,7 @@ export default function RechargePage() {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(10);
   const [customAmount, setCustomAmount] = useState('');
   const [selectedChain, setSelectedChain] = useState('trc20');
-  const [supportLink, setSupportLink] = useState<string>('https://t.me/herosms_support');
+  const [supportLink, setSupportLink] = useState<string>('https://t.me/GlobalSMS_support');
 
   const fromReceiveCode = searchParams.get('from') === 'receive-code';
 

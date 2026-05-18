@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export function ChatWidget() {
-  const [telegramUrl, setTelegramUrl] = useState<string>('https://t.me/herosms_support');
+  const [telegramUrl, setTelegramUrl] = useState<string>('https://t.me/GlobalSMS_support');
 
   useEffect(() => {
     const fetchSupportLink = async () => {
