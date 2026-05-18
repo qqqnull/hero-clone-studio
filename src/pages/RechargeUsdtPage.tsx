@@ -21,7 +21,7 @@ export default function RechargeUsdtPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [platform, setPlatform] = useState<string>(DEFAULT_PLATFORM);
   const [gatewayUrl, setGatewayUrl] = useState<string>(DEFAULT_GATEWAY);
-  const [supportLink, setSupportLink] = useState<string>('https://t.me/GlobalSMS_support');
+  const [supportLink, setSupportLink] = useState<string>('https://t.me/kfGlobalSms');
   const hasCreatedOrder = useRef(false);
   const { user } = useAuth();
   const { toast } = useToast();
