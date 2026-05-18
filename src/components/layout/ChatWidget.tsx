@@ -34,7 +34,7 @@ export function ChatWidget() {
         (window as any).LovableChat.init({
           site: 'HEROSMS',
           primaryColor: '#10b981',
-          position: 'bottom-left',
+          position: 'bottom-right',
           title: '在线客服',
           telegramUrl: telegramUrl,
           telegramLabel: 'Telegram 客服',
