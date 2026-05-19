@@ -225,10 +225,6 @@ export default function AdminUsersPage() {
       toast({ title: '请填写邮箱和密码', variant: 'destructive' });
       return;
     }
-    if (newPassword.length < 6) {
-      toast({ title: '密码至少 6 位', variant: 'destructive' });
-      return;
-    }
     try {
       await callAdmin('create_user', { email: newEmail, password: newPassword, makeAdmin: newMakeAdmin });
       toast({ title: '用户创建成功' });
@@ -242,10 +238,6 @@ export default function AdminUsersPage() {
 
   const handleChangePassword = async () => {
     if (!pwdTarget || !pwdValue) return;
-    if (pwdValue.length < 6) {
-      toast({ title: '密码至少 6 位', variant: 'destructive' });
-      return;
-    }
     try {
       await callAdmin('update_password', { user_id: pwdTarget.user_id, password: pwdValue });
       toast({ title: '密码已更新' });
@@ -528,7 +520,7 @@ export default function AdminUsersPage() {
             </div>
             <div>
               <Label>密码</Label>
-              <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="至少 6 位" />
+              <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="输入密码" />
             </div>
             <div className="flex items-center gap-2">
               <Checkbox id="makeAdmin" checked={newMakeAdmin} onCheckedChange={(v) => setNewMakeAdmin(!!v)} />
@@ -551,7 +543,7 @@ export default function AdminUsersPage() {
           </DialogHeader>
           <div>
             <Label>新密码</Label>
-            <Input type="text" value={pwdValue} onChange={(e) => setPwdValue(e.target.value)} placeholder="至少 6 位" />
+            <Input type="text" value={pwdValue} onChange={(e) => setPwdValue(e.target.value)} placeholder="输入新密码" />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPwdTarget(null)}>取消</Button>

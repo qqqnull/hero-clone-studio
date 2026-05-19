@@ -47,9 +47,6 @@ export default function Auth() {
     if (!value) {
       return '请输入密码';
     }
-    if (value.length < 6) {
-      return '密码至少需要6个字符';
-    }
     return '';
   };
 
