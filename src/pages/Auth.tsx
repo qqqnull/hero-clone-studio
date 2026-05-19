@@ -1,10 +1,11 @@
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect, useRef, FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
 import { SEO } from '@/components/SEO';
+import { Captcha, CaptchaHandle } from '@/components/Captcha';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -20,11 +21,14 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [captchaInput, setCaptchaInput] = useState('');
+  const captchaRef = useRef<CaptchaHandle>(null);
 
   // Error state
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [captchaError, setCaptchaError] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -72,7 +76,20 @@ export default function Auth() {
     if (!isLogin) {
       const confirmErr = validateConfirmPassword(confirmPassword);
       setConfirmPasswordError(confirmErr);
-      if (emailErr || passwordErr || confirmErr) return;
+      let captchaErr = '';
+      if (!captchaInput.trim()) {
+        captchaErr = '请输入验证码';
+      } else if (!captchaRef.current?.validate(captchaInput)) {
+        captchaErr = '验证码错误';
+      }
+      setCaptchaError(captchaErr);
+      if (emailErr || passwordErr || confirmErr || captchaErr) {
+        if (captchaErr) {
+          captchaRef.current?.refresh();
+          setCaptchaInput('');
+        }
+        return;
+      }
     } else {
       if (emailErr || passwordErr) return;
     }
@@ -201,6 +218,35 @@ export default function Auth() {
                   </div>
                   {confirmPasswordError && (
                     <p className="text-sm font-medium text-destructive">{confirmPasswordError}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Captcha (Register only) */}
+              {!isLogin && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none">
+                    图形验证码
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                      <input
+                        type="text"
+                        value={captchaInput}
+                        onChange={(e) => {
+                          setCaptchaInput(e.target.value);
+                          setCaptchaError('');
+                        }}
+                        maxLength={4}
+                        placeholder="请输入右侧验证码"
+                        className={`${inputClassName} pl-10 uppercase`}
+                      />
+                    </div>
+                    <Captcha ref={captchaRef} />
+                  </div>
+                  {captchaError && (
+                    <p className="text-sm font-medium text-destructive">{captchaError}</p>
                   )}
                 </div>
               )}
