@@ -1,16 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, RefreshCw, Search, Users, Wallet } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Search, Users, Wallet, UserPlus, KeyRound, Trash2, Ban, CheckCircle2 } from 'lucide-react';
 import { Navbar, Footer } from '@/components/layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface UserRole {
   user_id: string;
@@ -25,6 +34,7 @@ interface UserProfile {
   vip_level: number | null;
   created_at: string | null;
   role: string;
+  banned_until?: string | null;
 }
 
 interface TransactionRecord {
@@ -73,6 +83,11 @@ const getStatusLabel = (status: string | null) => {
   return status || '待处理';
 };
 
+const isBanned = (banned_until?: string | null) => {
+  if (!banned_until) return false;
+  return new Date(banned_until).getTime() > Date.now();
+};
+
 export default function AdminUsersPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -86,6 +101,23 @@ export default function AdminUsersPage() {
   const [recordSearch, setRecordSearch] = useState('');
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  // Create user dialog
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newMakeAdmin, setNewMakeAdmin] = useState(false);
+
+  // Password change dialog
+  const [pwdTarget, setPwdTarget] = useState<UserProfile | null>(null);
+  const [pwdValue, setPwdValue] = useState('');
+
+  // Delete confirm
+  const [deleteTarget, setDeleteTarget] = useState<UserProfile | null>(null);
+
+  // Ban confirm
+  const [banTarget, setBanTarget] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -102,11 +134,7 @@ export default function AdminUsersPage() {
         .maybeSingle();
 
       if (!data) {
-        toast({
-          title: '权限不足',
-          description: '您没有访问管理后台的权限',
-          variant: 'destructive',
-        });
+        toast({ title: '权限不足', description: '您没有访问管理后台的权限', variant: 'destructive' });
         navigate('/');
         return;
       }
@@ -122,19 +150,18 @@ export default function AdminUsersPage() {
     else setLoading(true);
 
     try {
-      const [profilesResult, rolesResult, transactionsResult] = await Promise.all([
+      const [profilesResult, rolesResult, transactionsResult, authUsersResult] = await Promise.all([
         supabase
           .from('profiles')
           .select('id, user_id, email, balance, vip_level, created_at')
           .order('created_at', { ascending: false }),
-        supabase
-          .from('user_roles')
-          .select('user_id, role'),
+        supabase.from('user_roles').select('user_id, role'),
         supabase
           .from('transactions')
           .select('id, user_id, type, amount, order_id, payment_method, payment_address, wallet_address, tx_hash, status, currency, created_at, completed_at, note')
           .order('created_at', { ascending: false })
           .limit(300),
+        supabase.functions.invoke('admin-user-management', { body: { action: 'list_users' } }),
       ]);
 
       if (profilesResult.error) throw profilesResult.error;
@@ -148,9 +175,14 @@ export default function AdminUsersPage() {
         }
       });
 
+      const banMap = new Map<string, string | null>();
+      const authUsers = (authUsersResult.data as { users?: Array<{ id: string; banned_until: string | null }> } | null)?.users || [];
+      authUsers.forEach((u) => banMap.set(u.id, u.banned_until));
+
       const profileRows = ((profilesResult.data as Omit<UserProfile, 'role'>[] | null) || []).map((profile) => ({
         ...profile,
         role: roleMap.get(profile.user_id) || 'user',
+        banned_until: banMap.get(profile.user_id) || null,
       }));
 
       const emailMap = new Map(profileRows.map((profile) => [profile.user_id, profile.email]));
@@ -163,11 +195,7 @@ export default function AdminUsersPage() {
       setTransactions(transactionRows);
     } catch (error) {
       console.error('Error fetching admin data:', error);
-      toast({
-        title: '加载失败',
-        description: '无法加载用户或充值记录',
-        variant: 'destructive',
-      });
+      toast({ title: '加载失败', description: '无法加载用户或充值记录', variant: 'destructive' });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -175,15 +203,86 @@ export default function AdminUsersPage() {
   };
 
   useEffect(() => {
-    if (isAdmin) {
-      fetchAdminData();
-    }
+    if (isAdmin) fetchAdminData();
   }, [isAdmin]);
+
+  const callAdmin = async (action: string, payload: Record<string, unknown>) => {
+    setActionLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-user-management', {
+        body: { action, payload },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCreate = async () => {
+    if (!newEmail || !newPassword) {
+      toast({ title: '请填写邮箱和密码', variant: 'destructive' });
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast({ title: '密码至少 6 位', variant: 'destructive' });
+      return;
+    }
+    try {
+      await callAdmin('create_user', { email: newEmail, password: newPassword, makeAdmin: newMakeAdmin });
+      toast({ title: '用户创建成功' });
+      setCreateOpen(false);
+      setNewEmail(''); setNewPassword(''); setNewMakeAdmin(false);
+      fetchAdminData(true);
+    } catch (e) {
+      toast({ title: '创建失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!pwdTarget || !pwdValue) return;
+    if (pwdValue.length < 6) {
+      toast({ title: '密码至少 6 位', variant: 'destructive' });
+      return;
+    }
+    try {
+      await callAdmin('update_password', { user_id: pwdTarget.user_id, password: pwdValue });
+      toast({ title: '密码已更新' });
+      setPwdTarget(null); setPwdValue('');
+    } catch (e) {
+      toast({ title: '修改失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await callAdmin('delete_user', { user_id: deleteTarget.user_id });
+      toast({ title: '用户已删除' });
+      setDeleteTarget(null);
+      fetchAdminData(true);
+    } catch (e) {
+      toast({ title: '删除失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+    }
+  };
+
+  const handleToggleBan = async () => {
+    if (!banTarget) return;
+    const banned = isBanned(banTarget.banned_until);
+    try {
+      await callAdmin(banned ? 'unban_user' : 'ban_user', { user_id: banTarget.user_id });
+      toast({ title: banned ? '已解除封禁' : '已封停用户' });
+      setBanTarget(null);
+      fetchAdminData(true);
+    } catch (e) {
+      toast({ title: '操作失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+    }
+  };
 
   const filteredUsers = useMemo(() => {
     const keyword = userSearch.trim().toLowerCase();
     if (!keyword) return profiles;
-
     return profiles.filter((profile) =>
       (profile.email || '').toLowerCase().includes(keyword) ||
       profile.user_id.toLowerCase().includes(keyword),
@@ -193,15 +292,8 @@ export default function AdminUsersPage() {
   const filteredTransactions = useMemo(() => {
     const keyword = recordSearch.trim().toLowerCase();
     if (!keyword) return transactions;
-
     return transactions.filter((record) =>
-      [
-        record.user_email,
-        record.order_id,
-        record.wallet_address,
-        record.payment_address,
-        record.tx_hash,
-      ]
+      [record.user_email, record.order_id, record.wallet_address, record.payment_address, record.tx_hash]
         .filter(Boolean)
         .some((value) => value!.toLowerCase().includes(keyword)),
     );
@@ -222,14 +314,18 @@ export default function AdminUsersPage() {
               </Button>
               <div>
                 <h1 className="text-2xl font-bold">用户管理</h1>
-                <p className="text-muted-foreground">查看用户资料、支付订单、钱包地址与充值状态</p>
+                <p className="text-muted-foreground">添加、修改密码、封停或删除用户</p>
               </div>
             </div>
 
-            <Button variant="outline" onClick={() => fetchAdminData(true)} disabled={refreshing}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              刷新数据
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => setCreateOpen(true)}>
+                <UserPlus className="h-4 w-4 mr-2" />添加用户
+              </Button>
+              <Button variant="outline" onClick={() => fetchAdminData(true)} disabled={refreshing}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />刷新
+              </Button>
+            </div>
           </div>
 
           {loading ? (
@@ -249,29 +345,23 @@ export default function AdminUsersPage() {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardDescription>管理员数量</CardDescription>
-                    <CardTitle className="text-3xl">{profiles.filter((profile) => profile.role === 'admin').length}</CardTitle>
+                    <CardTitle className="text-3xl">{profiles.filter((p) => p.role === 'admin').length}</CardTitle>
                   </CardHeader>
                   <CardContent className="text-sm text-muted-foreground">可访问后台设置与管理页</CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardDescription>充值/支付记录</CardDescription>
-                    <CardTitle className="text-3xl">{transactions.length}</CardTitle>
+                    <CardDescription>已封停</CardDescription>
+                    <CardTitle className="text-3xl">{profiles.filter((p) => isBanned(p.banned_until)).length}</CardTitle>
                   </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">显示订单号、钱包地址与交易状态</CardContent>
+                  <CardContent className="text-sm text-muted-foreground">封禁中的账号</CardContent>
                 </Card>
               </div>
 
               <Tabs defaultValue="users" className="space-y-4">
                 <TabsList>
-                  <TabsTrigger value="users" className="gap-2">
-                    <Users className="h-4 w-4" />
-                    用户列表
-                  </TabsTrigger>
-                  <TabsTrigger value="transactions" className="gap-2">
-                    <Wallet className="h-4 w-4" />
-                    充值记录
-                  </TabsTrigger>
+                  <TabsTrigger value="users" className="gap-2"><Users className="h-4 w-4" />用户列表</TabsTrigger>
+                  <TabsTrigger value="transactions" className="gap-2"><Wallet className="h-4 w-4" />充值记录</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="users">
@@ -285,7 +375,7 @@ export default function AdminUsersPage() {
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                           value={userSearch}
-                          onChange={(event) => setUserSearch(event.target.value)}
+                          onChange={(e) => setUserSearch(e.target.value)}
                           placeholder="搜索邮箱或用户 ID"
                           className="pl-10"
                         />
@@ -295,31 +385,58 @@ export default function AdminUsersPage() {
                         <TableHeader>
                           <TableRow>
                             <TableHead>邮箱</TableHead>
-                            <TableHead>用户 ID</TableHead>
                             <TableHead>角色</TableHead>
+                            <TableHead>状态</TableHead>
                             <TableHead>余额</TableHead>
                             <TableHead>VIP</TableHead>
                             <TableHead>注册时间</TableHead>
+                            <TableHead className="text-right">操作</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {filteredUsers.map((profile) => (
-                            <TableRow key={profile.id}>
-                              <TableCell>{profile.email || '--'}</TableCell>
-                              <TableCell className="font-mono text-xs">{profile.user_id}</TableCell>
-                              <TableCell>
-                                <span className={profile.role === 'admin' ? 'inline-flex rounded-full px-2 py-1 text-xs bg-primary/10 text-primary' : 'inline-flex rounded-full px-2 py-1 text-xs bg-muted text-muted-foreground'}>
-                                  {profile.role}
-                                </span>
-                              </TableCell>
-                              <TableCell>${Number(profile.balance || 0).toFixed(2)}</TableCell>
-                              <TableCell>{profile.vip_level || 1}</TableCell>
-                              <TableCell>{formatDateTime(profile.created_at)}</TableCell>
-                            </TableRow>
-                          ))}
+                          {filteredUsers.map((profile) => {
+                            const banned = isBanned(profile.banned_until);
+                            const isSelf = profile.user_id === user?.id;
+                            return (
+                              <TableRow key={profile.id}>
+                                <TableCell>
+                                  <div>{profile.email || '--'}</div>
+                                  <div className="font-mono text-xs text-muted-foreground">{profile.user_id.slice(0, 8)}...</div>
+                                </TableCell>
+                                <TableCell>
+                                  <span className={profile.role === 'admin' ? 'inline-flex rounded-full px-2 py-1 text-xs bg-primary/10 text-primary' : 'inline-flex rounded-full px-2 py-1 text-xs bg-muted text-muted-foreground'}>
+                                    {profile.role}
+                                  </span>
+                                </TableCell>
+                                <TableCell>
+                                  {banned ? (
+                                    <span className="inline-flex rounded-full px-2 py-1 text-xs bg-destructive/10 text-destructive">已封停</span>
+                                  ) : (
+                                    <span className="inline-flex rounded-full px-2 py-1 text-xs bg-primary/10 text-primary">正常</span>
+                                  )}
+                                </TableCell>
+                                <TableCell>${Number(profile.balance || 0).toFixed(2)}</TableCell>
+                                <TableCell>{profile.vip_level || 1}</TableCell>
+                                <TableCell>{formatDateTime(profile.created_at)}</TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex justify-end gap-1">
+                                    <Button size="sm" variant="outline" onClick={() => { setPwdTarget(profile); setPwdValue(''); }}>
+                                      <KeyRound className="h-3.5 w-3.5" />
+                                    </Button>
+                                    <Button size="sm" variant="outline" disabled={isSelf} onClick={() => setBanTarget(profile)}>
+                                      {banned ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Ban className="h-3.5 w-3.5" />}
+                                    </Button>
+                                    <Button size="sm" variant="outline" disabled={isSelf} onClick={() => setDeleteTarget(profile)}>
+                                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
                           {filteredUsers.length === 0 && (
                             <TableRow>
-                              <TableCell colSpan={6} className="text-center text-muted-foreground">暂无匹配用户</TableCell>
+                              <TableCell colSpan={7} className="text-center text-muted-foreground">暂无匹配用户</TableCell>
                             </TableRow>
                           )}
                         </TableBody>
@@ -339,7 +456,7 @@ export default function AdminUsersPage() {
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                           value={recordSearch}
-                          onChange={(event) => setRecordSearch(event.target.value)}
+                          onChange={(e) => setRecordSearch(e.target.value)}
                           placeholder="搜索订单号、邮箱、钱包地址"
                           className="pl-10"
                         />
@@ -396,6 +513,88 @@ export default function AdminUsersPage() {
           )}
         </div>
       </main>
+
+      {/* Create user dialog */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>添加用户</DialogTitle>
+            <DialogDescription>创建新账户，邮箱将自动确认</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>邮箱</Label>
+              <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="user@example.com" />
+            </div>
+            <div>
+              <Label>密码</Label>
+              <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="至少 6 位" />
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox id="makeAdmin" checked={newMakeAdmin} onCheckedChange={(v) => setNewMakeAdmin(!!v)} />
+              <Label htmlFor="makeAdmin" className="cursor-pointer">设为管理员</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>取消</Button>
+            <Button onClick={handleCreate} disabled={actionLoading}>{actionLoading ? '创建中...' : '创建'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change password dialog */}
+      <Dialog open={!!pwdTarget} onOpenChange={(open) => !open && setPwdTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>修改密码</DialogTitle>
+            <DialogDescription>{pwdTarget?.email}</DialogDescription>
+          </DialogHeader>
+          <div>
+            <Label>新密码</Label>
+            <Input type="text" value={pwdValue} onChange={(e) => setPwdValue(e.target.value)} placeholder="至少 6 位" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPwdTarget(null)}>取消</Button>
+            <Button onClick={handleChangePassword} disabled={actionLoading}>{actionLoading ? '保存中...' : '保存'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirm */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>删除用户？</AlertDialogTitle>
+            <AlertDialogDescription>
+              将永久删除 <strong>{deleteTarget?.email}</strong>，此操作不可撤销。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={actionLoading} className="bg-destructive hover:bg-destructive/90">
+              删除
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Ban confirm */}
+      <AlertDialog open={!!banTarget} onOpenChange={(open) => !open && setBanTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{isBanned(banTarget?.banned_until) ? '解除封禁？' : '封停用户？'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {isBanned(banTarget?.banned_until) ? '解除后该用户可重新登录。' : `将禁止 ${banTarget?.email} 登录使用。`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleToggleBan} disabled={actionLoading}>
+              确认
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Footer />
     </div>
