@@ -402,6 +402,57 @@ export type Database = {
         }
         Relationships: []
       }
+      user_phone_subscriptions: {
+        Row: {
+          auto_renew: boolean
+          country_id: string | null
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          grace_period_ends_at: string | null
+          id: string
+          last_renewed_at: string | null
+          monthly_fee: number
+          phone_number: string
+          status: string
+          updated_at: string
+          used_this_period: boolean
+          user_id: string
+        }
+        Insert: {
+          auto_renew?: boolean
+          country_id?: string | null
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          grace_period_ends_at?: string | null
+          id?: string
+          last_renewed_at?: string | null
+          monthly_fee: number
+          phone_number: string
+          status?: string
+          updated_at?: string
+          used_this_period?: boolean
+          user_id: string
+        }
+        Update: {
+          auto_renew?: boolean
+          country_id?: string | null
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          grace_period_ends_at?: string | null
+          id?: string
+          last_renewed_at?: string | null
+          monthly_fee?: number
+          phone_number?: string
+          status?: string
+          updated_at?: string
+          used_this_period?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -428,6 +479,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      consume_phone_subscription: {
+        Args: { _service_price: number; _subscription_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -435,7 +490,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      lock_phone_subscription: {
+        Args: {
+          _country_id: string
+          _monthly_fee: number
+          _phone_number: string
+        }
+        Returns: string
+      }
       make_user_admin: { Args: { user_email: string }; Returns: undefined }
+      process_subscription_renewals: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
