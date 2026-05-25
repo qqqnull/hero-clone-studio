@@ -8,3 +8,4 @@ export { WhyChooseSection } from './WhyChooseSection';
 export { GuideSection } from './GuideSection';
 export { PurchaseGuideSection } from './PurchaseGuideSection';
 export { FAQSection } from './FAQSection';
+export { LongTermNumbersSection } from './LongTermNumbersSection';
