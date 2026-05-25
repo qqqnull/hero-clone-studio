@@ -875,6 +875,21 @@ export default function ReceiveSms() {
                           >
                             <Copy className="w-4 h-4" />
                           </button>
+                          {lockedNumbers.has(num.number) ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary text-xs font-medium">
+                              <Check className="w-3.5 h-3.5" />
+                              {t('longTerm.lockedBadge')}
+                            </span>
+                          ) : (
+                            <button
+                              className="p-1.5 hover:bg-primary/10 rounded-lg text-primary transition-colors disabled:opacity-50"
+                              onClick={() => handleLockNumber(num)}
+                              disabled={lockingId === num.id}
+                              title={t('longTerm.lockTooltip', { price: num.price?.toFixed(2) })}
+                            >
+                              <Lock className="w-4 h-4" />
+                            </button>
+                          )}
                           <button 
                             className="p-1.5 hover:bg-gray-100 rounded-lg text-destructive transition-colors"
                             onClick={() => handleCancelNumber(num.id)}
