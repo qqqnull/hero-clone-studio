@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Minus, Plus, Copy, RefreshCw, X, Clock, AlertCircle, Menu, ChevronLeft } from 'lucide-react';
+import { Search, Minus, Plus, Copy, RefreshCw, X, Clock, AlertCircle, Menu, ChevronLeft, Lock, Check } from 'lucide-react';
 import { Navbar, AnnouncementBar, Footer } from '@/components/layout';
 import { SEO } from '@/components/SEO';
 import { Button } from '@/components/ui/button';
@@ -62,6 +62,8 @@ export default function ReceiveSms() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [activeNumbers, setActiveNumbers] = useState<ActiveNumber[]>([]);
+  const [lockedNumbers, setLockedNumbers] = useState<Set<string>>(new Set());
+  const [lockingId, setLockingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -87,8 +89,48 @@ export default function ReceiveSms() {
     if (user) {
       fetchProfile();
       fetchActiveNumbers();
+      fetchLockedNumbers();
     }
   }, [user]);
+
+  const fetchLockedNumbers = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('user_phone_subscriptions')
+      .select('phone_number')
+      .eq('user_id', user.id)
+      .in('status', ['active', 'grace']);
+    setLockedNumbers(new Set((data || []).map((r: any) => r.phone_number)));
+  };
+
+  const handleLockNumber = async (num: ActiveNumber) => {
+    if (!user) return;
+    setLockingId(num.id);
+    const { error } = await supabase.rpc('lock_phone_subscription', {
+      _phone_number: num.number,
+      _country_id: num.country?.id ?? null,
+      _monthly_fee: num.price,
+    });
+    setLockingId(null);
+    if (error) {
+      toast({
+        title: error.message?.includes('INSUFFICIENT_BALANCE')
+          ? t('receiveSms.insufficientBalance')
+          : t('receiveSms.error'),
+        description: error.message?.includes('INSUFFICIENT_BALANCE')
+          ? t('receiveSms.pleaseRecharge')
+          : undefined,
+        variant: 'destructive',
+      });
+      return;
+    }
+    toast({
+      title: t('longTerm.lockedToast'),
+      description: t('longTerm.lockedToastDesc', { price: num.price.toFixed(2) }),
+    });
+    fetchProfile();
+    fetchLockedNumbers();
+  };
 
   useEffect(() => {
     if (selectedService) {
@@ -833,6 +875,21 @@ export default function ReceiveSms() {
                           >
                             <Copy className="w-4 h-4" />
                           </button>
+                          {lockedNumbers.has(num.number) ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary text-xs font-medium">
+                              <Check className="w-3.5 h-3.5" />
+                              {t('longTerm.lockedBadge')}
+                            </span>
+                          ) : (
+                            <button
+                              className="p-1.5 hover:bg-primary/10 rounded-lg text-primary transition-colors disabled:opacity-50"
+                              onClick={() => handleLockNumber(num)}
+                              disabled={lockingId === num.id}
+                              title={t('longTerm.lockTooltip', { price: num.price?.toFixed(2) })}
+                            >
+                              <Lock className="w-4 h-4" />
+                            </button>
+                          )}
                           <button 
                             className="p-1.5 hover:bg-gray-100 rounded-lg text-destructive transition-colors"
                             onClick={() => handleCancelNumber(num.id)}

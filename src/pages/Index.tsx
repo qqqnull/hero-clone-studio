@@ -7,6 +7,7 @@ import {
   PartnersSection,
   DisposableNumbersSection,
   AboutPlatformSection,
+  LongTermNumbersSection,
   WhyChooseSection,
   GuideSection,
   PurchaseGuideSection,
@@ -27,6 +28,7 @@ const Index = () => {
       <main className="flex-1">
         <HeroSection />
         <ServiceSearchSection />
+        <LongTermNumbersSection />
         <WhyNeedSection />
         <PartnersSection />
         <DisposableNumbersSection />

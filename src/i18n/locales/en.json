@@ -15,7 +15,43 @@
     "adminPrices": "Price Management"
   },
   "announcement": {
-    "text": "Only on our platform: Russian numbers are now on sale!!!"
+    "text": "🔥 NEW: Phone Number Persistence is live! Lock your favorite number, pay a small monthly fee, free renewal if you use it this month!"
+  },
+  "longTerm": {
+    "badge": "NEW FEATURE",
+    "tabTitle": "My Long-Term Numbers",
+    "title": "Phone Persistence: Keep Your Number Forever",
+    "subtitle": "Want to use the same number long-term? Lock it after receiving an SMS, pay a small monthly fee, and the number is yours. Used it this month? Next month renews for free!",
+    "features": {
+      "lock": { "title": "One-Click Lock", "desc": "Click the lock icon after receiving an SMS to add the number to your long-term list" },
+      "fee": { "title": "Fee = First Price", "desc": "Monthly fee equals the service price you paid when first locking the number — fully transparent" },
+      "renew": { "title": "Use Once, Renew Free", "desc": "If you receive at least one SMS with the number this month, next month renews automatically for free" },
+      "grace": { "title": "7-Day Grace Period", "desc": "If your balance runs low, you get a 7-day window to top up or adjust — the number won't be released immediately" }
+    },
+    "rule1Title": "Next Use",
+    "rule1": "When you receive SMS for other services, you're charged the current real-time price of that service",
+    "rule2Title": "Auto-Renewal",
+    "rule2": "Enabled by default; deducts from balance when sufficient. Toggle off in My Long-Term Numbers",
+    "rule3Title": "Expiration",
+    "rule3": "Failed renewals trigger a 7-day grace period — number reserved but SMS paused; released to public pool afterwards",
+    "lockedBadge": "Locked",
+    "lockTooltip": "Lock as long-term (monthly fee ${{price}})",
+    "lockedToast": "Number Locked",
+    "lockedToastDesc": "${{price}} deducted. Manage in My Long-Term Numbers.",
+    "renewedToast": "Renewed successfully",
+    "cancelledToast": "Subscription cancelled",
+    "insufficientBalance": "Insufficient balance, please recharge",
+    "tabIntroTitle": "Phone Number Persistence",
+    "tabIntroDesc": "Locked numbers stay yours. Monthly fee = first-lock service price; use it this month and next month is free; insufficient balance triggers a 7-day grace period.",
+    "empty": "No long-term numbers yet. Go to Receive SMS, get a number, and click the lock icon to keep it.",
+    "monthlyFee": "Monthly Fee",
+    "willRenewFree": "Free renewal next month",
+    "renewOn": "Renews on {{date}}",
+    "graceEndsAt": "Grace period ends {{date}}, please renew",
+    "autoRenew": "Auto-renew",
+    "renewNow": "Renew Now",
+    "cancel": "Cancel Subscription",
+    "status": { "expired": "Expired", "cancelled": "Cancelled" }
   },
   "hero": {
     "title": "Receive SMS online & API Access",

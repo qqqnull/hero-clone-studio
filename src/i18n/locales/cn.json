@@ -164,7 +164,43 @@
     "cannotReceiveCode": "余额不足，无法接收验证码，请先充值后再购买号码"
   },
   "announcement": {
-    "text": "独一无二：俄罗斯号码现在出售了!!!"
+    "text": "🔥 全新功能：号码持久化上线！锁定专属号码，按月续费，本月用过自动免费续费！"
+  },
+  "longTerm": {
+    "badge": "全新功能",
+    "tabTitle": "我的长期号",
+    "title": "持久化号码：锁定一个号长期使用",
+    "subtitle": "想长期使用同一个号码？接码后一键锁定，按月支付小额月租，号码永久归你所有。本月使用过该号码？下个月自动免费续费！",
+    "features": {
+      "lock": { "title": "一键锁定", "desc": "接码后点击锁形图标即可将号码纳入长期持有列表" },
+      "fee": { "title": "月租 = 首次价格", "desc": "月租金额等于你首次锁定该号码时的服务价格，公开透明" },
+      "renew": { "title": "用一次免续费", "desc": "本月只要用该号码成功接码一次，下个月自动免费续费" },
+      "grace": { "title": "7天宽限期", "desc": "余额不足时进入宽限期，可手动续费或调整设置，号码不会立刻被释放" }
+    },
+    "rule1Title": "下次使用",
+    "rule1": "用持久号接其他服务时，按目标服务的实时价格扣费",
+    "rule2Title": "自动续费",
+    "rule2": "默认开启，余额充足时自动从账户扣除月租；可在「我的长期号」中关闭",
+    "rule3Title": "到期处理",
+    "rule3": "扣费失败进入 7 天宽限期，期间号码保留但暂停接码；过期后释放回公共池",
+    "lockedBadge": "已锁定",
+    "lockTooltip": "锁定为长期号（月租 ${{price}}）",
+    "lockedToast": "号码已锁定",
+    "lockedToastDesc": "已扣除月租 ${{price}}，可在「我的长期号」管理",
+    "renewedToast": "续费成功",
+    "cancelledToast": "已取消订阅",
+    "insufficientBalance": "余额不足，请充值",
+    "tabIntroTitle": "号码持久化",
+    "tabIntroDesc": "锁定的号码将一直归你所有。月租 = 首次锁定时的服务价格；本月使用过该号码则下月免费续费；余额不足将进入 7 天宽限期。",
+    "empty": "你还没有锁定任何长期号。前往「获取号码」页面接码后点击锁形图标即可锁定。",
+    "monthlyFee": "月租",
+    "willRenewFree": "下月免费续",
+    "renewOn": "{{date}} 续费",
+    "graceEndsAt": "宽限期至 {{date}}，请尽快续费",
+    "autoRenew": "自动续费",
+    "renewNow": "立即续费",
+    "cancel": "取消订阅",
+    "status": { "expired": "已过期", "cancelled": "已取消" }
   },
   "hero": {
     "title": "在线接收短信 & API 访问",
