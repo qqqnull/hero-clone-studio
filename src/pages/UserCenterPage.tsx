@@ -9,8 +9,9 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Key, Shield, Users, Calendar, Search, Download, RefreshCw } from 'lucide-react';
+import { Copy, Key, Shield, Users, Calendar, Search, Download, RefreshCw, Lock } from 'lucide-react';
 import { format } from 'date-fns';
+import { LongTermNumbersTab } from '@/components/LongTermNumbersTab';
 
 interface Order {
   id: string;
@@ -119,6 +120,10 @@ export default function UserCenterPage() {
             <TabsList className="bg-muted p-1 rounded-lg">
               <TabsTrigger value="profile" className="rounded-md px-6">{t('userCenter.profile')}</TabsTrigger>
               <TabsTrigger value="numbers" className="rounded-md px-6">{t('userCenter.numbers')}</TabsTrigger>
+              <TabsTrigger value="longterm" className="rounded-md px-6 gap-1.5">
+                <Lock className="w-3.5 h-3.5" />
+                {t('longTerm.tabTitle')}
+              </TabsTrigger>
               <TabsTrigger value="security" className="rounded-md px-6">{t('userCenter.security')}</TabsTrigger>
               <TabsTrigger value="affiliate" className="rounded-md px-6">{t('userCenter.affiliate')}</TabsTrigger>
             </TabsList>
