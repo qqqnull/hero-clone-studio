@@ -289,6 +289,11 @@ export default function UserCenterPage() {
               </Card>
             </TabsContent>
 
+            {/* Long-Term Numbers Tab */}
+            <TabsContent value="longterm">
+              <LongTermNumbersTab />
+            </TabsContent>
+
             {/* Security Tab */}
             <TabsContent value="security">
               <div className="grid md:grid-cols-2 gap-6">
