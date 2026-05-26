@@ -15,7 +15,8 @@
     "adminPrices": "Price Management"
   },
   "announcement": {
-    "text": "🔥 NEW: Phone Number Persistence is live! Lock your favorite number, pay a small monthly fee, free renewal if you use it this month!"
+    "text": "🔥 NEW: Phone Number Persistence is live! Lock your favorite number, pay a small monthly fee, free renewal if you use it this month!",
+    "gift": "🎁 New users get 1 free US + 1 free UK long-term number (30-day cycle). Open User Center → My Long-Term Numbers to use them."
   },
   "longTerm": {
     "badge": "NEW FEATURE",

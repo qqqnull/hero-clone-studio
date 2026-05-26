@@ -119,8 +119,7 @@ export default function UserCenterPage() {
           <Tabs defaultValue={defaultTab} className="space-y-6">
             <TabsList className="bg-muted p-1 rounded-lg">
               <TabsTrigger value="profile" className="rounded-md px-6">{t('userCenter.profile')}</TabsTrigger>
-              <TabsTrigger value="numbers" className="rounded-md px-6">{t('userCenter.numbers')}</TabsTrigger>
-              <TabsTrigger value="longterm" className="rounded-md px-6 gap-1.5">
+              <TabsTrigger value="numbers" className="rounded-md px-6 gap-1.5">
                 <Lock className="w-3.5 h-3.5" />
                 {t('longTerm.tabTitle')}
               </TabsTrigger>
@@ -170,127 +169,8 @@ export default function UserCenterPage() {
               </div>
             </TabsContent>
 
-            {/* Numbers Tab */}
+            {/* Numbers Tab → Long-Term Numbers */}
             <TabsContent value="numbers">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{t('userCenter.timeRange')}</span>
-                    <span className="text-sm font-normal text-muted-foreground">
-                      {t('userCenter.maxRange')}
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-wrap gap-4">
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="date"
-                        value={dateRange.start}
-                        onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                        className="w-40"
-                      />
-                      <span>—</span>
-                      <Input
-                        type="date"
-                        value={dateRange.end}
-                        onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                        className="w-40"
-                      />
-                    </div>
-                    <select className="px-3 py-2 border border-border rounded-md bg-background">
-                      <option>{t('userCenter.allServices')}</option>
-                    </select>
-                    <select className="px-3 py-2 border border-border rounded-md bg-background">
-                      <option>{t('userCenter.allCountries')}</option>
-                    </select>
-                    <Button>{t('userCenter.request')}</Button>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-muted-foreground">
-                        {t('userCenter.totalActivations')}: <strong>{orders.length}</strong>
-                      </span>
-                      <Button variant="outline" size="sm">
-                        <Download className="w-4 h-4 mr-2" />
-                        {t('userCenter.exportCSV')}
-                      </Button>
-                    </div>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        placeholder={t('userCenter.searchByNumber')}
-                        value={orderSearch}
-                        onChange={(e) => setOrderSearch(e.target.value)}
-                        className="pl-10 w-60"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-border text-left">
-                          <th className="py-3 px-2">{t('userCenter.date')} ↓</th>
-                          <th className="py-3 px-2">{t('userCenter.country')}</th>
-                          <th className="py-3 px-2">{t('userCenter.service')}</th>
-                          <th className="py-3 px-2">{t('userCenter.number')}</th>
-                          <th className="py-3 px-2">{t('userCenter.smsCode')}</th>
-                          <th className="py-3 px-2">{t('userCenter.price')} ↕</th>
-                          <th className="py-3 px-2">{t('userCenter.status')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredOrders.map((order) => (
-                          <tr key={order.id} className="border-b border-border">
-                            <td className="py-3 px-2 text-sm">
-                              {format(new Date(order.created_at), 'dd.MM.yyyy, HH:mm')}
-                            </td>
-                            <td className="py-3 px-2">
-                              <span className="text-xl">{order.country?.flag}</span>
-                            </td>
-                            <td className="py-3 px-2">
-                              <span className="text-xl">{order.service?.icon}</span>
-                            </td>
-                            <td className="py-3 px-2 font-mono text-sm">{order.phone_number}</td>
-                            <td className="py-3 px-2">
-                              {order.sms_code ? (
-                                <span className="font-mono">{order.sms_code}</span>
-                              ) : (
-                                <span className="bg-primary text-white px-2 py-1 rounded text-xs">
-                                  {t('userCenter.noCode')}
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3 px-2">${order.price?.toFixed(2)}</td>
-                            <td className="py-3 px-2">
-                              <span className={`px-2 py-1 rounded text-xs ${
-                                order.status === 'completed' ? 'bg-green-100 text-green-700' :
-                                order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                                'bg-yellow-100 text-yellow-700'
-                              }`}>
-                                {order.status === 'cancelled' && '● '}{t(`userCenter.status.${order.status}`)}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                        {filteredOrders.length === 0 && (
-                          <tr>
-                            <td colSpan={7} className="py-8 text-center text-muted-foreground">
-                              {t('userCenter.noOrders')}
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Long-Term Numbers Tab */}
-            <TabsContent value="longterm">
               <LongTermNumbersTab />
             </TabsContent>
 
