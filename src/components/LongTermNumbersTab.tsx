@@ -365,7 +365,7 @@ export function LongTermNumbersTab() {
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <ServiceIcon
-                        iconUrl={opt.service.icon}
+                        icon={opt.service.icon}
                         name={opt.service.name}
                         size="sm"
                       />
