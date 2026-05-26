@@ -180,7 +180,7 @@ export function LongTermNumbersTab() {
       title: t('longTerm.smsActivatedTitle'),
       description: t('longTerm.smsActivatedDesc', {
         phone: smsDialogSub.phone_number,
-        amount: opt.price.toFixed(2),
+        amount: opt.price.toFixed(4),
       }),
     });
     setSmsDialogSub(null);
