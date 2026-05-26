@@ -181,12 +181,10 @@ export function LongTermNumbersTab() {
                         <span>{t('longTerm.autoRenew')}</span>
                       </label>
                       <div className="flex items-center gap-2">
-                        {isGrace && (
-                          <Button size="sm" onClick={() => renewNow(sub)}>
-                            <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-                            {t('longTerm.renewNow')}
-                          </Button>
-                        )}
+                        <Button size="sm" onClick={() => renewNow(sub)}>
+                          <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                          {t('longTerm.renewNow')}
+                        </Button>
                         <Button size="sm" variant="ghost" className="text-destructive" onClick={() => cancel(sub)}>
                           <Trash2 className="w-3.5 h-3.5 mr-1.5" />
                           {t('longTerm.cancel')}
