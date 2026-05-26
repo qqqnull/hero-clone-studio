@@ -54,6 +54,15 @@
     "autoRenew": "Auto-renew",
     "renewNow": "Renew Now",
     "cancel": "Cancel Subscription",
+    "receiveSms": "Receive SMS",
+    "pickServiceTitle": "Pick a service",
+    "pickServiceDesc": "Choose a service to receive SMS to your dedicated number — current real-time price applies:",
+    "currentBalance": "Current balance",
+    "searchService": "Search services",
+    "noServices": "No services available for this number's region",
+    "smsActivatedTitle": "Order placed, waiting for SMS",
+    "smsActivatedDesc": "Number {{phone}} charged ${{amount}}. The code will arrive in your Orders within 20 minutes.",
+    "rechargeNeedDesc": "Number {{phone}} requires ${{amount}}. Insufficient balance — redirecting to recharge…",
     "status": { "expired": "Expired", "cancelled": "Cancelled" }
   },
   "hero": {

@@ -54,6 +54,15 @@
     "autoRenew": "Автопродление",
     "renewNow": "Продлить сейчас",
     "cancel": "Отменить",
+    "receiveSms": "Получить SMS",
+    "pickServiceTitle": "Выберите сервис",
+    "pickServiceDesc": "Выберите сервис для приёма SMS на ваш закреплённый номер — спишется по текущей цене сервиса:",
+    "currentBalance": "Текущий баланс",
+    "searchService": "Поиск сервисов",
+    "noServices": "Для региона этого номера нет доступных сервисов",
+    "smsActivatedTitle": "Заказ создан, ждём SMS",
+    "smsActivatedDesc": "С номера {{phone}} списано ${{amount}}. Код придёт в «Мои заказы» в течение 20 минут.",
+    "rechargeNeedDesc": "Для номера {{phone}} нужно ${{amount}}. Недостаточно средств — переход к пополнению…",
     "status": { "expired": "Истёк", "cancelled": "Отменён" }
   },
   "hero": {
