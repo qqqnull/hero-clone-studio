@@ -203,6 +203,15 @@
     "autoRenew": "自动续费",
     "renewNow": "立即续费",
     "cancel": "取消订阅",
+    "receiveSms": "接收验证码",
+    "pickServiceTitle": "选择服务",
+    "pickServiceDesc": "为下方专属号码选择要接收验证码的服务，将按该服务实时价格扣费：",
+    "currentBalance": "当前余额",
+    "searchService": "搜索服务",
+    "noServices": "该号码所在地区暂无可用服务",
+    "smsActivatedTitle": "已下单，等待验证码",
+    "smsActivatedDesc": "号码 {{phone}} 已扣费 ${{amount}}，验证码将在 20 分钟内到达「我的订单」",
+    "rechargeNeedDesc": "号码 {{phone}} 需要 ${{amount}}，余额不足，正在跳转充值页面…",
     "status": { "expired": "已过期", "cancelled": "已取消" }
   },
   "hero": {
