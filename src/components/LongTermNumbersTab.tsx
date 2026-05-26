@@ -81,7 +81,7 @@ export function LongTermNumbersTab() {
       title: t('longTerm.insufficientBalance'),
       description: t('longTerm.rechargeNeedDesc', {
         phone,
-        amount: amount.toFixed(2),
+        amount: amount.toFixed(4),
       }),
       variant: 'destructive',
     });
@@ -180,7 +180,7 @@ export function LongTermNumbersTab() {
       title: t('longTerm.smsActivatedTitle'),
       description: t('longTerm.smsActivatedDesc', {
         phone: smsDialogSub.phone_number,
-        amount: opt.price.toFixed(2),
+        amount: opt.price.toFixed(4),
       }),
     });
     setSmsDialogSub(null);
@@ -411,7 +411,7 @@ export function LongTermNumbersTab() {
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`font-mono font-semibold ${lowBalance ? 'text-destructive' : 'text-primary'}`}>
-                        ${opt.price.toFixed(2)}
+                        ${opt.price.toFixed(4)}
                       </span>
                       {lowBalance && (
                         <Badge variant="outline" className="text-[10px] border-destructive text-destructive">
