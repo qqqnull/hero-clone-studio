@@ -81,7 +81,7 @@ export function LongTermNumbersTab() {
       title: t('longTerm.insufficientBalance'),
       description: t('longTerm.rechargeNeedDesc', {
         phone,
-        amount: amount.toFixed(2),
+        amount: amount.toFixed(4),
       }),
       variant: 'destructive',
     });
