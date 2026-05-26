@@ -17,14 +17,14 @@ import { ServiceIcon } from '@/components/ServiceIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Clock, AlertTriangle, RefreshCw, Trash2, MessageSquare, Search } from 'lucide-react';
-import { format } from 'date-fns';
+import { Lock, Clock, AlertTriangle, RefreshCw, Trash2, MessageSquare, Search, Hourglass } from 'lucide-react';
+import { format, differenceInDays, differenceInHours } from 'date-fns';
 
 interface Subscription {
   id: string;
   phone_number: string;
   monthly_fee: number;
-  status: 'active' | 'grace' | 'expired' | 'cancelled';
+  status: 'active' | 'grace' | 'expired' | 'cancelled' | 'pending';
   auto_renew: boolean;
   used_this_period: boolean;
   current_period_end: string;
