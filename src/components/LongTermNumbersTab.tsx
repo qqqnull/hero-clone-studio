@@ -25,8 +25,9 @@ interface Subscription {
 
 export function LongTermNumbersTab() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
 
