@@ -105,6 +105,20 @@ export function LongTermNumbersTab() {
 
   return (
     <div className="space-y-4">
+      <Card className="border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <Lock className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-sm leading-relaxed">
+              <p className="text-foreground font-semibold mb-1">🎁 {t('longTerm.giftTitle')}</p>
+              <p className="text-muted-foreground">{t('longTerm.giftDesc')}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
