@@ -17,14 +17,14 @@ import { ServiceIcon } from '@/components/ServiceIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Clock, AlertTriangle, RefreshCw, Trash2, MessageSquare, Search } from 'lucide-react';
-import { format } from 'date-fns';
+import { Lock, Clock, AlertTriangle, RefreshCw, Trash2, MessageSquare, Search, Hourglass } from 'lucide-react';
+import { format, differenceInDays, differenceInHours } from 'date-fns';
 
 interface Subscription {
   id: string;
   phone_number: string;
   monthly_fee: number;
-  status: 'active' | 'grace' | 'expired' | 'cancelled';
+  status: 'active' | 'grace' | 'expired' | 'cancelled' | 'pending';
   auto_renew: boolean;
   used_this_period: boolean;
   current_period_end: string;
@@ -238,15 +238,37 @@ export function LongTermNumbersTab() {
             const periodEnd = new Date(sub.current_period_end);
             const graceEnd = sub.grace_period_ends_at ? new Date(sub.grace_period_ends_at) : null;
             const isGrace = sub.status === 'grace';
+            const isPending = sub.status === 'pending';
             const isExpired = sub.status === 'expired' || sub.status === 'cancelled';
+            const pendingDaysLeft = isPending
+              ? Math.max(0, differenceInDays(periodEnd, new Date()))
+              : 0;
+            const pendingHoursLeft = isPending
+              ? Math.max(0, differenceInHours(periodEnd, new Date()) - pendingDaysLeft * 24)
+              : 0;
 
             return (
-              <Card key={sub.id} className={isGrace ? 'border-yellow-300' : isExpired ? 'opacity-60' : ''}>
+              <Card
+                key={sub.id}
+                className={
+                  isPending
+                    ? 'border-orange-300 bg-orange-50/40'
+                    : isGrace
+                      ? 'border-yellow-300'
+                      : isExpired
+                        ? 'opacity-60'
+                        : ''
+                }
+              >
                 <CardContent className="pt-5">
                   <div className="flex flex-wrap items-center gap-4 justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <Lock className="w-4 h-4 text-primary" />
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isPending ? 'bg-orange-100' : 'bg-primary/10'}`}>
+                        {isPending ? (
+                          <Hourglass className="w-4 h-4 text-orange-600" />
+                        ) : (
+                          <Lock className="w-4 h-4 text-primary" />
+                        )}
                       </div>
                       <div>
                         <div className="font-mono font-semibold text-base">{sub.phone_number}</div>
@@ -257,12 +279,22 @@ export function LongTermNumbersTab() {
                               {t('longTerm.willRenewFree')}
                             </Badge>
                           )}
+                          {isPending && (
+                            <Badge variant="outline" className="ml-2 border-orange-300 text-orange-700 bg-orange-50">
+                              {t('longTerm.status.pending')}
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm">
-                      {isGrace && graceEnd ? (
+                      {isPending ? (
+                        <div className="flex items-center gap-1.5 text-orange-700 bg-orange-100 px-3 py-1.5 rounded-lg">
+                          <Hourglass className="w-4 h-4" />
+                          <span>{t('longTerm.pendingEndsIn', { days: pendingDaysLeft, hours: pendingHoursLeft })}</span>
+                        </div>
+                      ) : isGrace && graceEnd ? (
                         <div className="flex items-center gap-1.5 text-yellow-700 bg-yellow-50 px-3 py-1.5 rounded-lg">
                           <AlertTriangle className="w-4 h-4" />
                           <span>{t('longTerm.graceEndsAt', { date: format(graceEnd, 'MM/dd HH:mm') })}</span>
@@ -278,7 +310,13 @@ export function LongTermNumbersTab() {
                     </div>
                   </div>
 
-                  {!isExpired && (
+                  {isPending && (
+                    <div className="mt-3 p-3 rounded-lg bg-orange-50 border border-orange-200 text-xs leading-relaxed text-orange-900">
+                      ⚠️ {t('longTerm.pendingWarning')}
+                    </div>
+                  )}
+
+                  {!isExpired && !isPending && (
                     <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-border">
                       <label className="flex items-center gap-2 text-sm cursor-pointer">
                         <Switch

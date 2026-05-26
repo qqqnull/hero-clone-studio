@@ -64,7 +64,9 @@
     "smsActivatedTitle": "Order placed, waiting for SMS",
     "smsActivatedDesc": "Number {{phone}} charged ${{amount}}. The code will arrive in your Orders within 20 minutes.",
     "rechargeNeedDesc": "Number {{phone}} requires ${{amount}}. Insufficient balance — redirecting to recharge…",
-    "status": { "expired": "Expired", "cancelled": "Cancelled" }
+    "pendingEndsIn": "{{days}}d {{hours}}h left",
+    "pendingWarning": "This number is locked, but you must receive your first SMS (pay and get a code) within 7 days for the 30-day exclusive hold to officially start. If no SMS is received in 7 days, the number is released back to the public pool — no charge.",
+    "status": { "expired": "Expired", "cancelled": "Cancelled", "pending": "Awaiting first SMS" }
   },
   "hero": {
     "title": "Receive SMS online & API Access",

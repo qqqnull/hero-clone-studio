@@ -508,6 +508,14 @@ export type Database = {
       }
       make_user_admin: { Args: { user_email: string }; Returns: undefined }
       process_subscription_renewals: { Args: never; Returns: undefined }
+      register_pending_subscription: {
+        Args: {
+          _country_id: string
+          _monthly_fee: number
+          _phone_number: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

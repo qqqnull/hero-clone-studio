@@ -213,7 +213,9 @@
     "smsActivatedTitle": "已下单，等待验证码",
     "smsActivatedDesc": "号码 {{phone}} 已扣费 ${{amount}}，验证码将在 20 分钟内到达「我的订单」",
     "rechargeNeedDesc": "号码 {{phone}} 需要 ${{amount}}，余额不足，正在跳转充值页面…",
-    "status": { "expired": "已过期", "cancelled": "已取消" }
+    "pendingEndsIn": "剩 {{days}} 天 {{hours}} 小时",
+    "pendingWarning": "该号码已锁定，但需在 7 天内完成首次接码（支付并收到验证码）才会正式生效 30 天专属持有期。超过 7 天未接码将自动释放回公共池，不消耗任何费用。",
+    "status": { "expired": "已过期", "cancelled": "已取消", "pending": "待首次接码" }
   },
   "hero": {
     "title": "在线接收短信 & API 访问",

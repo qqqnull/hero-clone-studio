@@ -329,6 +329,14 @@ export default function ReceiveSms() {
           status: 'active',
         });
 
+      // Register a 7-day pending long-term subscription; auto-promotes to 30-day active
+      // when the first SMS arrives (DB trigger). Released for free if no SMS in 7 days.
+      await supabase.rpc('register_pending_subscription', {
+        _phone_number: phoneNumber.number,
+        _country_id: servicePrice.country_id,
+        _monthly_fee: servicePrice.price,
+      });
+
       await supabase
         .from('transactions')
         .insert({
