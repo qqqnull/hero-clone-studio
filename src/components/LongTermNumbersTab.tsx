@@ -411,7 +411,7 @@ export function LongTermNumbersTab() {
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`font-mono font-semibold ${lowBalance ? 'text-destructive' : 'text-primary'}`}>
-                        ${opt.price.toFixed(2)}
+                        ${opt.price.toFixed(4)}
                       </span>
                       {lowBalance && (
                         <Badge variant="outline" className="text-[10px] border-destructive text-destructive">
