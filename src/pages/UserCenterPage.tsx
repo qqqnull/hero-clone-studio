@@ -119,8 +119,7 @@ export default function UserCenterPage() {
           <Tabs defaultValue={defaultTab} className="space-y-6">
             <TabsList className="bg-muted p-1 rounded-lg">
               <TabsTrigger value="profile" className="rounded-md px-6">{t('userCenter.profile')}</TabsTrigger>
-              <TabsTrigger value="numbers" className="rounded-md px-6">{t('userCenter.numbers')}</TabsTrigger>
-              <TabsTrigger value="longterm" className="rounded-md px-6 gap-1.5">
+              <TabsTrigger value="numbers" className="rounded-md px-6 gap-1.5">
                 <Lock className="w-3.5 h-3.5" />
                 {t('longTerm.tabTitle')}
               </TabsTrigger>
