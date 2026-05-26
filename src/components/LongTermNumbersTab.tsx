@@ -55,21 +55,38 @@ export function LongTermNumbersTab() {
   };
 
   const renewNow = async (sub: Subscription) => {
+    // 前置余额检查：不足则提示并跳转充值页
+    const balance = Number(profile?.balance ?? 0);
+    if (balance < sub.monthly_fee) {
+      toast({
+        title: t('longTerm.insufficientBalance'),
+        description: t('longTerm.pleaseRecharge'),
+        variant: 'destructive',
+      });
+      navigate('/recharge');
+      return;
+    }
+
     const { error } = await supabase.rpc('lock_phone_subscription', {
       _phone_number: sub.phone_number,
       _country_id: sub.country_id,
       _monthly_fee: sub.monthly_fee,
     });
     if (error) {
-      toast({
-        title: error.message?.includes('INSUFFICIENT_BALANCE')
-          ? t('longTerm.insufficientBalance')
-          : t('receiveSms.error'),
-        variant: 'destructive',
-      });
+      if (error.message?.includes('INSUFFICIENT_BALANCE')) {
+        toast({
+          title: t('longTerm.insufficientBalance'),
+          description: t('longTerm.pleaseRecharge'),
+          variant: 'destructive',
+        });
+        navigate('/recharge');
+        return;
+      }
+      toast({ title: t('receiveSms.error'), variant: 'destructive' });
       return;
     }
     toast({ title: t('longTerm.renewedToast') });
+    await refreshProfile();
     fetchSubs();
   };
 
