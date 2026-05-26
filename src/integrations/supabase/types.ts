@@ -479,9 +479,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_default_subscriptions: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
       consume_phone_subscription: {
         Args: { _service_price: number; _subscription_id: string }
         Returns: boolean
+      }
+      generate_random_phone: {
+        Args: { _digits?: number; _phone_code: string }
+        Returns: string
       }
       has_role: {
         Args: {
