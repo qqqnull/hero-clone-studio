@@ -145,16 +145,21 @@ export default function UserCenterPage() {
       
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4">
-          <Tabs defaultValue={defaultTab} className="space-y-6">
-            <TabsList className="bg-muted p-1 rounded-lg">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="bg-muted p-1 rounded-lg flex-wrap h-auto">
               <TabsTrigger value="profile" className="rounded-md px-6">{t('userCenter.profile')}</TabsTrigger>
               <TabsTrigger value="numbers" className="rounded-md px-6 gap-1.5">
                 <Lock className="w-3.5 h-3.5" />
                 {t('longTerm.tabTitle')}
               </TabsTrigger>
+              <TabsTrigger value="recharges" className="rounded-md px-6 gap-1.5">
+                <Receipt className="w-3.5 h-3.5" />
+                {t('userCenter.rechargeRecords')}
+              </TabsTrigger>
               <TabsTrigger value="security" className="rounded-md px-6">{t('userCenter.security')}</TabsTrigger>
               <TabsTrigger value="affiliate" className="rounded-md px-6">{t('userCenter.affiliate')}</TabsTrigger>
             </TabsList>
+
 
             {/* Profile Tab */}
             <TabsContent value="profile">
