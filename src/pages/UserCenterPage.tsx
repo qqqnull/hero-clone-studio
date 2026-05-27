@@ -46,6 +46,7 @@ export default function UserCenterPage() {
   
   const [profile, setProfile] = useState<any>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [recharges, setRecharges] = useState<RechargeTx[]>([]);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState({
     start: format(new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
@@ -61,6 +62,7 @@ export default function UserCenterPage() {
     }
     fetchProfile();
     fetchOrders();
+    fetchRecharges();
   }, [user]);
 
   const fetchProfile = async () => {
