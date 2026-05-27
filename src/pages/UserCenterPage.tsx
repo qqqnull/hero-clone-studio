@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Key, Shield, Users, Calendar, Search, Download, RefreshCw, Lock } from 'lucide-react';
+import { Copy, Key, Shield, Users, Calendar, Search, Download, RefreshCw, Lock, Receipt } from 'lucide-react';
 import { format } from 'date-fns';
 import { LongTermNumbersTab } from '@/components/LongTermNumbersTab';
 
@@ -24,6 +24,18 @@ interface Order {
   country: { name: string; flag: string } | null;
 }
 
+interface RechargeTx {
+  id: string;
+  order_id: string | null;
+  amount: number;
+  currency: string | null;
+  payment_method: string | null;
+  status: string;
+  tx_hash: string | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
 export default function UserCenterPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -31,9 +43,12 @@ export default function UserCenterPage() {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') || 'profile';
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
   
   const [profile, setProfile] = useState<any>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [recharges, setRecharges] = useState<RechargeTx[]>([]);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState({
     start: format(new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
@@ -49,6 +64,7 @@ export default function UserCenterPage() {
     }
     fetchProfile();
     fetchOrders();
+    fetchRecharges();
   }, [user]);
 
   const fetchProfile = async () => {
@@ -77,8 +93,21 @@ export default function UserCenterPage() {
     setOrders(data || []);
   };
 
+  const fetchRecharges = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('transactions')
+      .select('id, order_id, amount, currency, payment_method, status, tx_hash, created_at, completed_at')
+      .eq('user_id', user.id)
+      .eq('type', 'recharge')
+      .order('created_at', { ascending: false })
+      .limit(100);
+    setRecharges((data as RechargeTx[]) || []);
+  };
+
   const generateApiKey = () => {
     const key = 'sk_' + Array.from({ length: 32 }, () => 
+
       'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
     ).join('');
     setApiKey(key);
@@ -116,16 +145,21 @@ export default function UserCenterPage() {
       
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4">
-          <Tabs defaultValue={defaultTab} className="space-y-6">
-            <TabsList className="bg-muted p-1 rounded-lg">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="bg-muted p-1 rounded-lg flex-wrap h-auto">
               <TabsTrigger value="profile" className="rounded-md px-6">{t('userCenter.profile')}</TabsTrigger>
               <TabsTrigger value="numbers" className="rounded-md px-6 gap-1.5">
                 <Lock className="w-3.5 h-3.5" />
                 {t('longTerm.tabTitle')}
               </TabsTrigger>
+              <TabsTrigger value="recharges" className="rounded-md px-6 gap-1.5">
+                <Receipt className="w-3.5 h-3.5" />
+                {t('userCenter.rechargeRecords')}
+              </TabsTrigger>
               <TabsTrigger value="security" className="rounded-md px-6">{t('userCenter.security')}</TabsTrigger>
               <TabsTrigger value="affiliate" className="rounded-md px-6">{t('userCenter.affiliate')}</TabsTrigger>
             </TabsList>
+
 
             {/* Profile Tab */}
             <TabsContent value="profile">
@@ -137,9 +171,10 @@ export default function UserCenterPage() {
                     <Button className="w-full mt-4" onClick={() => navigate('/recharge')}>
                       {t('userCenter.recharge')}
                     </Button>
-                    <Button variant="outline" className="w-full mt-2">
+                    <Button variant="outline" className="w-full mt-2" onClick={() => setActiveTab('recharges')}>
                       {t('userCenter.rechargeHistory')}
                     </Button>
+
                   </CardContent>
                 </Card>
 
@@ -173,6 +208,77 @@ export default function UserCenterPage() {
             <TabsContent value="numbers">
               <LongTermNumbersTab />
             </TabsContent>
+
+            {/* Recharge Records Tab */}
+            <TabsContent value="recharges">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Receipt className="w-5 h-5" />
+                    {t('userCenter.rechargeRecords')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {recharges.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      {t('userCenter.noRecharge')}
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b text-muted-foreground text-left">
+                            <th className="py-3 px-3 font-medium">{t('userCenter.orderNo')}</th>
+                            <th className="py-3 px-3 font-medium">{t('userCenter.amount')}</th>
+                            <th className="py-3 px-3 font-medium">{t('userCenter.network')}</th>
+                            <th className="py-3 px-3 font-medium">{t('userCenter.status')}</th>
+                            <th className="py-3 px-3 font-medium">{t('userCenter.time')}</th>
+                            <th className="py-3 px-3 font-medium">{t('userCenter.txHash')}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {recharges.map((r) => (
+                            <tr key={r.id} className="border-b hover:bg-muted/30">
+                              <td className="py-3 px-3 font-mono text-xs">
+                                <div className="flex items-center gap-1">
+                                  <span>{r.order_id || r.id.slice(0, 12)}</span>
+                                  {r.order_id && (
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(r.order_id!)}>
+                                      <Copy className="w-3 h-3" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="py-3 px-3 font-semibold text-primary">
+                                {Number(r.amount).toFixed(2)} {r.currency || 'USDT'}
+                              </td>
+                              <td className="py-3 px-3">{r.payment_method || '-'}</td>
+                              <td className="py-3 px-3">
+                                <span className={
+                                  r.status === 'completed' ? 'text-green-600' :
+                                  r.status === 'pending' ? 'text-yellow-600' :
+                                  'text-muted-foreground'
+                                }>
+                                  {t(`userCenter.status.${r.status}`, r.status)}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3 text-muted-foreground whitespace-nowrap">
+                                {format(new Date(r.created_at), 'yyyy-MM-dd HH:mm')}
+                              </td>
+                              <td className="py-3 px-3 font-mono text-xs text-muted-foreground max-w-[160px] truncate">
+                                {r.tx_hash || '-'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+
 
             {/* Security Tab */}
             <TabsContent value="security">

@@ -100,7 +100,7 @@
   },
   "userCenter": {
     "profile": "个人信息", "numbers": "号码", "security": "安全", "affiliate": "网站联盟",
-    "balance": "余额", "recharge": "充值", "rechargeHistory": "充值历史记录",
+    "balance": "余额", "recharge": "充值", "rechargeHistory": "充值记录",
     "copied": "已复制",
     "timeRange": "时间范围", "maxRange": "最大允许请求周期为2周!",
     "allServices": "所有服务", "allCountries": "所有国家", "request": "请求",
@@ -114,7 +114,8 @@
     "changePassword": "更改密码", "twoFactor": "双因素验证", "twoFactorDesc": "保护你的账户。使用 Google Authenticator 启用双重验证。",
     "setup2FA": "设置 2FA",
     "affiliateProgram": "网站联盟", "affiliateDesc": "通过推荐新用户赚取佣金",
-    "referralLink": "推荐链接", "referrals": "推荐用户", "earnings": "收益", "commissionRate": "佣金率"
+    "referralLink": "推荐链接", "referrals": "推荐用户", "earnings": "收益", "commissionRate": "佣金率",
+    "rechargeRecords": "充值记录", "orderNo": "订单号", "amount": "金额", "network": "网络", "time": "时间", "txHash": "交易哈希", "noRecharge": "暂无充值记录"
   },
   "recharge": {
     "title": "账户充值", "usdtPayment": "USDT支付", "multiNetwork": "支持多种网络",
