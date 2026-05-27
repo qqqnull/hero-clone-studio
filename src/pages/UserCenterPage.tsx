@@ -91,7 +91,18 @@ export default function UserCenterPage() {
     setOrders(data || []);
   };
 
-  const generateApiKey = () => {
+  const fetchRecharges = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('transactions')
+      .select('id, order_id, amount, currency, payment_method, status, tx_hash, created_at, completed_at')
+      .eq('user_id', user.id)
+      .eq('type', 'recharge')
+      .order('created_at', { ascending: false })
+      .limit(100);
+    setRecharges((data as RechargeTx[]) || []);
+  };
+
     const key = 'sk_' + Array.from({ length: 32 }, () => 
       'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
     ).join('');
