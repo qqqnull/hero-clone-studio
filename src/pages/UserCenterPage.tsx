@@ -103,7 +103,9 @@ export default function UserCenterPage() {
     setRecharges((data as RechargeTx[]) || []);
   };
 
+  const generateApiKey = () => {
     const key = 'sk_' + Array.from({ length: 32 }, () => 
+
       'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
     ).join('');
     setApiKey(key);
