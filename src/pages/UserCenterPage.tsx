@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Key, Shield, Users, Calendar, Search, Download, RefreshCw, Lock } from 'lucide-react';
+import { Copy, Key, Shield, Users, Calendar, Search, Download, RefreshCw, Lock, Receipt } from 'lucide-react';
 import { format } from 'date-fns';
 import { LongTermNumbersTab } from '@/components/LongTermNumbersTab';
 
