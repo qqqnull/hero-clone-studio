@@ -171,9 +171,10 @@ export default function UserCenterPage() {
                     <Button className="w-full mt-4" onClick={() => navigate('/recharge')}>
                       {t('userCenter.recharge')}
                     </Button>
-                    <Button variant="outline" className="w-full mt-2">
+                    <Button variant="outline" className="w-full mt-2" onClick={() => setActiveTab('recharges')}>
                       {t('userCenter.rechargeHistory')}
                     </Button>
+
                   </CardContent>
                 </Card>
 
