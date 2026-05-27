@@ -209,6 +209,77 @@ export default function UserCenterPage() {
               <LongTermNumbersTab />
             </TabsContent>
 
+            {/* Recharge Records Tab */}
+            <TabsContent value="recharges">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Receipt className="w-5 h-5" />
+                    {t('userCenter.rechargeRecords')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {recharges.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      {t('userCenter.noRecharge')}
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b text-muted-foreground text-left">
+                            <th className="py-3 px-3 font-medium">{t('userCenter.orderNo')}</th>
+                            <th className="py-3 px-3 font-medium">{t('userCenter.amount')}</th>
+                            <th className="py-3 px-3 font-medium">{t('userCenter.network')}</th>
+                            <th className="py-3 px-3 font-medium">{t('userCenter.status')}</th>
+                            <th className="py-3 px-3 font-medium">{t('userCenter.time')}</th>
+                            <th className="py-3 px-3 font-medium">{t('userCenter.txHash')}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {recharges.map((r) => (
+                            <tr key={r.id} className="border-b hover:bg-muted/30">
+                              <td className="py-3 px-3 font-mono text-xs">
+                                <div className="flex items-center gap-1">
+                                  <span>{r.order_id || r.id.slice(0, 12)}</span>
+                                  {r.order_id && (
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(r.order_id!)}>
+                                      <Copy className="w-3 h-3" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="py-3 px-3 font-semibold text-primary">
+                                {Number(r.amount).toFixed(2)} {r.currency || 'USDT'}
+                              </td>
+                              <td className="py-3 px-3">{r.payment_method || '-'}</td>
+                              <td className="py-3 px-3">
+                                <span className={
+                                  r.status === 'completed' ? 'text-green-600' :
+                                  r.status === 'pending' ? 'text-yellow-600' :
+                                  'text-muted-foreground'
+                                }>
+                                  {t(`userCenter.status.${r.status}`, r.status)}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3 text-muted-foreground whitespace-nowrap">
+                                {format(new Date(r.created_at), 'yyyy-MM-dd HH:mm')}
+                              </td>
+                              <td className="py-3 px-3 font-mono text-xs text-muted-foreground max-w-[160px] truncate">
+                                {r.tx_hash || '-'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+
+
             {/* Security Tab */}
             <TabsContent value="security">
               <div className="grid md:grid-cols-2 gap-6">
