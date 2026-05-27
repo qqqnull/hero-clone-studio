@@ -24,6 +24,18 @@ interface Order {
   country: { name: string; flag: string } | null;
 }
 
+interface RechargeTx {
+  id: string;
+  order_id: string | null;
+  amount: number;
+  currency: string | null;
+  payment_method: string | null;
+  status: string;
+  tx_hash: string | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
 export default function UserCenterPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
