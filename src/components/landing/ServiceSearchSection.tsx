@@ -136,8 +136,11 @@ export function ServiceSearchSection() {
                   </div>
                 ))}
                 {filteredServices.length === 0 && !loading && (
-                  <div className="text-center py-4 text-muted-foreground">
-                    {t('serviceSearch.noResults')}
+                  <div className="text-center py-4 text-muted-foreground space-y-2">
+                    <div>{t('serviceSearch.noResults')}</div>
+                    <div className="text-xs leading-relaxed px-4">
+                      {t('serviceSearch.contactSupport', '如果找不到你需要的服务，请联系客服，我们会尽快为你添加。')}
+                    </div>
                   </div>
                 )}
               </div>
