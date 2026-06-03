@@ -150,8 +150,11 @@ export function HeroSection() {
                     </div>
                   ))}
                   {filteredServices.length === 0 && !loading && (
-                    <div className="text-center py-4 text-white/50 text-sm">
-                      {t('serviceSearch.noResults') || '未找到服务'}
+                    <div className="text-center py-4 text-white/60 text-sm space-y-1">
+                      <div>{t('serviceSearch.noResults') || '未找到服务'}</div>
+                      <div className="text-xs text-white/50 leading-relaxed px-2">
+                        {t('serviceSearch.contactSupport', '如果找不到你需要的服务，请联系客服，我们会尽快为你添加。')}
+                      </div>
                     </div>
                   )}
                 </div>
