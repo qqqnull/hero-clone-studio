@@ -576,8 +576,11 @@ export default function ReceiveSms() {
           </button>
         ))}
         {filteredServices.length === 0 && (
-          <div className="p-4 text-center text-gray-400 text-sm">
-            {t('receiveSms.noServicesFound')}
+          <div className="p-4 text-center text-gray-400 text-sm space-y-2">
+            <div>{t('receiveSms.noServicesFound')}</div>
+            <div className="text-xs text-gray-500 leading-relaxed">
+              {t('serviceSearch.contactSupport', '如果找不到你需要的服务，请联系客服，我们会尽快为你添加。')}
+            </div>
           </div>
         )}
       </div>
