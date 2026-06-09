@@ -421,7 +421,9 @@ export default function AdminUsersPage() {
     if (!keyword) return profiles;
     return profiles.filter((profile) =>
       (profile.email || '').toLowerCase().includes(keyword) ||
-      profile.user_id.toLowerCase().includes(keyword),
+      profile.user_id.toLowerCase().includes(keyword) ||
+      (profile.created_at || '').toLowerCase().includes(keyword) ||
+      formatDateTime(profile.created_at).toLowerCase().includes(keyword),
     );
   }, [profiles, userSearch]);
 
@@ -429,11 +431,22 @@ export default function AdminUsersPage() {
     const keyword = recordSearch.trim().toLowerCase();
     if (!keyword) return transactions;
     return transactions.filter((record) =>
-      [record.user_email, record.order_id, record.wallet_address, record.payment_address, record.tx_hash]
+      [
+        record.user_email,
+        record.order_id,
+        record.wallet_address,
+        record.payment_address,
+        record.tx_hash,
+        record.created_at,
+        record.completed_at,
+        formatDateTime(record.created_at),
+        formatDateTime(record.completed_at),
+      ]
         .filter(Boolean)
         .some((value) => value!.toLowerCase().includes(keyword)),
     );
   }, [transactions, recordSearch]);
+
 
   const userTotalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
   const txTotalPages = Math.max(1, Math.ceil(filteredTransactions.length / PAGE_SIZE));
