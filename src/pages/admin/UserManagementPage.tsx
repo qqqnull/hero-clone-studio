@@ -581,8 +581,8 @@ export default function AdminUsersPage() {
                                 {record.tx_hash || '--'}
                               </TableCell>
                               <TableCell className="text-right">
-                                <Button size="sm" variant="default" onClick={() => openEditTx(record)}>
-                                  <Pencil className="h-3.5 w-3.5 mr-1" />编辑
+                                <Button size="sm" variant="ghost" onClick={() => openEditTx(record)}>
+                                  <Eye className="h-3.5 w-3.5 mr-1" />查看
                                 </Button>
                               </TableCell>
                             </TableRow>
