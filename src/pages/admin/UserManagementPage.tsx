@@ -601,8 +601,17 @@ export default function AdminUsersPage() {
                           )}
                         </TableBody>
                       </Table>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <div>Total {filteredUsers.length} users</div>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="outline" disabled={currentUserPage <= 1} onClick={() => setUserPage((p) => Math.max(1, p - 1))}>Previous</Button>
+                          <span>Page {currentUserPage} / {userTotalPages}</span>
+                          <Button size="sm" variant="outline" disabled={currentUserPage >= userTotalPages} onClick={() => setUserPage((p) => Math.min(userTotalPages, p + 1))}>Next</Button>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
+
                 </TabsContent>
 
                 <TabsContent value="transactions">
