@@ -107,6 +107,27 @@ const isBanned = (banned_until?: string | null) => {
   return new Date(banned_until).getTime() > Date.now();
 };
 
+const ADMIN_FETCH_BATCH_SIZE = 1000;
+
+const fetchAllRows = async <T,>(
+  buildQuery: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>,
+) => {
+  const rows: T[] = [];
+
+  for (let from = 0; ; from += ADMIN_FETCH_BATCH_SIZE) {
+    const to = from + ADMIN_FETCH_BATCH_SIZE - 1;
+    const { data, error } = await buildQuery(from, to);
+    if (error) throw error;
+
+    const batch = data || [];
+    rows.push(...batch);
+
+    if (batch.length < ADMIN_FETCH_BATCH_SIZE) break;
+  }
+
+  return rows;
+};
+
 export default function AdminUsersPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -217,26 +238,26 @@ export default function AdminUsersPage() {
     else setLoading(true);
 
     try {
-      const [profilesResult, rolesResult, transactionsResult, authUsersResult] = await Promise.all([
-        supabase
+      const [profileRowsRaw, roleRows, transactionRowsRaw, authUsersResult] = await Promise.all([
+        fetchAllRows<Omit<UserProfile, 'role'>>((from, to) => supabase
           .from('profiles')
           .select('id, user_id, email, balance, vip_level, created_at, usdt_address')
-          .order('created_at', { ascending: false }),
-        supabase.from('user_roles').select('user_id, role'),
-        supabase
+          .order('created_at', { ascending: false })
+          .range(from, to)),
+        fetchAllRows<UserRole>((from, to) => supabase
+          .from('user_roles')
+          .select('user_id, role')
+          .range(from, to)),
+        fetchAllRows<TransactionRecord>((from, to) => supabase
           .from('transactions')
           .select('id, user_id, type, amount, order_id, payment_method, payment_address, wallet_address, tx_hash, status, currency, created_at, completed_at, note')
           .order('created_at', { ascending: false })
-          .limit(300),
+          .range(from, to)),
         supabase.functions.invoke('admin-user-management', { body: { action: 'list_users' } }),
       ]);
 
-      if (profilesResult.error) throw profilesResult.error;
-      if (rolesResult.error) throw rolesResult.error;
-      if (transactionsResult.error) throw transactionsResult.error;
-
       const roleMap = new Map<string, string>();
-      (rolesResult.data as UserRole[] | null)?.forEach((item) => {
+      roleRows.forEach((item) => {
         if (!roleMap.has(item.user_id) || item.role === 'admin') {
           roleMap.set(item.user_id, item.role);
         }
@@ -246,14 +267,14 @@ export default function AdminUsersPage() {
       const authUsers = (authUsersResult.data as { users?: Array<{ id: string; banned_until: string | null }> } | null)?.users || [];
       authUsers.forEach((u) => banMap.set(u.id, u.banned_until));
 
-      const profileRows = ((profilesResult.data as Omit<UserProfile, 'role'>[] | null) || []).map((profile) => ({
+      const profileRows = profileRowsRaw.map((profile) => ({
         ...profile,
         role: roleMap.get(profile.user_id) || 'user',
         banned_until: banMap.get(profile.user_id) || null,
       }));
 
       const emailMap = new Map(profileRows.map((profile) => [profile.user_id, profile.email]));
-      const transactionRows = ((transactionsResult.data as TransactionRecord[] | null) || []).map((record) => ({
+      const transactionRows = transactionRowsRaw.map((record) => ({
         ...record,
         user_email: emailMap.get(record.user_id) || null,
       }));
