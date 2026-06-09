@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, RefreshCw, Search, Users, Wallet, UserPlus, KeyRound, Trash2, Ban, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Search, Users, Wallet, UserPlus, KeyRound, Trash2, Ban, CheckCircle2, Pencil } from 'lucide-react';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import { Navbar, Footer } from '@/components/layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -35,6 +38,7 @@ interface UserProfile {
   created_at: string | null;
   role: string;
   banned_until?: string | null;
+  usdt_address?: string | null;
 }
 
 interface TransactionRecord {
@@ -119,6 +123,20 @@ export default function AdminUsersPage() {
   // Ban confirm
   const [banTarget, setBanTarget] = useState<UserProfile | null>(null);
 
+  // Edit user (balance + usdt address)
+  const [editUserTarget, setEditUserTarget] = useState<UserProfile | null>(null);
+  const [editBalance, setEditBalance] = useState('');
+  const [editUsdtAddress, setEditUsdtAddress] = useState('');
+
+  // Edit transaction
+  const [editTxTarget, setEditTxTarget] = useState<TransactionRecord | null>(null);
+  const [editTxStatus, setEditTxStatus] = useState('');
+  const [editTxAmount, setEditTxAmount] = useState('');
+  const [editTxWallet, setEditTxWallet] = useState('');
+  const [editTxPayAddr, setEditTxPayAddr] = useState('');
+  const [editTxHash, setEditTxHash] = useState('');
+  const [editTxNote, setEditTxNote] = useState('');
+
   useEffect(() => {
     const checkAdmin = async () => {
       if (!user) {
@@ -153,7 +171,7 @@ export default function AdminUsersPage() {
       const [profilesResult, rolesResult, transactionsResult, authUsersResult] = await Promise.all([
         supabase
           .from('profiles')
-          .select('id, user_id, email, balance, vip_level, created_at')
+          .select('id, user_id, email, balance, vip_level, created_at, usdt_address')
           .order('created_at', { ascending: false }),
         supabase.from('user_roles').select('user_id, role'),
         supabase
@@ -272,6 +290,72 @@ export default function AdminUsersPage() {
     }
   };
 
+  const openEditUser = (profile: UserProfile) => {
+    setEditUserTarget(profile);
+    setEditBalance(String(profile.balance ?? 0));
+    setEditUsdtAddress(profile.usdt_address || '');
+  };
+
+  const handleSaveUser = async () => {
+    if (!editUserTarget) return;
+    setActionLoading(true);
+    try {
+      const newBalance = Number(editBalance);
+      if (Number.isNaN(newBalance)) throw new Error('余额必须为数字');
+      const { error } = await supabase
+        .from('profiles')
+        .update({ balance: newBalance, usdt_address: editUsdtAddress || null })
+        .eq('user_id', editUserTarget.user_id);
+      if (error) throw error;
+      toast({ title: '已保存' });
+      setEditUserTarget(null);
+      fetchAdminData(true);
+    } catch (e) {
+      toast({ title: '保存失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const openEditTx = (record: TransactionRecord) => {
+    setEditTxTarget(record);
+    setEditTxStatus(record.status || 'pending');
+    setEditTxAmount(String(record.amount ?? 0));
+    setEditTxWallet(record.wallet_address || '');
+    setEditTxPayAddr(record.payment_address || '');
+    setEditTxHash(record.tx_hash || '');
+    setEditTxNote(record.note || '');
+  };
+
+  const handleSaveTx = async () => {
+    if (!editTxTarget) return;
+    setActionLoading(true);
+    try {
+      const amt = Number(editTxAmount);
+      if (Number.isNaN(amt)) throw new Error('金额必须为数字');
+      const { error } = await supabase
+        .from('transactions')
+        .update({
+          status: editTxStatus,
+          amount: amt,
+          wallet_address: editTxWallet || null,
+          payment_address: editTxPayAddr || null,
+          tx_hash: editTxHash || null,
+          note: editTxNote || null,
+          completed_at: editTxStatus === 'completed' ? new Date().toISOString() : null,
+        })
+        .eq('id', editTxTarget.id);
+      if (error) throw error;
+      toast({ title: '已保存' });
+      setEditTxTarget(null);
+      fetchAdminData(true);
+    } catch (e) {
+      toast({ title: '保存失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const filteredUsers = useMemo(() => {
     const keyword = userSearch.trim().toLowerCase();
     if (!keyword) return profiles;
@@ -381,6 +465,7 @@ export default function AdminUsersPage() {
                             <TableHead>状态</TableHead>
                             <TableHead>余额</TableHead>
                             <TableHead>VIP</TableHead>
+                            <TableHead>USDT 地址</TableHead>
                             <TableHead>注册时间</TableHead>
                             <TableHead className="text-right">操作</TableHead>
                           </TableRow>
@@ -409,6 +494,9 @@ export default function AdminUsersPage() {
                                 </TableCell>
                                 <TableCell>${Number(profile.balance || 0).toFixed(2)}</TableCell>
                                 <TableCell>{profile.vip_level || 1}</TableCell>
+                                <TableCell className="max-w-[180px] truncate font-mono text-xs" title={profile.usdt_address || ''}>
+                                  {profile.usdt_address || '--'}
+                                </TableCell>
                                 <TableCell>{formatDateTime(profile.created_at)}</TableCell>
                                 <TableCell className="text-right">
                                   <div className="flex justify-end gap-1">
@@ -421,6 +509,9 @@ export default function AdminUsersPage() {
                                     <Button size="sm" variant="outline" disabled={isSelf} onClick={() => setDeleteTarget(profile)}>
                                       <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                     </Button>
+                                    <Button size="sm" variant="default" onClick={() => openEditUser(profile)}>
+                                      <Pencil className="h-3.5 w-3.5 mr-1" />编辑
+                                    </Button>
                                   </div>
                                 </TableCell>
                               </TableRow>
@@ -428,7 +519,7 @@ export default function AdminUsersPage() {
                           })}
                           {filteredUsers.length === 0 && (
                             <TableRow>
-                              <TableCell colSpan={7} className="text-center text-muted-foreground">暂无匹配用户</TableCell>
+                              <TableCell colSpan={8} className="text-center text-muted-foreground">暂无匹配用户</TableCell>
                             </TableRow>
                           )}
                         </TableBody>
@@ -465,6 +556,7 @@ export default function AdminUsersPage() {
                             <TableHead>钱包地址</TableHead>
                             <TableHead>支付地址</TableHead>
                             <TableHead>交易哈希</TableHead>
+                            <TableHead className="text-right">操作</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -488,11 +580,16 @@ export default function AdminUsersPage() {
                               <TableCell className="max-w-[180px] truncate font-mono text-xs" title={record.tx_hash || ''}>
                                 {record.tx_hash || '--'}
                               </TableCell>
+                              <TableCell className="text-right">
+                                <Button size="sm" variant="default" onClick={() => openEditTx(record)}>
+                                  <Pencil className="h-3.5 w-3.5 mr-1" />编辑
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           ))}
                           {filteredTransactions.length === 0 && (
                             <TableRow>
-                              <TableCell colSpan={8} className="text-center text-muted-foreground">暂无充值记录</TableCell>
+                              <TableCell colSpan={9} className="text-center text-muted-foreground">暂无充值记录</TableCell>
                             </TableRow>
                           )}
                         </TableBody>
@@ -587,6 +684,77 @@ export default function AdminUsersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit user dialog */}
+      <Dialog open={!!editUserTarget} onOpenChange={(open) => !open && setEditUserTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>编辑用户</DialogTitle>
+            <DialogDescription>{editUserTarget?.email}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>余额 (USDT)</Label>
+              <Input type="number" step="0.01" value={editBalance} onChange={(e) => setEditBalance(e.target.value)} />
+            </div>
+            <div>
+              <Label>USDT 收款地址</Label>
+              <Input value={editUsdtAddress} onChange={(e) => setEditUsdtAddress(e.target.value)} placeholder="留空或填写 TRC20 地址" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditUserTarget(null)}>取消</Button>
+            <Button onClick={handleSaveUser} disabled={actionLoading}>{actionLoading ? '保存中...' : '保存'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit transaction dialog */}
+      <Dialog open={!!editTxTarget} onOpenChange={(open) => !open && setEditTxTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>编辑交易</DialogTitle>
+            <DialogDescription>订单号: {editTxTarget?.order_id || '--'}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>状态</Label>
+              <Select value={editTxStatus} onValueChange={setEditTxStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">待处理</SelectItem>
+                  <SelectItem value="completed">已完成</SelectItem>
+                  <SelectItem value="failed">失败</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>金额</Label>
+              <Input type="number" step="0.0001" value={editTxAmount} onChange={(e) => setEditTxAmount(e.target.value)} />
+            </div>
+            <div>
+              <Label>钱包地址</Label>
+              <Input value={editTxWallet} onChange={(e) => setEditTxWallet(e.target.value)} />
+            </div>
+            <div>
+              <Label>支付地址</Label>
+              <Input value={editTxPayAddr} onChange={(e) => setEditTxPayAddr(e.target.value)} />
+            </div>
+            <div>
+              <Label>交易哈希</Label>
+              <Input value={editTxHash} onChange={(e) => setEditTxHash(e.target.value)} />
+            </div>
+            <div>
+              <Label>备注</Label>
+              <Input value={editTxNote} onChange={(e) => setEditTxNote(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditTxTarget(null)}>取消</Button>
+            <Button onClick={handleSaveTx} disabled={actionLoading}>{actionLoading ? '保存中...' : '保存'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

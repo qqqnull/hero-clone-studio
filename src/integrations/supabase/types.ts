@@ -244,6 +244,7 @@ export type Database = {
           email: string | null
           id: string
           updated_at: string | null
+          usdt_address: string | null
           user_id: string
           vip_level: number | null
         }
@@ -253,6 +254,7 @@ export type Database = {
           email?: string | null
           id?: string
           updated_at?: string | null
+          usdt_address?: string | null
           user_id: string
           vip_level?: number | null
         }
@@ -262,6 +264,7 @@ export type Database = {
           email?: string | null
           id?: string
           updated_at?: string | null
+          usdt_address?: string | null
           user_id?: string
           vip_level?: number | null
         }
