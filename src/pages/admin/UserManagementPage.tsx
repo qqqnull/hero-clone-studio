@@ -127,6 +127,7 @@ export default function AdminUsersPage() {
   const [editUserTarget, setEditUserTarget] = useState<UserProfile | null>(null);
   const [editBalance, setEditBalance] = useState('');
   const [editUsdtAddress, setEditUsdtAddress] = useState('');
+  const [editCreatedAt, setEditCreatedAt] = useState('');
 
   // Edit transaction
   const [editTxTarget, setEditTxTarget] = useState<TransactionRecord | null>(null);
