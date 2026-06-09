@@ -435,7 +435,18 @@ export default function AdminUsersPage() {
     );
   }, [transactions, recordSearch]);
 
+  const userTotalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
+  const txTotalPages = Math.max(1, Math.ceil(filteredTransactions.length / PAGE_SIZE));
+  const currentUserPage = Math.min(userPage, userTotalPages);
+  const currentTxPage = Math.min(txPage, txTotalPages);
+  const pagedUsers = filteredUsers.slice((currentUserPage - 1) * PAGE_SIZE, currentUserPage * PAGE_SIZE);
+  const pagedTransactions = filteredTransactions.slice((currentTxPage - 1) * PAGE_SIZE, currentTxPage * PAGE_SIZE);
+
+  useEffect(() => { setUserPage(1); }, [userSearch]);
+  useEffect(() => { setTxPage(1); }, [recordSearch]);
+
   if (!isAdmin) return null;
+
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
