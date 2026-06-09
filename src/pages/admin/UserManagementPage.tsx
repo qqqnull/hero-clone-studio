@@ -171,7 +171,7 @@ export default function AdminUsersPage() {
       const [profilesResult, rolesResult, transactionsResult, authUsersResult] = await Promise.all([
         supabase
           .from('profiles')
-          .select('id, user_id, email, balance, vip_level, created_at')
+          .select('id, user_id, email, balance, vip_level, created_at, usdt_address')
           .order('created_at', { ascending: false }),
         supabase.from('user_roles').select('user_id, role'),
         supabase
