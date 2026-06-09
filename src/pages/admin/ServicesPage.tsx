@@ -83,7 +83,7 @@ export default function AdminServicesPage() {
       if (!data) {
         toast({
           title: 'Permission denied',
-          description: 'You don't have permission to access the admin panel',
+          description: 'You do not have permission to access the admin panel',
           variant: 'destructive',
         });
         navigate('/');

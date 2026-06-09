@@ -201,7 +201,7 @@ export default function AdminUsersPage() {
         .maybeSingle();
 
       if (!data) {
-        toast({ title: 'Permission denied', description: 'You don't have permission to access the admin panel', variant: 'destructive' });
+        toast({ title: 'Permission denied', description: 'You do not have permission to access the admin panel', variant: 'destructive' });
         navigate('/');
         return;
       }
