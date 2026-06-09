@@ -310,7 +310,7 @@ export default function AdminServicesPage() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-sm text-muted-foreground">
-                Total  <strong className="text-foreground">{services.length}</strong> 个Service
+                Total  <strong className="text-foreground">{services.length}</strong> services
               </div>
               <Button variant="outline" size="icon" onClick={fetchServices}>
                 <RefreshCw className="h-4 w-4" />
@@ -419,7 +419,7 @@ export default function AdminServicesPage() {
           <DialogHeader>
             <DialogTitle>{editingService ? 'Edit Service' : 'Add Service'}</DialogTitle>
             <DialogDescription>
-              {editingService ? '修改Service信息' : 'Add a new service'}
+              {editingService ? 'Edit service information' : 'Add a new service'}
             </DialogDescription>
           </DialogHeader>
 

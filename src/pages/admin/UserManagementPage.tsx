@@ -652,7 +652,7 @@ export default function AdminUsersPage() {
                           ))}
                           {filteredTransactions.length === 0 && (
                             <TableRow>
-                              <TableCell colSpan={9} className="text-center text-muted-foreground">暂无Recharge Records</TableCell>
+                              <TableCell colSpan={9} className="text-center text-muted-foreground">No recharge records</TableCell>
                             </TableRow>
                           )}
                         </TableBody>
@@ -679,7 +679,7 @@ export default function AdminUsersPage() {
               <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="user@example.com" />
             </div>
             <div>
-              <Label>密码</Label>
+              <Label>Password</Label>
               <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter password" />
             </div>
             <div className="flex items-center gap-2">
@@ -703,7 +703,7 @@ export default function AdminUsersPage() {
           </DialogHeader>
           <div>
             <Label>New password</Label>
-            <Input type="text" value={pwdValue} onChange={(e) => setPwdValue(e.target.value)} placeholder="输入New password" />
+            <Input type="text" value={pwdValue} onChange={(e) => setPwdValue(e.target.value)} placeholder="Enter new password" />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPwdTarget(null)}>Cancel</Button>
@@ -879,7 +879,7 @@ export default function AdminUsersPage() {
                 ))}
                 {consumptionRecords.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground">暂无Consumption Records</TableCell>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground">No consumption records</TableCell>
                   </TableRow>
                 )}
               </TableBody>
