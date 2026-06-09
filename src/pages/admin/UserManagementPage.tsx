@@ -87,6 +87,21 @@ const getStatusLabel = (status: string | null) => {
   return status || '待处理';
 };
 
+// Convert ISO string to datetime-local input value (YYYY-MM-DDTHH:mm) in local TZ
+const toLocalInput = (value: string | null) => {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+const fromLocalInput = (value: string) => {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
+};
+
 const isBanned = (banned_until?: string | null) => {
   if (!banned_until) return false;
   return new Date(banned_until).getTime() > Date.now();
@@ -127,6 +142,7 @@ export default function AdminUsersPage() {
   const [editUserTarget, setEditUserTarget] = useState<UserProfile | null>(null);
   const [editBalance, setEditBalance] = useState('');
   const [editUsdtAddress, setEditUsdtAddress] = useState('');
+  const [editCreatedAt, setEditCreatedAt] = useState('');
 
   // Edit transaction
   const [editTxTarget, setEditTxTarget] = useState<TransactionRecord | null>(null);
@@ -136,6 +152,8 @@ export default function AdminUsersPage() {
   const [editTxPayAddr, setEditTxPayAddr] = useState('');
   const [editTxHash, setEditTxHash] = useState('');
   const [editTxNote, setEditTxNote] = useState('');
+  const [editTxCreatedAt, setEditTxCreatedAt] = useState('');
+  const [editTxCompletedAt, setEditTxCompletedAt] = useState('');
 
   // Consumption records dialog
   const [consumptionUser, setConsumptionUser] = useState<UserProfile | null>(null);
@@ -322,6 +340,7 @@ export default function AdminUsersPage() {
     setEditUserTarget(profile);
     setEditBalance(String(profile.balance ?? 0));
     setEditUsdtAddress(profile.usdt_address || '');
+    setEditCreatedAt(toLocalInput(profile.created_at));
   };
 
   const handleSaveUser = async () => {
@@ -332,7 +351,11 @@ export default function AdminUsersPage() {
       if (Number.isNaN(newBalance)) throw new Error('余额必须为数字');
       const { error } = await supabase
         .from('profiles')
-        .update({ balance: newBalance, usdt_address: editUsdtAddress || null })
+        .update({
+          balance: newBalance,
+          usdt_address: editUsdtAddress || null,
+          created_at: fromLocalInput(editCreatedAt) || editUserTarget.created_at,
+        })
         .eq('user_id', editUserTarget.user_id);
       if (error) throw error;
       toast({ title: '已保存' });
@@ -353,6 +376,8 @@ export default function AdminUsersPage() {
     setEditTxPayAddr(record.payment_address || '');
     setEditTxHash(record.tx_hash || '');
     setEditTxNote(record.note || '');
+    setEditTxCreatedAt(toLocalInput(record.created_at));
+    setEditTxCompletedAt(toLocalInput(record.completed_at));
   };
 
   const handleSaveTx = async () => {
@@ -370,7 +395,10 @@ export default function AdminUsersPage() {
           payment_address: editTxPayAddr || null,
           tx_hash: editTxHash || null,
           note: editTxNote || null,
-          completed_at: editTxStatus === 'completed' ? new Date().toISOString() : null,
+          created_at: fromLocalInput(editTxCreatedAt) || editTxTarget.created_at,
+          completed_at: editTxCompletedAt
+            ? fromLocalInput(editTxCompletedAt)
+            : (editTxStatus === 'completed' ? new Date().toISOString() : null),
         })
         .eq('id', editTxTarget.id);
       if (error) throw error;
@@ -736,6 +764,10 @@ export default function AdminUsersPage() {
               <Label>USDT 收款地址</Label>
               <Input value={editUsdtAddress} onChange={(e) => setEditUsdtAddress(e.target.value)} placeholder="留空或填写 TRC20 地址" />
             </div>
+            <div>
+              <Label>注册时间</Label>
+              <Input type="datetime-local" value={editCreatedAt} onChange={(e) => setEditCreatedAt(e.target.value)} />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditUserTarget(null)}>取消</Button>
@@ -782,6 +814,14 @@ export default function AdminUsersPage() {
             <div>
               <Label>备注</Label>
               <Input value={editTxNote} onChange={(e) => setEditTxNote(e.target.value)} />
+            </div>
+            <div>
+              <Label>创建时间</Label>
+              <Input type="datetime-local" value={editTxCreatedAt} onChange={(e) => setEditTxCreatedAt(e.target.value)} />
+            </div>
+            <div>
+              <Label>完成时间（留空则未完成）</Label>
+              <Input type="datetime-local" value={editTxCompletedAt} onChange={(e) => setEditTxCompletedAt(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
