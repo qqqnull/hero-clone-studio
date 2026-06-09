@@ -351,7 +351,11 @@ export default function AdminUsersPage() {
       if (Number.isNaN(newBalance)) throw new Error('余额必须为数字');
       const { error } = await supabase
         .from('profiles')
-        .update({ balance: newBalance, usdt_address: editUsdtAddress || null })
+        .update({
+          balance: newBalance,
+          usdt_address: editUsdtAddress || null,
+          created_at: fromLocalInput(editCreatedAt) || editUserTarget.created_at,
+        })
         .eq('user_id', editUserTarget.user_id);
       if (error) throw error;
       toast({ title: '已保存' });
