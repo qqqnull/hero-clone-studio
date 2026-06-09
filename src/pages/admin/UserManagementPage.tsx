@@ -494,6 +494,9 @@ export default function AdminUsersPage() {
                                 </TableCell>
                                 <TableCell>${Number(profile.balance || 0).toFixed(2)}</TableCell>
                                 <TableCell>{profile.vip_level || 1}</TableCell>
+                                <TableCell className="max-w-[180px] truncate font-mono text-xs" title={profile.usdt_address || ''}>
+                                  {profile.usdt_address || '--'}
+                                </TableCell>
                                 <TableCell>{formatDateTime(profile.created_at)}</TableCell>
                                 <TableCell className="text-right">
                                   <div className="flex justify-end gap-1">
@@ -506,6 +509,9 @@ export default function AdminUsersPage() {
                                     <Button size="sm" variant="outline" disabled={isSelf} onClick={() => setDeleteTarget(profile)}>
                                       <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                     </Button>
+                                    <Button size="sm" variant="default" onClick={() => openEditUser(profile)}>
+                                      <Pencil className="h-3.5 w-3.5 mr-1" />编辑
+                                    </Button>
                                   </div>
                                 </TableCell>
                               </TableRow>
@@ -513,7 +519,7 @@ export default function AdminUsersPage() {
                           })}
                           {filteredUsers.length === 0 && (
                             <TableRow>
-                              <TableCell colSpan={7} className="text-center text-muted-foreground">暂无匹配用户</TableCell>
+                              <TableCell colSpan={8} className="text-center text-muted-foreground">暂无匹配用户</TableCell>
                             </TableRow>
                           )}
                         </TableBody>
