@@ -764,6 +764,10 @@ export default function AdminUsersPage() {
               <Label>USDT 收款地址</Label>
               <Input value={editUsdtAddress} onChange={(e) => setEditUsdtAddress(e.target.value)} placeholder="留空或填写 TRC20 地址" />
             </div>
+            <div>
+              <Label>注册时间</Label>
+              <Input type="datetime-local" value={editCreatedAt} onChange={(e) => setEditCreatedAt(e.target.value)} />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditUserTarget(null)}>取消</Button>
