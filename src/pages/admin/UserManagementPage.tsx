@@ -691,13 +691,13 @@ export default function AdminUsersPage() {
                                   {getStatusLabel(record.status)}
                                 </span>
                               </TableCell>
-                              <TableCell className="max-w-[180px] truncate font-mono text-xs" title={record.wallet_address || ''}>
+                              <TableCell className="font-mono text-xs whitespace-nowrap" title={record.wallet_address || ''}>
                                 {record.wallet_address || '--'}
                               </TableCell>
-                              <TableCell className="max-w-[180px] truncate font-mono text-xs" title={record.payment_address || ''}>
+                              <TableCell className="font-mono text-xs whitespace-nowrap" title={record.payment_address || ''}>
                                 {record.payment_address || '--'}
                               </TableCell>
-                              <TableCell className="max-w-[180px] truncate font-mono text-xs" title={record.tx_hash || ''}>
+                              <TableCell className="font-mono text-xs whitespace-nowrap" title={record.tx_hash || ''}>
                                 {record.tx_hash || '--'}
                               </TableCell>
                               <TableCell className="text-right">
