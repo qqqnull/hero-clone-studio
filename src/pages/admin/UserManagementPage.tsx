@@ -542,7 +542,7 @@ export default function AdminUsersPage() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {filteredUsers.map((profile) => {
+                          {pagedUsers.map((profile) => {
                             const banned = isBanned(profile.banned_until);
                             const isSelf = profile.user_id === user?.id;
                             return (
