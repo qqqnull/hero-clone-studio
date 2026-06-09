@@ -118,6 +118,9 @@ export default function AdminUsersPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userSearch, setUserSearch] = useState('');
   const [recordSearch, setRecordSearch] = useState('');
+  const [userPage, setUserPage] = useState(1);
+  const [txPage, setTxPage] = useState(1);
+  const PAGE_SIZE = 20;
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
