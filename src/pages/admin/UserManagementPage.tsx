@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, RefreshCw, Search, Users, Wallet, UserPlus, KeyRound, Trash2, Ban, CheckCircle2, Pencil } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Search, Users, Wallet, UserPlus, KeyRound, Trash2, Ban, CheckCircle2, Eye } from 'lucide-react';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -509,8 +509,8 @@ export default function AdminUsersPage() {
                                     <Button size="sm" variant="outline" disabled={isSelf} onClick={() => setDeleteTarget(profile)}>
                                       <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                     </Button>
-                                    <Button size="sm" variant="default" onClick={() => openEditUser(profile)}>
-                                      <Pencil className="h-3.5 w-3.5 mr-1" />编辑
+                                    <Button size="sm" variant="ghost" onClick={() => openEditUser(profile)}>
+                                      <Eye className="h-3.5 w-3.5 mr-1" />查看
                                     </Button>
                                   </div>
                                 </TableCell>
@@ -581,8 +581,8 @@ export default function AdminUsersPage() {
                                 {record.tx_hash || '--'}
                               </TableCell>
                               <TableCell className="text-right">
-                                <Button size="sm" variant="default" onClick={() => openEditTx(record)}>
-                                  <Pencil className="h-3.5 w-3.5 mr-1" />编辑
+                                <Button size="sm" variant="ghost" onClick={() => openEditTx(record)}>
+                                  <Eye className="h-3.5 w-3.5 mr-1" />查看
                                 </Button>
                               </TableCell>
                             </TableRow>
