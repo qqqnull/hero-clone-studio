@@ -123,6 +123,20 @@ export default function AdminUsersPage() {
   // Ban confirm
   const [banTarget, setBanTarget] = useState<UserProfile | null>(null);
 
+  // Edit user (balance + usdt address)
+  const [editUserTarget, setEditUserTarget] = useState<UserProfile | null>(null);
+  const [editBalance, setEditBalance] = useState('');
+  const [editUsdtAddress, setEditUsdtAddress] = useState('');
+
+  // Edit transaction
+  const [editTxTarget, setEditTxTarget] = useState<TransactionRecord | null>(null);
+  const [editTxStatus, setEditTxStatus] = useState('');
+  const [editTxAmount, setEditTxAmount] = useState('');
+  const [editTxWallet, setEditTxWallet] = useState('');
+  const [editTxPayAddr, setEditTxPayAddr] = useState('');
+  const [editTxHash, setEditTxHash] = useState('');
+  const [editTxNote, setEditTxNote] = useState('');
+
   useEffect(() => {
     const checkAdmin = async () => {
       if (!user) {
