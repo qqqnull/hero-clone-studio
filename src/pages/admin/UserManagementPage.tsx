@@ -646,7 +646,7 @@ export default function AdminUsersPage() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {filteredTransactions.map((record) => (
+                          {pagedTransactions.map((record) => (
                             <TableRow key={record.id}>
                               <TableCell>{formatDateTime(record.created_at)}</TableCell>
                               <TableCell>{record.user_email || record.user_id}</TableCell>
