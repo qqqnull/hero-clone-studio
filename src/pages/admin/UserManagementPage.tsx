@@ -118,6 +118,9 @@ export default function AdminUsersPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userSearch, setUserSearch] = useState('');
   const [recordSearch, setRecordSearch] = useState('');
+  const [userPage, setUserPage] = useState(1);
+  const [txPage, setTxPage] = useState(1);
+  const PAGE_SIZE = 20;
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
@@ -198,7 +201,7 @@ export default function AdminUsersPage() {
         .maybeSingle();
 
       if (!data) {
-        toast({ title: 'Permission denied', description: 'You don't have permission to access the admin panel', variant: 'destructive' });
+        toast({ title: 'Permission denied', description: 'You do not have permission to access the admin panel', variant: 'destructive' });
         navigate('/');
         return;
       }
@@ -432,7 +435,18 @@ export default function AdminUsersPage() {
     );
   }, [transactions, recordSearch]);
 
+  const userTotalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
+  const txTotalPages = Math.max(1, Math.ceil(filteredTransactions.length / PAGE_SIZE));
+  const currentUserPage = Math.min(userPage, userTotalPages);
+  const currentTxPage = Math.min(txPage, txTotalPages);
+  const pagedUsers = filteredUsers.slice((currentUserPage - 1) * PAGE_SIZE, currentUserPage * PAGE_SIZE);
+  const pagedTransactions = filteredTransactions.slice((currentTxPage - 1) * PAGE_SIZE, currentTxPage * PAGE_SIZE);
+
+  useEffect(() => { setUserPage(1); }, [userSearch]);
+  useEffect(() => { setTxPage(1); }, [recordSearch]);
+
   if (!isAdmin) return null;
+
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -528,7 +542,7 @@ export default function AdminUsersPage() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {filteredUsers.map((profile) => {
+                          {pagedUsers.map((profile) => {
                             const banned = isBanned(profile.banned_until);
                             const isSelf = profile.user_id === user?.id;
                             return (
@@ -587,8 +601,17 @@ export default function AdminUsersPage() {
                           )}
                         </TableBody>
                       </Table>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <div>Total {filteredUsers.length} users</div>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="outline" disabled={currentUserPage <= 1} onClick={() => setUserPage((p) => Math.max(1, p - 1))}>Previous</Button>
+                          <span>Page {currentUserPage} / {userTotalPages}</span>
+                          <Button size="sm" variant="outline" disabled={currentUserPage >= userTotalPages} onClick={() => setUserPage((p) => Math.min(userTotalPages, p + 1))}>Next</Button>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
+
                 </TabsContent>
 
                 <TabsContent value="transactions">
@@ -623,7 +646,7 @@ export default function AdminUsersPage() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {filteredTransactions.map((record) => (
+                          {pagedTransactions.map((record) => (
                             <TableRow key={record.id}>
                               <TableCell>{formatDateTime(record.created_at)}</TableCell>
                               <TableCell>{record.user_email || record.user_id}</TableCell>
@@ -657,8 +680,17 @@ export default function AdminUsersPage() {
                           )}
                         </TableBody>
                       </Table>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <div>Total {filteredTransactions.length} records</div>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="outline" disabled={currentTxPage <= 1} onClick={() => setTxPage((p) => Math.max(1, p - 1))}>Previous</Button>
+                          <span>Page {currentTxPage} / {txTotalPages}</span>
+                          <Button size="sm" variant="outline" disabled={currentTxPage >= txTotalPages} onClick={() => setTxPage((p) => Math.min(txTotalPages, p + 1))}>Next</Button>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
+
                 </TabsContent>
               </Tabs>
             </>
