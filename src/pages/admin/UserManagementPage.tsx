@@ -137,6 +137,8 @@ export default function AdminUsersPage() {
   const [editTxPayAddr, setEditTxPayAddr] = useState('');
   const [editTxHash, setEditTxHash] = useState('');
   const [editTxNote, setEditTxNote] = useState('');
+  const [editTxCreatedAt, setEditTxCreatedAt] = useState('');
+  const [editTxCompletedAt, setEditTxCompletedAt] = useState('');
 
   // Consumption records dialog
   const [consumptionUser, setConsumptionUser] = useState<UserProfile | null>(null);
