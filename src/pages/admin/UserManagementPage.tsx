@@ -87,6 +87,21 @@ const getStatusLabel = (status: string | null) => {
   return status || '待处理';
 };
 
+// Convert ISO string to datetime-local input value (YYYY-MM-DDTHH:mm) in local TZ
+const toLocalInput = (value: string | null) => {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+const fromLocalInput = (value: string) => {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
+};
+
 const isBanned = (banned_until?: string | null) => {
   if (!banned_until) return false;
   return new Date(banned_until).getTime() > Date.now();
