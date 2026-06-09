@@ -639,7 +639,7 @@ export default function AdminUsersPage() {
                         <Input
                           value={recordSearch}
                           onChange={(e) => setRecordSearch(e.target.value)}
-                          placeholder="Search order ID, email, wallet address"
+                          placeholder="Search order ID, email, wallet, or date (e.g. 2026-04)"
                           className="pl-10"
                         />
                       </div>
