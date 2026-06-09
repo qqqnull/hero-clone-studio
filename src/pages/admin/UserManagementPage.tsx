@@ -487,7 +487,7 @@ export default function AdminUsersPage() {
       <Navbar />
 
       <main className="flex-1 py-8">
-        <div className="container mx-auto px-4 max-w-7xl space-y-6">
+        <div className="container mx-auto px-4 max-w-[1800px] space-y-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" onClick={() => navigate('/admin/settings')}>
@@ -605,7 +605,7 @@ export default function AdminUsersPage() {
                                 </TableCell>
                                 <TableCell>${Number(profile.balance || 0).toFixed(2)}</TableCell>
                                 <TableCell>{profile.vip_level || 1}</TableCell>
-                                <TableCell className="max-w-[180px] truncate font-mono text-xs" title={profile.usdt_address || ''}>
+                                <TableCell className="font-mono text-xs whitespace-nowrap" title={profile.usdt_address || ''}>
                                   {profile.usdt_address || '--'}
                                 </TableCell>
                                 <TableCell>{formatDateTime(profile.created_at)}</TableCell>
@@ -691,13 +691,13 @@ export default function AdminUsersPage() {
                                   {getStatusLabel(record.status)}
                                 </span>
                               </TableCell>
-                              <TableCell className="max-w-[180px] truncate font-mono text-xs" title={record.wallet_address || ''}>
+                              <TableCell className="font-mono text-xs whitespace-nowrap" title={record.wallet_address || ''}>
                                 {record.wallet_address || '--'}
                               </TableCell>
-                              <TableCell className="max-w-[180px] truncate font-mono text-xs" title={record.payment_address || ''}>
+                              <TableCell className="font-mono text-xs whitespace-nowrap" title={record.payment_address || ''}>
                                 {record.payment_address || '--'}
                               </TableCell>
-                              <TableCell className="max-w-[180px] truncate font-mono text-xs" title={record.tx_hash || ''}>
+                              <TableCell className="font-mono text-xs whitespace-nowrap" title={record.tx_hash || ''}>
                                 {record.tx_hash || '--'}
                               </TableCell>
                               <TableCell className="text-right">
