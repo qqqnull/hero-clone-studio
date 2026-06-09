@@ -556,6 +556,7 @@ export default function AdminUsersPage() {
                             <TableHead>钱包地址</TableHead>
                             <TableHead>支付地址</TableHead>
                             <TableHead>交易哈希</TableHead>
+                            <TableHead className="text-right">操作</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -579,11 +580,16 @@ export default function AdminUsersPage() {
                               <TableCell className="max-w-[180px] truncate font-mono text-xs" title={record.tx_hash || ''}>
                                 {record.tx_hash || '--'}
                               </TableCell>
+                              <TableCell className="text-right">
+                                <Button size="sm" variant="default" onClick={() => openEditTx(record)}>
+                                  <Pencil className="h-3.5 w-3.5 mr-1" />编辑
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           ))}
                           {filteredTransactions.length === 0 && (
                             <TableRow>
-                              <TableCell colSpan={8} className="text-center text-muted-foreground">暂无充值记录</TableCell>
+                              <TableCell colSpan={9} className="text-center text-muted-foreground">暂无充值记录</TableCell>
                             </TableRow>
                           )}
                         </TableBody>
