@@ -815,6 +815,14 @@ export default function AdminUsersPage() {
               <Label>备注</Label>
               <Input value={editTxNote} onChange={(e) => setEditTxNote(e.target.value)} />
             </div>
+            <div>
+              <Label>创建时间</Label>
+              <Input type="datetime-local" value={editTxCreatedAt} onChange={(e) => setEditTxCreatedAt(e.target.value)} />
+            </div>
+            <div>
+              <Label>完成时间（留空则未完成）</Label>
+              <Input type="datetime-local" value={editTxCompletedAt} onChange={(e) => setEditTxCompletedAt(e.target.value)} />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditTxTarget(null)}>取消</Button>
