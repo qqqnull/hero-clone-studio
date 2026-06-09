@@ -82,8 +82,8 @@ export default function AdminServicesPage() {
 
       if (!data) {
         toast({
-          title: '权限不足',
-          description: '您没有访问管理后台的权限',
+          title: 'Permission denied',
+          description: 'You don't have permission to access the admin panel',
           variant: 'destructive',
         });
         navigate('/');
@@ -110,8 +110,8 @@ export default function AdminServicesPage() {
     } catch (err) {
       console.error('Error fetching services:', err);
       toast({
-        title: '加载失败',
-        description: '无法加载服务列表',
+        title: 'Load failed',
+        description: 'Failed to load service list',
         variant: 'destructive',
       });
     } finally {
@@ -157,8 +157,8 @@ export default function AdminServicesPage() {
   const handleSave = async () => {
     if (!formData.name || !formData.code) {
       toast({
-        title: '验证失败',
-        description: '请填写服务名称和代码',
+        title: 'Validation failed',
+        description: 'Please fill in service name and code',
         variant: 'destructive',
       });
       return;
@@ -180,7 +180,7 @@ export default function AdminServicesPage() {
           .eq('id', editingService.id);
 
         if (error) throw error;
-        toast({ title: '更新成功', description: '服务已更新' });
+        toast({ title: 'Updated', description: 'Service updated' });
       } else {
         // Create
         const { error } = await supabase
@@ -194,7 +194,7 @@ export default function AdminServicesPage() {
           });
 
         if (error) throw error;
-        toast({ title: '创建成功', description: '新服务已添加' });
+        toast({ title: 'Created', description: 'New service added' });
       }
 
       setDialogOpen(false);
@@ -202,8 +202,8 @@ export default function AdminServicesPage() {
     } catch (err) {
       console.error('Error saving service:', err);
       toast({
-        title: '保存失败',
-        description: '无法保存服务',
+        title: 'Save failed',
+        description: 'Failed to save service',
         variant: 'destructive',
       });
     } finally {
@@ -224,13 +224,13 @@ export default function AdminServicesPage() {
         prev.map(s => s.id === service.id ? { ...s, is_active: !s.is_active } : s)
       );
       toast({ 
-        title: service.is_active ? '已禁用' : '已启用',
-        description: `服务 ${service.name} 已${service.is_active ? '禁用' : '启用'}`,
+        title: service.is_active ? 'Disabled' : 'Enabled',
+        description: `Service ${service.name}  ${service.is_active ? 'Disable' : 'Enable'}`,
       });
     } catch (err) {
       console.error('Error toggling service:', err);
       toast({
-        title: '操作失败',
+        title: 'Operation failed',
         variant: 'destructive',
       });
     }
@@ -254,15 +254,15 @@ export default function AdminServicesPage() {
 
       if (error) throw error;
 
-      toast({ title: '删除成功', description: `服务 ${deletingService.name} 已删除` });
+      toast({ title: 'Deleted', description: `Service ${deletingService.name} Deleted` });
       setDeleteDialogOpen(false);
       setDeletingService(null);
       fetchServices();
     } catch (err) {
       console.error('Error deleting service:', err);
       toast({
-        title: '删除失败',
-        description: '无法删除服务',
+        title: 'Delete failed',
+        description: 'Failed to delete service',
         variant: 'destructive',
       });
     }
@@ -287,13 +287,13 @@ export default function AdminServicesPage() {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-2xl font-bold">商品服务管理</h1>
-                <p className="text-muted-foreground">管理平台支持的服务商品</p>
+                <h1 className="text-2xl font-bold">Service Management</h1>
+                <p className="text-muted-foreground">Manage services supported by the platform</p>
               </div>
             </div>
             <Button onClick={openCreateDialog}>
               <Plus className="h-4 w-4 mr-2" />
-              添加服务
+              Add Service
             </Button>
           </div>
 
@@ -301,7 +301,7 @@ export default function AdminServicesPage() {
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Input
-                placeholder="搜索服务名称或代码..."
+                placeholder="Search service name or code..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -310,7 +310,7 @@ export default function AdminServicesPage() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-sm text-muted-foreground">
-                共 <strong className="text-foreground">{services.length}</strong> 个服务
+                Total  <strong className="text-foreground">{services.length}</strong> services
               </div>
               <Button variant="outline" size="icon" onClick={fetchServices}>
                 <RefreshCw className="h-4 w-4" />
@@ -329,12 +329,12 @@ export default function AdminServicesPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[80px]">图标</TableHead>
-                      <TableHead>名称</TableHead>
-                      <TableHead>代码</TableHead>
-                      <TableHead className="w-[100px]">排序</TableHead>
-                      <TableHead className="w-[100px]">状态</TableHead>
-                      <TableHead className="w-[120px] text-right">操作</TableHead>
+                      <TableHead className="w-[80px]">Icon</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Code</TableHead>
+                      <TableHead className="w-[100px]">Order</TableHead>
+                      <TableHead className="w-[100px]">Status</TableHead>
+                      <TableHead className="w-[120px] text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -369,7 +369,7 @@ export default function AdminServicesPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              title="查看价格"
+                              title="View prices"
                               onClick={() => navigate(`/admin/service-prices?service=${service.id}`)}
                             >
                               <Package className="h-4 w-4" />
@@ -399,7 +399,7 @@ export default function AdminServicesPage() {
                     {filteredServices.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                          未找到服务
+                          No services found
                         </TableCell>
                       </TableRow>
                     )}
@@ -417,15 +417,15 @@ export default function AdminServicesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingService ? '编辑服务' : '添加服务'}</DialogTitle>
+            <DialogTitle>{editingService ? 'Edit Service' : 'Add Service'}</DialogTitle>
             <DialogDescription>
-              {editingService ? '修改服务信息' : '添加一个新的服务商品'}
+              {editingService ? 'Edit service information' : 'Add a new service'}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div>
-              <label className="block text-sm font-medium mb-2">图标</label>
+              <label className="block text-sm font-medium mb-2">Icon</label>
               <div className="flex flex-wrap gap-2 p-3 bg-muted rounded-lg max-h-[120px] overflow-y-auto">
                 {commonIcons.map((icon) => (
                   <button
@@ -444,14 +444,14 @@ export default function AdminServicesPage() {
                 <Input
                   value={formData.icon}
                   onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-                  placeholder="或输入自定义图标/SVG路径"
+                  placeholder="Or enter a custom icon / SVG path"
                   className="flex-1"
                 />
                 {formData.icon?.startsWith('/') && (
                   <div className="flex items-center px-3 bg-muted rounded-lg">
                     <img 
                       src={formData.icon} 
-                      alt="预览" 
+                      alt="Preview" 
                       className="w-6 h-6 object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
@@ -461,31 +461,31 @@ export default function AdminServicesPage() {
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                支持emoji或SVG路径（如：/icons/services/telegram.svg）
+                Supports emoji or SVG path (e.g.：/icons/services/telegram.svg）
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">服务名称</label>
+              <label className="block text-sm font-medium mb-2">Service name</label>
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="如：Telegram, WhatsApp"
+                placeholder="e.g.：Telegram, WhatsApp"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">服务代码</label>
+              <label className="block text-sm font-medium mb-2">Service code</label>
               <Input
                 value={formData.code}
                 onChange={(e) => setFormData(prev => ({ ...prev, code: e.target.value.toLowerCase() }))}
-                placeholder="如：tg, wa"
+                placeholder="e.g.：tg, wa"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">排序</label>
+                <label className="block text-sm font-medium mb-2">Order</label>
                 <Input
                   type="number"
                   value={formData.sort_order}
@@ -498,7 +498,7 @@ export default function AdminServicesPage() {
                     checked={formData.is_active}
                     onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
                   />
-                  <span className="text-sm">启用</span>
+                  <span className="text-sm">Enable</span>
                 </label>
               </div>
             </div>
@@ -506,11 +506,11 @@ export default function AdminServicesPage() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              取消
+              Cancel
             </Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {editingService ? '保存' : '创建'}
+              {editingService ? 'Save' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -520,17 +520,17 @@ export default function AdminServicesPage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>确认删除</DialogTitle>
+            <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogDescription>
-              确定要删除服务 "{deletingService?.name}" 吗？此操作不可恢复，相关的价格数据也将被删除。
+              Are you sure you want to deleteService "{deletingService?.name}" ? This action cannot be undone，Related price data will also be deleted。
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              取消
+              Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
-              删除
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>

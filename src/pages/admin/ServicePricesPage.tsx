@@ -110,8 +110,8 @@ export default function AdminServicePricesPage() {
 
       if (!data) {
         toast({
-          title: '权限不足',
-          description: '您没有访问管理后台的权限',
+          title: 'Permission denied',
+          description: 'You don't have permission to access the admin panel',
           variant: 'destructive',
         });
         navigate('/');
@@ -184,8 +184,8 @@ export default function AdminServicePricesPage() {
     if (error) {
       console.error('Error fetching prices:', error);
       toast({
-        title: '加载失败',
-        description: '无法加载价格列表',
+        title: 'Load failed',
+        description: 'Failed to load price list',
         variant: 'destructive',
       });
     } else {
@@ -226,8 +226,8 @@ export default function AdminServicePricesPage() {
   const handleSave = async () => {
     if (!formData.service_id || !formData.country_id) {
       toast({
-        title: '验证失败',
-        description: '请选择服务和国家',
+        title: 'Validation failed',
+        description: 'Please select service and country',
         variant: 'destructive',
       });
       return;
@@ -246,7 +246,7 @@ export default function AdminServicePricesPage() {
           .eq('id', editingPrice.id);
 
         if (error) throw error;
-        toast({ title: '更新成功', description: '价格已更新' });
+        toast({ title: 'Updated', description: 'Price updated' });
       } else {
         // Check if already exists
         const { data: existing } = await supabase
@@ -258,8 +258,8 @@ export default function AdminServicePricesPage() {
 
         if (existing) {
           toast({
-            title: '已存在',
-            description: '该服务-国家组合已有价格配置',
+            title: 'Already exists',
+            description: 'This service-country combination already has a price configured',
             variant: 'destructive',
           });
           setSaving(false);
@@ -277,7 +277,7 @@ export default function AdminServicePricesPage() {
           });
 
         if (error) throw error;
-        toast({ title: '创建成功', description: '新价格已添加' });
+        toast({ title: 'Created', description: 'New price added' });
       }
 
       setDialogOpen(false);
@@ -285,8 +285,8 @@ export default function AdminServicePricesPage() {
     } catch (err) {
       console.error('Error saving price:', err);
       toast({
-        title: '保存失败',
-        description: '无法保存价格',
+        title: 'Save failed',
+        description: 'Failed to save price',
         variant: 'destructive',
       });
     } finally {
@@ -307,13 +307,13 @@ export default function AdminServicePricesPage() {
         prev.map(p => p.id === price.id ? { ...p, is_active: !p.is_active } : p)
       );
       toast({ 
-        title: price.is_active ? '已禁用' : '已启用',
-        description: `${price.service?.name} - ${price.country?.name} 已${price.is_active ? '禁用' : '启用'}`,
+        title: price.is_active ? 'Disabled' : 'Enabled',
+        description: `${price.service?.name} - ${price.country?.name}  ${price.is_active ? 'Disable' : 'Enable'}`,
       });
     } catch (err) {
       console.error('Error toggling price:', err);
       toast({
-        title: '操作失败',
+        title: 'Operation failed',
         variant: 'destructive',
       });
     }
@@ -331,8 +331,8 @@ export default function AdminServicePricesPage() {
       if (error) throw error;
 
       toast({ 
-        title: '删除成功', 
-        description: `${deletingPrice.service?.name} - ${deletingPrice.country?.name} 价格已删除` 
+        title: 'Deleted', 
+        description: `${deletingPrice.service?.name} - ${deletingPrice.country?.name} Price deleted` 
       });
       setDeleteDialogOpen(false);
       setDeletingPrice(null);
@@ -340,7 +340,7 @@ export default function AdminServicePricesPage() {
     } catch (err) {
       console.error('Error deleting price:', err);
       toast({
-        title: '删除失败',
+        title: 'Delete failed',
         variant: 'destructive',
       });
     }
@@ -350,8 +350,8 @@ export default function AdminServicePricesPage() {
   const handleBatchAdd = async () => {
     if (selectedService === 'all') {
       toast({
-        title: '请选择服务',
-        description: '批量添加需要先选择一个服务',
+        title: 'Please select a service',
+        description: 'Select a service before batch adding',
         variant: 'destructive',
       });
       return;
@@ -372,8 +372,8 @@ export default function AdminServicePricesPage() {
 
       if (newCountries.length === 0) {
         toast({
-          title: '无需添加',
-          description: '该服务已配置所有国家价格',
+          title: 'Nothing to add',
+          description: 'All countries are already configured for this service',
         });
         setSaving(false);
         return;
@@ -395,14 +395,14 @@ export default function AdminServicePricesPage() {
       if (error) throw error;
 
       toast({
-        title: '批量添加成功',
-        description: `已为 ${newCountries.length} 个国家添加价格`,
+        title: 'Batch add successful',
+        description: `Added prices for  ${newCountries.length}  countries`,
       });
       fetchPrices();
     } catch (err) {
       console.error('Error batch adding:', err);
       toast({
-        title: '批量添加失败',
+        title: 'Batch add failed',
         variant: 'destructive',
       });
     } finally {
@@ -427,20 +427,20 @@ export default function AdminServicePricesPage() {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-2xl font-bold">服务价格管理</h1>
-                <p className="text-muted-foreground">管理各服务在不同国家的价格和库存</p>
+                <h1 className="text-2xl font-bold">Service Price Management</h1>
+                <p className="text-muted-foreground">Manage prices and stock for each service across countries</p>
               </div>
             </div>
             <div className="flex gap-2">
               {selectedService !== 'all' && (
                 <Button variant="outline" onClick={handleBatchAdd} disabled={saving}>
                   <Globe className="h-4 w-4 mr-2" />
-                  批量添加国家
+                  Batch add countries
                 </Button>
               )}
               <Button onClick={openCreateDialog}>
                 <Plus className="h-4 w-4 mr-2" />
-                添加价格
+                Add Price
               </Button>
             </div>
           </div>
@@ -449,7 +449,7 @@ export default function AdminServicePricesPage() {
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Input
-                placeholder="搜索服务或国家..."
+                placeholder="Search service or country..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -458,10 +458,10 @@ export default function AdminServicePricesPage() {
             </div>
             <Select value={selectedService} onValueChange={setSelectedService}>
               <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="选择服务" />
+                <SelectValue placeholder="Select service" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部服务</SelectItem>
+                <SelectItem value="all">All services</SelectItem>
                 {services.map(s => (
                   <SelectItem key={s.id} value={s.id}>
                     {s.name}
@@ -471,10 +471,10 @@ export default function AdminServicePricesPage() {
             </Select>
             <Select value={selectedCountry} onValueChange={setSelectedCountry}>
               <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="选择国家" />
+                <SelectValue placeholder="Select country" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部国家</SelectItem>
+                <SelectItem value="all">All countries</SelectItem>
                 {countries.map(c => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.flag} {c.name}
@@ -484,7 +484,7 @@ export default function AdminServicePricesPage() {
             </Select>
             <div className="flex items-center gap-4">
               <div className="text-sm text-muted-foreground whitespace-nowrap">
-                共 <strong className="text-foreground">{filteredPrices.length}</strong> 条
+                Total  <strong className="text-foreground">{filteredPrices.length}</strong>  items
               </div>
               <Button variant="outline" size="icon" onClick={fetchPrices}>
                 <RefreshCw className="h-4 w-4" />
@@ -503,12 +503,12 @@ export default function AdminServicePricesPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>服务</TableHead>
-                      <TableHead>国家</TableHead>
-                      <TableHead className="text-right">价格</TableHead>
-                      <TableHead className="text-right">库存</TableHead>
-                      <TableHead className="w-[100px]">状态</TableHead>
-                      <TableHead className="w-[120px] text-right">操作</TableHead>
+                      <TableHead>Service</TableHead>
+                      <TableHead>Country</TableHead>
+                      <TableHead className="text-right">Price</TableHead>
+                      <TableHead className="text-right">Stock</TableHead>
+                      <TableHead className="w-[100px]">Status</TableHead>
+                      <TableHead className="w-[120px] text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -570,8 +570,8 @@ export default function AdminServicePricesPage() {
                       <TableRow>
                         <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                           {selectedService === 'all' && selectedCountry === 'all' 
-                            ? '请选择服务或国家筛选数据' 
-                            : '未找到价格数据'}
+                            ? 'Select a service or country to filter data' 
+                            : 'No price data found'}
                         </TableCell>
                       </TableRow>
                     )}
@@ -589,22 +589,22 @@ export default function AdminServicePricesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingPrice ? '编辑价格' : '添加价格'}</DialogTitle>
+            <DialogTitle>{editingPrice ? 'Edit Price' : 'Add Price'}</DialogTitle>
             <DialogDescription>
-              {editingPrice ? '修改服务价格信息' : '为服务添加国家价格'}
+              {editingPrice ? 'Edit service price information' : 'Add country price for service'}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div>
-              <label className="block text-sm font-medium mb-2">服务</label>
+              <label className="block text-sm font-medium mb-2">Service</label>
               <Select 
                 value={formData.service_id} 
                 onValueChange={(v) => setFormData(prev => ({ ...prev, service_id: v }))}
                 disabled={!!editingPrice}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="选择服务" />
+                  <SelectValue placeholder="Select service" />
                 </SelectTrigger>
                 <SelectContent>
                   {services.map(s => (
@@ -617,14 +617,14 @@ export default function AdminServicePricesPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">国家</label>
+              <label className="block text-sm font-medium mb-2">Country</label>
               <Select 
                 value={formData.country_id} 
                 onValueChange={(v) => setFormData(prev => ({ ...prev, country_id: v }))}
                 disabled={!!editingPrice}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="选择国家" />
+                  <SelectValue placeholder="Select country" />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map(c => (
@@ -638,7 +638,7 @@ export default function AdminServicePricesPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">价格 (USD)</label>
+                <label className="block text-sm font-medium mb-2">Price (USD)</label>
                 <Input
                   type="number"
                   step="0.01"
@@ -648,7 +648,7 @@ export default function AdminServicePricesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">库存</label>
+                <label className="block text-sm font-medium mb-2">Stock</label>
                 <Input
                   type="number"
                   min="0"
@@ -663,17 +663,17 @@ export default function AdminServicePricesPage() {
                 checked={formData.is_active}
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
               />
-              <span className="text-sm">启用</span>
+              <span className="text-sm">Enable</span>
             </div>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              取消
+              Cancel
             </Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              保存
+              Save
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -683,17 +683,17 @@ export default function AdminServicePricesPage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>确认删除</DialogTitle>
+            <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogDescription>
-              确定要删除 {deletingPrice?.service?.name} - {deletingPrice?.country?.name} 的价格配置吗？此操作无法撤销。
+              Are you sure you want to delete {deletingPrice?.service?.name} - {deletingPrice?.country?.name} 's price configuration? This action cannot be undone。
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              取消
+              Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
-              删除
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>
