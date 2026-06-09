@@ -137,6 +137,34 @@ export default function AdminUsersPage() {
   const [editTxHash, setEditTxHash] = useState('');
   const [editTxNote, setEditTxNote] = useState('');
 
+  // Consumption records dialog
+  const [consumptionUser, setConsumptionUser] = useState<UserProfile | null>(null);
+  const [consumptionRecords, setConsumptionRecords] = useState<TransactionRecord[]>([]);
+  const [consumptionLoading, setConsumptionLoading] = useState(false);
+
+  const openConsumption = async (profile: UserProfile) => {
+    setConsumptionUser(profile);
+    setConsumptionLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('id, user_id, type, amount, order_id, payment_method, payment_address, wallet_address, tx_hash, status, currency, created_at, completed_at, note')
+        .eq('user_id', profile.user_id)
+        .in('type', ['purchase', 'refund'])
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setConsumptionRecords((data as TransactionRecord[]) || []);
+    } catch (e) {
+      toast({ title: '加载失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+    } finally {
+      setConsumptionLoading(false);
+    }
+  };
+
+  const refreshConsumption = async () => {
+    if (consumptionUser) await openConsumption(consumptionUser);
+  };
+
   useEffect(() => {
     const checkAdmin = async () => {
       if (!user) {
@@ -349,6 +377,7 @@ export default function AdminUsersPage() {
       toast({ title: '已保存' });
       setEditTxTarget(null);
       fetchAdminData(true);
+      if (consumptionUser) refreshConsumption();
     } catch (e) {
       toast({ title: '保存失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
     } finally {
@@ -477,8 +506,14 @@ export default function AdminUsersPage() {
                             return (
                               <TableRow key={profile.id}>
                                 <TableCell>
-                                  <div>{profile.email || '--'}</div>
-                                  <div className="font-mono text-xs text-muted-foreground">{profile.user_id.slice(0, 8)}...</div>
+                                  <button
+                                    type="button"
+                                    onClick={() => openConsumption(profile)}
+                                    className="text-left hover:text-primary hover:underline"
+                                  >
+                                    <div>{profile.email || '--'}</div>
+                                    <div className="font-mono text-xs text-muted-foreground">{profile.user_id.slice(0, 8)}...</div>
+                                  </button>
                                 </TableCell>
                                 <TableCell>
                                   <span className={profile.role === 'admin' ? 'inline-flex rounded-full px-2 py-1 text-xs bg-primary/10 text-primary' : 'inline-flex rounded-full px-2 py-1 text-xs bg-muted text-muted-foreground'}>
@@ -753,6 +788,63 @@ export default function AdminUsersPage() {
             <Button variant="outline" onClick={() => setEditTxTarget(null)}>取消</Button>
             <Button onClick={handleSaveTx} disabled={actionLoading}>{actionLoading ? '保存中...' : '保存'}</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Consumption records dialog */}
+      <Dialog open={!!consumptionUser} onOpenChange={(open) => !open && setConsumptionUser(null)}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>消费记录</DialogTitle>
+            <DialogDescription>{consumptionUser?.email}</DialogDescription>
+          </DialogHeader>
+          {consumptionLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>时间</TableHead>
+                  <TableHead>类型</TableHead>
+                  <TableHead>订单号</TableHead>
+                  <TableHead>金额</TableHead>
+                  <TableHead>状态</TableHead>
+                  <TableHead>备注</TableHead>
+                  <TableHead className="text-right">操作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {consumptionRecords.map((record) => (
+                  <TableRow key={record.id}>
+                    <TableCell>{formatDateTime(record.created_at)}</TableCell>
+                    <TableCell>{record.type}</TableCell>
+                    <TableCell className="font-mono text-xs">{record.order_id || '--'}</TableCell>
+                    <TableCell>{Number(record.amount || 0).toFixed(2)} {record.currency || 'USDT'}</TableCell>
+                    <TableCell>
+                      <span className={`inline-flex rounded-full px-2 py-1 text-xs ${getStatusClassName(record.status)}`}>
+                        {getStatusLabel(record.status)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate text-xs" title={record.note || ''}>
+                      {record.note || '--'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button size="sm" variant="ghost" onClick={() => openEditTx(record)}>
+                        <Eye className="h-3.5 w-3.5 mr-1" />查看
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {consumptionRecords.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground">暂无消费记录</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
         </DialogContent>
       </Dialog>
 
