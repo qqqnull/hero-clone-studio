@@ -487,7 +487,7 @@ export default function AdminUsersPage() {
       <Navbar />
 
       <main className="flex-1 py-8">
-        <div className="container mx-auto px-4 max-w-7xl space-y-6">
+        <div className="container mx-auto px-4 max-w-[1800px] space-y-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" onClick={() => navigate('/admin/settings')}>
