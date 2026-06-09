@@ -251,6 +251,7 @@ export default function AdminUsersPage() {
         fetchAllRows<TransactionRecord>((from, to) => supabase
           .from('transactions')
           .select('id, user_id, type, amount, order_id, payment_method, payment_address, wallet_address, tx_hash, status, currency, created_at, completed_at, note')
+          .eq('type', 'recharge')
           .order('created_at', { ascending: false })
           .range(from, to)),
         supabase.functions.invoke('admin-user-management', { body: { action: 'list_users' } }),
