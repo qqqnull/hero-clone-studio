@@ -791,6 +791,63 @@ export default function AdminUsersPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Consumption records dialog */}
+      <Dialog open={!!consumptionUser} onOpenChange={(open) => !open && setConsumptionUser(null)}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>消费记录</DialogTitle>
+            <DialogDescription>{consumptionUser?.email}</DialogDescription>
+          </DialogHeader>
+          {consumptionLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>时间</TableHead>
+                  <TableHead>类型</TableHead>
+                  <TableHead>订单号</TableHead>
+                  <TableHead>金额</TableHead>
+                  <TableHead>状态</TableHead>
+                  <TableHead>备注</TableHead>
+                  <TableHead className="text-right">操作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {consumptionRecords.map((record) => (
+                  <TableRow key={record.id}>
+                    <TableCell>{formatDateTime(record.created_at)}</TableCell>
+                    <TableCell>{record.type}</TableCell>
+                    <TableCell className="font-mono text-xs">{record.order_id || '--'}</TableCell>
+                    <TableCell>{Number(record.amount || 0).toFixed(2)} {record.currency || 'USDT'}</TableCell>
+                    <TableCell>
+                      <span className={`inline-flex rounded-full px-2 py-1 text-xs ${getStatusClassName(record.status)}`}>
+                        {getStatusLabel(record.status)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate text-xs" title={record.note || ''}>
+                      {record.note || '--'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button size="sm" variant="ghost" onClick={() => openEditTx(record)}>
+                        <Eye className="h-3.5 w-3.5 mr-1" />查看
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {consumptionRecords.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground">暂无消费记录</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
