@@ -680,8 +680,17 @@ export default function AdminUsersPage() {
                           )}
                         </TableBody>
                       </Table>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <div>Total {filteredTransactions.length} records</div>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="outline" disabled={currentTxPage <= 1} onClick={() => setTxPage((p) => Math.max(1, p - 1))}>Previous</Button>
+                          <span>Page {currentTxPage} / {txTotalPages}</span>
+                          <Button size="sm" variant="outline" disabled={currentTxPage >= txTotalPages} onClick={() => setTxPage((p) => Math.min(txTotalPages, p + 1))}>Next</Button>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
+
                 </TabsContent>
               </Tabs>
             </>
