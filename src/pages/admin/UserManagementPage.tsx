@@ -38,6 +38,7 @@ interface UserProfile {
   created_at: string | null;
   role: string;
   banned_until?: string | null;
+  usdt_address?: string | null;
 }
 
 interface TransactionRecord {
