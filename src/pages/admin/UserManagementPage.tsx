@@ -506,8 +506,14 @@ export default function AdminUsersPage() {
                             return (
                               <TableRow key={profile.id}>
                                 <TableCell>
-                                  <div>{profile.email || '--'}</div>
-                                  <div className="font-mono text-xs text-muted-foreground">{profile.user_id.slice(0, 8)}...</div>
+                                  <button
+                                    type="button"
+                                    onClick={() => openConsumption(profile)}
+                                    className="text-left hover:text-primary hover:underline"
+                                  >
+                                    <div>{profile.email || '--'}</div>
+                                    <div className="font-mono text-xs text-muted-foreground">{profile.user_id.slice(0, 8)}...</div>
+                                  </button>
                                 </TableCell>
                                 <TableCell>
                                   <span className={profile.role === 'admin' ? 'inline-flex rounded-full px-2 py-1 text-xs bg-primary/10 text-primary' : 'inline-flex rounded-full px-2 py-1 text-xs bg-muted text-muted-foreground'}>
