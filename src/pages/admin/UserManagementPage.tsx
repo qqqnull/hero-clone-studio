@@ -290,6 +290,72 @@ export default function AdminUsersPage() {
     }
   };
 
+  const openEditUser = (profile: UserProfile) => {
+    setEditUserTarget(profile);
+    setEditBalance(String(profile.balance ?? 0));
+    setEditUsdtAddress(profile.usdt_address || '');
+  };
+
+  const handleSaveUser = async () => {
+    if (!editUserTarget) return;
+    setActionLoading(true);
+    try {
+      const newBalance = Number(editBalance);
+      if (Number.isNaN(newBalance)) throw new Error('余额必须为数字');
+      const { error } = await supabase
+        .from('profiles')
+        .update({ balance: newBalance, usdt_address: editUsdtAddress || null })
+        .eq('user_id', editUserTarget.user_id);
+      if (error) throw error;
+      toast({ title: '已保存' });
+      setEditUserTarget(null);
+      fetchAdminData(true);
+    } catch (e) {
+      toast({ title: '保存失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const openEditTx = (record: TransactionRecord) => {
+    setEditTxTarget(record);
+    setEditTxStatus(record.status || 'pending');
+    setEditTxAmount(String(record.amount ?? 0));
+    setEditTxWallet(record.wallet_address || '');
+    setEditTxPayAddr(record.payment_address || '');
+    setEditTxHash(record.tx_hash || '');
+    setEditTxNote(record.note || '');
+  };
+
+  const handleSaveTx = async () => {
+    if (!editTxTarget) return;
+    setActionLoading(true);
+    try {
+      const amt = Number(editTxAmount);
+      if (Number.isNaN(amt)) throw new Error('金额必须为数字');
+      const { error } = await supabase
+        .from('transactions')
+        .update({
+          status: editTxStatus,
+          amount: amt,
+          wallet_address: editTxWallet || null,
+          payment_address: editTxPayAddr || null,
+          tx_hash: editTxHash || null,
+          note: editTxNote || null,
+          completed_at: editTxStatus === 'completed' ? new Date().toISOString() : null,
+        })
+        .eq('id', editTxTarget.id);
+      if (error) throw error;
+      toast({ title: '已保存' });
+      setEditTxTarget(null);
+      fetchAdminData(true);
+    } catch (e) {
+      toast({ title: '保存失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const filteredUsers = useMemo(() => {
     const keyword = userSearch.trim().toLowerCase();
     if (!keyword) return profiles;
