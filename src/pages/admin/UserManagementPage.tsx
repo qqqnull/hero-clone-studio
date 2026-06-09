@@ -377,6 +377,7 @@ export default function AdminUsersPage() {
       toast({ title: '已保存' });
       setEditTxTarget(null);
       fetchAdminData(true);
+      if (consumptionUser) refreshConsumption();
     } catch (e) {
       toast({ title: '保存失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
     } finally {
