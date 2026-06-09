@@ -536,7 +536,7 @@ export default function AdminUsersPage() {
                         <Input
                           value={userSearch}
                           onChange={(e) => setUserSearch(e.target.value)}
-                          placeholder="Search email or user ID"
+                          placeholder="Search email, user ID, or date (e.g. 2026-04)"
                           className="pl-10"
                         />
                       </div>
