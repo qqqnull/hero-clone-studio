@@ -685,6 +685,77 @@ export default function AdminUsersPage() {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Edit user dialog */}
+      <Dialog open={!!editUserTarget} onOpenChange={(open) => !open && setEditUserTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>编辑用户</DialogTitle>
+            <DialogDescription>{editUserTarget?.email}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>余额 (USDT)</Label>
+              <Input type="number" step="0.01" value={editBalance} onChange={(e) => setEditBalance(e.target.value)} />
+            </div>
+            <div>
+              <Label>USDT 收款地址</Label>
+              <Input value={editUsdtAddress} onChange={(e) => setEditUsdtAddress(e.target.value)} placeholder="留空或填写 TRC20 地址" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditUserTarget(null)}>取消</Button>
+            <Button onClick={handleSaveUser} disabled={actionLoading}>{actionLoading ? '保存中...' : '保存'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit transaction dialog */}
+      <Dialog open={!!editTxTarget} onOpenChange={(open) => !open && setEditTxTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>编辑交易</DialogTitle>
+            <DialogDescription>订单号: {editTxTarget?.order_id || '--'}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>状态</Label>
+              <Select value={editTxStatus} onValueChange={setEditTxStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">待处理</SelectItem>
+                  <SelectItem value="completed">已完成</SelectItem>
+                  <SelectItem value="failed">失败</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>金额</Label>
+              <Input type="number" step="0.0001" value={editTxAmount} onChange={(e) => setEditTxAmount(e.target.value)} />
+            </div>
+            <div>
+              <Label>钱包地址</Label>
+              <Input value={editTxWallet} onChange={(e) => setEditTxWallet(e.target.value)} />
+            </div>
+            <div>
+              <Label>支付地址</Label>
+              <Input value={editTxPayAddr} onChange={(e) => setEditTxPayAddr(e.target.value)} />
+            </div>
+            <div>
+              <Label>交易哈希</Label>
+              <Input value={editTxHash} onChange={(e) => setEditTxHash(e.target.value)} />
+            </div>
+            <div>
+              <Label>备注</Label>
+              <Input value={editTxNote} onChange={(e) => setEditTxNote(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditTxTarget(null)}>取消</Button>
+            <Button onClick={handleSaveTx} disabled={actionLoading}>{actionLoading ? '保存中...' : '保存'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
