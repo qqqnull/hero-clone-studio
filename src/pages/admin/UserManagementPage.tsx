@@ -421,7 +421,9 @@ export default function AdminUsersPage() {
     if (!keyword) return profiles;
     return profiles.filter((profile) =>
       (profile.email || '').toLowerCase().includes(keyword) ||
-      profile.user_id.toLowerCase().includes(keyword),
+      profile.user_id.toLowerCase().includes(keyword) ||
+      (profile.created_at || '').toLowerCase().includes(keyword) ||
+      formatDateTime(profile.created_at).toLowerCase().includes(keyword),
     );
   }, [profiles, userSearch]);
 
@@ -429,11 +431,22 @@ export default function AdminUsersPage() {
     const keyword = recordSearch.trim().toLowerCase();
     if (!keyword) return transactions;
     return transactions.filter((record) =>
-      [record.user_email, record.order_id, record.wallet_address, record.payment_address, record.tx_hash]
+      [
+        record.user_email,
+        record.order_id,
+        record.wallet_address,
+        record.payment_address,
+        record.tx_hash,
+        record.created_at,
+        record.completed_at,
+        formatDateTime(record.created_at),
+        formatDateTime(record.completed_at),
+      ]
         .filter(Boolean)
         .some((value) => value!.toLowerCase().includes(keyword)),
     );
   }, [transactions, recordSearch]);
+
 
   const userTotalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
   const txTotalPages = Math.max(1, Math.ceil(filteredTransactions.length / PAGE_SIZE));
@@ -523,7 +536,7 @@ export default function AdminUsersPage() {
                         <Input
                           value={userSearch}
                           onChange={(e) => setUserSearch(e.target.value)}
-                          placeholder="Search email or user ID"
+                          placeholder="Search email, user ID, or date (e.g. 2026-04)"
                           className="pl-10"
                         />
                       </div>
@@ -626,7 +639,7 @@ export default function AdminUsersPage() {
                         <Input
                           value={recordSearch}
                           onChange={(e) => setRecordSearch(e.target.value)}
-                          placeholder="Search order ID, email, wallet address"
+                          placeholder="Search order ID, email, wallet, or date (e.g. 2026-04)"
                           className="pl-10"
                         />
                       </div>
