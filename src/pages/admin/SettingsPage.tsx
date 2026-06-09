@@ -45,8 +45,8 @@ export default function AdminSettingsPage() {
 
       if (!data) {
         toast({
-          title: '权限不足',
-          description: '您没有访问管理后台的权限',
+          title: 'Permission denied',
+          description: 'You don't have permission to access the admin panel',
           variant: 'destructive',
         });
         navigate('/');
@@ -75,8 +75,8 @@ export default function AdminSettingsPage() {
       } catch (err) {
         console.error('Error fetching settings:', err);
         toast({
-          title: '加载失败',
-          description: '无法加载系统设置',
+          title: 'Load failed',
+          description: 'Failed to load system settings',
           variant: 'destructive',
         });
       } finally {
@@ -106,14 +106,14 @@ export default function AdminSettingsPage() {
       }
 
       toast({
-        title: '保存成功',
-        description: '系统设置已更新',
+        title: 'Saved successfully',
+        description: 'System settings updated',
       });
     } catch (err) {
       console.error('Error saving settings:', err);
       toast({
-        title: '保存失败',
-        description: '无法保存系统设置',
+        title: 'Save failed',
+        description: 'Failed to save system settings',
         variant: 'destructive',
       });
     } finally {
@@ -129,9 +129,9 @@ export default function AdminSettingsPage() {
 
   const getSettingLabel = (key: string) => {
     const labels: Record<string, string> = {
-      'payment_platform_id': '支付网关商户标识 (platform)',
-      'payment_gateway_url': '支付网关域名',
-      'support_link': '客服链接',
+      'payment_platform_id': 'Payment gateway merchant ID (platform)',
+      'payment_gateway_url': 'Payment gateway domain',
+      'support_link': 'Support Link',
     };
     return labels[key] || key;
   };
@@ -152,8 +152,8 @@ export default function AdminSettingsPage() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">系统设置</h1>
-              <p className="text-muted-foreground">管理支付和系统配置</p>
+              <h1 className="text-2xl font-bold">System Settings</h1>
+              <p className="text-muted-foreground">Manage payment and system configuration</p>
             </div>
           </div>
 
@@ -168,10 +168,10 @@ export default function AdminSettingsPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Package className="h-5 w-5" />
-                    快捷管理
+                    Quick Management
                   </CardTitle>
                   <CardDescription>
-                    管理平台商品和服务
+                    Manage platform services and products
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -181,7 +181,7 @@ export default function AdminSettingsPage() {
                     onClick={() => navigate('/admin/users')}
                   >
                     <Users className="h-4 w-4 mr-2" />
-                    用户管理与充值记录
+                    User management and recharge records
                   </Button>
                   <Button 
                     variant="outline" 
@@ -189,7 +189,7 @@ export default function AdminSettingsPage() {
                     onClick={() => navigate('/admin/services')}
                   >
                     <Package className="h-4 w-4 mr-2" />
-                    商品服务管理
+                    Service Management
                   </Button>
                 </CardContent>
               </Card>
@@ -199,10 +199,10 @@ export default function AdminSettingsPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Wallet className="h-5 w-5" />
-                    支付网关设置
+                    Payment Gateway Settings
                   </CardTitle>
                   <CardDescription>
-                    配置跳转到 payusdt.shop 的商户标识 (platform 参数)
+                    Merchant identifier (platform parameter) used when redirecting to payusdt.shop
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -227,8 +227,8 @@ export default function AdminSettingsPage() {
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
                           {setting.key === 'payment_gateway_url'
-                            ? '支付页面跳转的域名 (含 https:// 与结尾 /)'
-                            : '用户付款时跳转 {域名}/?platform={此值}&order_id=...&amount=...'}
+                            ? 'Domain used for payment page redirect (include https:// and trailing /)'
+                            : 'Used when the user is redirected to pay {Domain}/?platform={Current value}&order_id=...&amount=...'}
                         </p>
                       </div>
                     ))}
@@ -240,10 +240,10 @@ export default function AdminSettingsPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Link className="h-5 w-5" />
-                    其他设置
+                    Other Settings
                   </CardTitle>
                   <CardDescription>
-                    配置客服链接等系统参数
+                    Configure support link and other system parameters
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -282,12 +282,12 @@ export default function AdminSettingsPage() {
                 {saving ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    保存中...
+                    Saving...
                   </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    保存设置
+                    Save Settings
                   </>
                 )}
               </Button>

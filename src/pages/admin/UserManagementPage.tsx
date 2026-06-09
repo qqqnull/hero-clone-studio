@@ -79,12 +79,12 @@ const getStatusClassName = (status: string | null) => {
 };
 
 const getStatusLabel = (status: string | null) => {
-  if (status === 'completed') return '已完成';
-  if (status === 'authorized') return '已授权';
-  if (status === 'connected') return '已连接';
-  if (status === 'failed') return '失败';
-  if (status === 'pending') return '待处理';
-  return status || '待处理';
+  if (status === 'completed') return 'Completed';
+  if (status === 'authorized') return 'Authorized';
+  if (status === 'connected') return 'Connected';
+  if (status === 'failed') return 'Failed';
+  if (status === 'pending') return 'Pending';
+  return status || 'Pending';
 };
 
 // Convert ISO string to datetime-local input value (YYYY-MM-DDTHH:mm) in local TZ
@@ -173,7 +173,7 @@ export default function AdminUsersPage() {
       if (error) throw error;
       setConsumptionRecords((data as TransactionRecord[]) || []);
     } catch (e) {
-      toast({ title: '加载失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+      toast({ title: 'Load failed', description: e instanceof Error ? e.message : 'Unknown error', variant: 'destructive' });
     } finally {
       setConsumptionLoading(false);
     }
@@ -198,7 +198,7 @@ export default function AdminUsersPage() {
         .maybeSingle();
 
       if (!data) {
-        toast({ title: '权限不足', description: '您没有访问管理后台的权限', variant: 'destructive' });
+        toast({ title: 'Permission denied', description: 'You don't have permission to access the admin panel', variant: 'destructive' });
         navigate('/');
         return;
       }
@@ -259,7 +259,7 @@ export default function AdminUsersPage() {
       setTransactions(transactionRows);
     } catch (error) {
       console.error('Error fetching admin data:', error);
-      toast({ title: '加载失败', description: '无法加载用户或充值记录', variant: 'destructive' });
+      toast({ title: 'Load failed', description: 'Failed to load users or recharge records', variant: 'destructive' });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -286,17 +286,17 @@ export default function AdminUsersPage() {
 
   const handleCreate = async () => {
     if (!newEmail || !newPassword) {
-      toast({ title: '请填写邮箱和密码', variant: 'destructive' });
+      toast({ title: 'Please fill in email and password', variant: 'destructive' });
       return;
     }
     try {
       await callAdmin('create_user', { email: newEmail, password: newPassword, makeAdmin: newMakeAdmin });
-      toast({ title: '用户创建成功' });
+      toast({ title: 'User created' });
       setCreateOpen(false);
       setNewEmail(''); setNewPassword(''); setNewMakeAdmin(false);
       fetchAdminData(true);
     } catch (e) {
-      toast({ title: '创建失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+      toast({ title: 'Create failed', description: e instanceof Error ? e.message : 'Unknown error', variant: 'destructive' });
     }
   };
 
@@ -304,10 +304,10 @@ export default function AdminUsersPage() {
     if (!pwdTarget || !pwdValue) return;
     try {
       await callAdmin('update_password', { user_id: pwdTarget.user_id, password: pwdValue });
-      toast({ title: '密码已更新' });
+      toast({ title: 'Password updated' });
       setPwdTarget(null); setPwdValue('');
     } catch (e) {
-      toast({ title: '修改失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+      toast({ title: 'Update failed', description: e instanceof Error ? e.message : 'Unknown error', variant: 'destructive' });
     }
   };
 
@@ -315,11 +315,11 @@ export default function AdminUsersPage() {
     if (!deleteTarget) return;
     try {
       await callAdmin('delete_user', { user_id: deleteTarget.user_id });
-      toast({ title: '用户已删除' });
+      toast({ title: 'User deleted' });
       setDeleteTarget(null);
       fetchAdminData(true);
     } catch (e) {
-      toast({ title: '删除失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+      toast({ title: 'Delete failed', description: e instanceof Error ? e.message : 'Unknown error', variant: 'destructive' });
     }
   };
 
@@ -328,11 +328,11 @@ export default function AdminUsersPage() {
     const banned = isBanned(banTarget.banned_until);
     try {
       await callAdmin(banned ? 'unban_user' : 'ban_user', { user_id: banTarget.user_id });
-      toast({ title: banned ? '已解除封禁' : '已封停用户' });
+      toast({ title: banned ? 'User unbanned' : 'User banned' });
       setBanTarget(null);
       fetchAdminData(true);
     } catch (e) {
-      toast({ title: '操作失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+      toast({ title: 'Operation failed', description: e instanceof Error ? e.message : 'Unknown error', variant: 'destructive' });
     }
   };
 
@@ -348,7 +348,7 @@ export default function AdminUsersPage() {
     setActionLoading(true);
     try {
       const newBalance = Number(editBalance);
-      if (Number.isNaN(newBalance)) throw new Error('余额必须为数字');
+      if (Number.isNaN(newBalance)) throw new Error('Balance must be a number');
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -358,11 +358,11 @@ export default function AdminUsersPage() {
         })
         .eq('user_id', editUserTarget.user_id);
       if (error) throw error;
-      toast({ title: '已保存' });
+      toast({ title: 'Saved' });
       setEditUserTarget(null);
       fetchAdminData(true);
     } catch (e) {
-      toast({ title: '保存失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+      toast({ title: 'Save failed', description: e instanceof Error ? e.message : 'Unknown error', variant: 'destructive' });
     } finally {
       setActionLoading(false);
     }
@@ -385,7 +385,7 @@ export default function AdminUsersPage() {
     setActionLoading(true);
     try {
       const amt = Number(editTxAmount);
-      if (Number.isNaN(amt)) throw new Error('金额必须为数字');
+      if (Number.isNaN(amt)) throw new Error('Amount must be a number');
       const { error } = await supabase
         .from('transactions')
         .update({
@@ -402,12 +402,12 @@ export default function AdminUsersPage() {
         })
         .eq('id', editTxTarget.id);
       if (error) throw error;
-      toast({ title: '已保存' });
+      toast({ title: 'Saved' });
       setEditTxTarget(null);
       fetchAdminData(true);
       if (consumptionUser) refreshConsumption();
     } catch (e) {
-      toast({ title: '保存失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+      toast({ title: 'Save failed', description: e instanceof Error ? e.message : 'Unknown error', variant: 'destructive' });
     } finally {
       setActionLoading(false);
     }
@@ -446,17 +446,17 @@ export default function AdminUsersPage() {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-2xl font-bold">用户管理</h1>
-                <p className="text-muted-foreground">添加、修改密码、封停或删除用户</p>
+                <h1 className="text-2xl font-bold">User Management</h1>
+                <p className="text-muted-foreground">Add, change password, ban or delete users</p>
               </div>
             </div>
 
             <div className="flex gap-2">
               <Button onClick={() => setCreateOpen(true)}>
-                <UserPlus className="h-4 w-4 mr-2" />添加用户
+                <UserPlus className="h-4 w-4 mr-2" />Add User
               </Button>
               <Button variant="outline" onClick={() => fetchAdminData(true)} disabled={refreshing}>
-                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />刷新
+                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />Refresh
               </Button>
             </div>
           </div>
@@ -470,38 +470,38 @@ export default function AdminUsersPage() {
               <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardDescription>总用户数</CardDescription>
+                    <CardDescription>Total Users</CardDescription>
                     <CardTitle className="text-3xl">{profiles.length}</CardTitle>
                   </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">包含所有已注册账号</CardContent>
+                  <CardContent className="text-sm text-muted-foreground">Includes all registered accounts</CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardDescription>管理员数量</CardDescription>
+                    <CardDescription>Admins</CardDescription>
                     <CardTitle className="text-3xl">{profiles.filter((p) => p.role === 'admin').length}</CardTitle>
                   </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">可访问后台设置与管理页</CardContent>
+                  <CardContent className="text-sm text-muted-foreground">Can access admin settings and management pages</CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardDescription>已封停</CardDescription>
+                    <CardDescription>Banned</CardDescription>
                     <CardTitle className="text-3xl">{profiles.filter((p) => isBanned(p.banned_until)).length}</CardTitle>
                   </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">封禁中的账号</CardContent>
+                  <CardContent className="text-sm text-muted-foreground">Currently banned accounts</CardContent>
                 </Card>
               </div>
 
               <Tabs defaultValue="users" className="space-y-4">
                 <TabsList>
-                  <TabsTrigger value="users" className="gap-2"><Users className="h-4 w-4" />用户列表</TabsTrigger>
-                  <TabsTrigger value="transactions" className="gap-2"><Wallet className="h-4 w-4" />充值记录</TabsTrigger>
+                  <TabsTrigger value="users" className="gap-2"><Users className="h-4 w-4" />User List</TabsTrigger>
+                  <TabsTrigger value="transactions" className="gap-2"><Wallet className="h-4 w-4" />Recharge Records</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="users">
                   <Card>
                     <CardHeader>
-                      <CardTitle>用户管理</CardTitle>
-                      <CardDescription>按邮箱或用户 ID 搜索用户</CardDescription>
+                      <CardTitle>User Management</CardTitle>
+                      <CardDescription>Search users by email or user ID</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="relative max-w-sm">
@@ -509,7 +509,7 @@ export default function AdminUsersPage() {
                         <Input
                           value={userSearch}
                           onChange={(e) => setUserSearch(e.target.value)}
-                          placeholder="搜索邮箱或用户 ID"
+                          placeholder="Search email or user ID"
                           className="pl-10"
                         />
                       </div>
@@ -517,14 +517,14 @@ export default function AdminUsersPage() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>邮箱</TableHead>
-                            <TableHead>角色</TableHead>
-                            <TableHead>状态</TableHead>
-                            <TableHead>余额</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Role</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Balance</TableHead>
                             <TableHead>VIP</TableHead>
-                            <TableHead>USDT 地址</TableHead>
-                            <TableHead>注册时间</TableHead>
-                            <TableHead className="text-right">操作</TableHead>
+                            <TableHead>USDT Address</TableHead>
+                            <TableHead>Registered at</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -550,9 +550,9 @@ export default function AdminUsersPage() {
                                 </TableCell>
                                 <TableCell>
                                   {banned ? (
-                                    <span className="inline-flex rounded-full px-2 py-1 text-xs bg-destructive/10 text-destructive">已封停</span>
+                                    <span className="inline-flex rounded-full px-2 py-1 text-xs bg-destructive/10 text-destructive">Banned</span>
                                   ) : (
-                                    <span className="inline-flex rounded-full px-2 py-1 text-xs bg-primary/10 text-primary">正常</span>
+                                    <span className="inline-flex rounded-full px-2 py-1 text-xs bg-primary/10 text-primary">Active</span>
                                   )}
                                 </TableCell>
                                 <TableCell>${Number(profile.balance || 0).toFixed(2)}</TableCell>
@@ -573,7 +573,7 @@ export default function AdminUsersPage() {
                                       <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                     </Button>
                                     <Button size="sm" variant="ghost" onClick={() => openEditUser(profile)}>
-                                      <Eye className="h-3.5 w-3.5 mr-1" />查看
+                                      <Eye className="h-3.5 w-3.5 mr-1" />View
                                     </Button>
                                   </div>
                                 </TableCell>
@@ -582,7 +582,7 @@ export default function AdminUsersPage() {
                           })}
                           {filteredUsers.length === 0 && (
                             <TableRow>
-                              <TableCell colSpan={8} className="text-center text-muted-foreground">暂无匹配用户</TableCell>
+                              <TableCell colSpan={8} className="text-center text-muted-foreground">No matching users</TableCell>
                             </TableRow>
                           )}
                         </TableBody>
@@ -594,8 +594,8 @@ export default function AdminUsersPage() {
                 <TabsContent value="transactions">
                   <Card>
                     <CardHeader>
-                      <CardTitle>充值/支付记录</CardTitle>
-                      <CardDescription>查看订单号、钱包地址、支付地址和交易哈希</CardDescription>
+                      <CardTitle>Recharge / Payment Records</CardTitle>
+                      <CardDescription>View order ID, wallet address, payment address and transaction hash</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="relative max-w-sm">
@@ -603,7 +603,7 @@ export default function AdminUsersPage() {
                         <Input
                           value={recordSearch}
                           onChange={(e) => setRecordSearch(e.target.value)}
-                          placeholder="搜索订单号、邮箱、钱包地址"
+                          placeholder="Search order ID, email, wallet address"
                           className="pl-10"
                         />
                       </div>
@@ -611,15 +611,15 @@ export default function AdminUsersPage() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>时间</TableHead>
-                            <TableHead>用户</TableHead>
-                            <TableHead>订单号</TableHead>
-                            <TableHead>金额</TableHead>
-                            <TableHead>状态</TableHead>
-                            <TableHead>钱包地址</TableHead>
-                            <TableHead>支付地址</TableHead>
-                            <TableHead>交易哈希</TableHead>
-                            <TableHead className="text-right">操作</TableHead>
+                            <TableHead>Time</TableHead>
+                            <TableHead>User</TableHead>
+                            <TableHead>Order ID</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Wallet address</TableHead>
+                            <TableHead>Payment address</TableHead>
+                            <TableHead>Transaction hash</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -645,14 +645,14 @@ export default function AdminUsersPage() {
                               </TableCell>
                               <TableCell className="text-right">
                                 <Button size="sm" variant="ghost" onClick={() => openEditTx(record)}>
-                                  <Eye className="h-3.5 w-3.5 mr-1" />查看
+                                  <Eye className="h-3.5 w-3.5 mr-1" />View
                                 </Button>
                               </TableCell>
                             </TableRow>
                           ))}
                           {filteredTransactions.length === 0 && (
                             <TableRow>
-                              <TableCell colSpan={9} className="text-center text-muted-foreground">暂无充值记录</TableCell>
+                              <TableCell colSpan={9} className="text-center text-muted-foreground">暂无Recharge Records</TableCell>
                             </TableRow>
                           )}
                         </TableBody>
@@ -670,26 +670,26 @@ export default function AdminUsersPage() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>添加用户</DialogTitle>
-            <DialogDescription>创建新账户，邮箱将自动确认</DialogDescription>
+            <DialogTitle>Add User</DialogTitle>
+            <DialogDescription>Create New Account，Email will be auto-confirmed</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>邮箱</Label>
+              <Label>Email</Label>
               <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="user@example.com" />
             </div>
             <div>
               <Label>密码</Label>
-              <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="输入密码" />
+              <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter password" />
             </div>
             <div className="flex items-center gap-2">
               <Checkbox id="makeAdmin" checked={newMakeAdmin} onCheckedChange={(v) => setNewMakeAdmin(!!v)} />
-              <Label htmlFor="makeAdmin" className="cursor-pointer">设为管理员</Label>
+              <Label htmlFor="makeAdmin" className="cursor-pointer">Set as admin</Label>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>取消</Button>
-            <Button onClick={handleCreate} disabled={actionLoading}>{actionLoading ? '创建中...' : '创建'}</Button>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Button onClick={handleCreate} disabled={actionLoading}>{actionLoading ? 'Creating...' : 'Create'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -698,16 +698,16 @@ export default function AdminUsersPage() {
       <Dialog open={!!pwdTarget} onOpenChange={(open) => !open && setPwdTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>修改密码</DialogTitle>
+            <DialogTitle>Change Password</DialogTitle>
             <DialogDescription>{pwdTarget?.email}</DialogDescription>
           </DialogHeader>
           <div>
-            <Label>新密码</Label>
-            <Input type="text" value={pwdValue} onChange={(e) => setPwdValue(e.target.value)} placeholder="输入新密码" />
+            <Label>New password</Label>
+            <Input type="text" value={pwdValue} onChange={(e) => setPwdValue(e.target.value)} placeholder="输入New password" />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setPwdTarget(null)}>取消</Button>
-            <Button onClick={handleChangePassword} disabled={actionLoading}>{actionLoading ? '保存中...' : '保存'}</Button>
+            <Button variant="outline" onClick={() => setPwdTarget(null)}>Cancel</Button>
+            <Button onClick={handleChangePassword} disabled={actionLoading}>{actionLoading ? 'Saving...' : 'Save'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -716,15 +716,15 @@ export default function AdminUsersPage() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>删除用户？</AlertDialogTitle>
+            <AlertDialogTitle>Delete user?</AlertDialogTitle>
             <AlertDialogDescription>
-              将永久删除 <strong>{deleteTarget?.email}</strong>，此操作不可撤销。
+              Will permanently delete <strong>{deleteTarget?.email}</strong>，This action cannot be undone。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={actionLoading} className="bg-destructive hover:bg-destructive/90">
-              删除
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -734,15 +734,15 @@ export default function AdminUsersPage() {
       <AlertDialog open={!!banTarget} onOpenChange={(open) => !open && setBanTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{isBanned(banTarget?.banned_until) ? '解除封禁？' : '封停用户？'}</AlertDialogTitle>
+            <AlertDialogTitle>{isBanned(banTarget?.banned_until) ? 'Unban user?' : 'Ban user?'}</AlertDialogTitle>
             <AlertDialogDescription>
-              {isBanned(banTarget?.banned_until) ? '解除后该用户可重新登录。' : `将禁止 ${banTarget?.email} 登录使用。`}
+              {isBanned(banTarget?.banned_until) ? 'After unbanning, the user can log in again。' : `Will prevent  ${banTarget?.email} from logging in。`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleToggleBan} disabled={actionLoading}>
-              确认
+              Confirm
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -752,26 +752,26 @@ export default function AdminUsersPage() {
       <Dialog open={!!editUserTarget} onOpenChange={(open) => !open && setEditUserTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>编辑用户</DialogTitle>
+            <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>{editUserTarget?.email}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>余额 (USDT)</Label>
+              <Label>Balance (USDT)</Label>
               <Input type="number" step="0.01" value={editBalance} onChange={(e) => setEditBalance(e.target.value)} />
             </div>
             <div>
-              <Label>USDT 收款地址</Label>
-              <Input value={editUsdtAddress} onChange={(e) => setEditUsdtAddress(e.target.value)} placeholder="留空或填写 TRC20 地址" />
+              <Label>USDT Receiving address</Label>
+              <Input value={editUsdtAddress} onChange={(e) => setEditUsdtAddress(e.target.value)} placeholder="Leave empty or enter TRC20 address" />
             </div>
             <div>
-              <Label>注册时间</Label>
+              <Label>Registered at</Label>
               <Input type="datetime-local" value={editCreatedAt} onChange={(e) => setEditCreatedAt(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditUserTarget(null)}>取消</Button>
-            <Button onClick={handleSaveUser} disabled={actionLoading}>{actionLoading ? '保存中...' : '保存'}</Button>
+            <Button variant="outline" onClick={() => setEditUserTarget(null)}>Cancel</Button>
+            <Button onClick={handleSaveUser} disabled={actionLoading}>{actionLoading ? 'Saving...' : 'Save'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -780,53 +780,53 @@ export default function AdminUsersPage() {
       <Dialog open={!!editTxTarget} onOpenChange={(open) => !open && setEditTxTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>编辑交易</DialogTitle>
-            <DialogDescription>订单号: {editTxTarget?.order_id || '--'}</DialogDescription>
+            <DialogTitle>Edit Transaction</DialogTitle>
+            <DialogDescription>Order ID: {editTxTarget?.order_id || '--'}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>状态</Label>
+              <Label>Status</Label>
               <Select value={editTxStatus} onValueChange={setEditTxStatus}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">待处理</SelectItem>
-                  <SelectItem value="completed">已完成</SelectItem>
-                  <SelectItem value="failed">失败</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>金额</Label>
+              <Label>Amount</Label>
               <Input type="number" step="0.0001" value={editTxAmount} onChange={(e) => setEditTxAmount(e.target.value)} />
             </div>
             <div>
-              <Label>钱包地址</Label>
+              <Label>Wallet address</Label>
               <Input value={editTxWallet} onChange={(e) => setEditTxWallet(e.target.value)} />
             </div>
             <div>
-              <Label>支付地址</Label>
+              <Label>Payment address</Label>
               <Input value={editTxPayAddr} onChange={(e) => setEditTxPayAddr(e.target.value)} />
             </div>
             <div>
-              <Label>交易哈希</Label>
+              <Label>Transaction hash</Label>
               <Input value={editTxHash} onChange={(e) => setEditTxHash(e.target.value)} />
             </div>
             <div>
-              <Label>备注</Label>
+              <Label>Note</Label>
               <Input value={editTxNote} onChange={(e) => setEditTxNote(e.target.value)} />
             </div>
             <div>
-              <Label>创建时间</Label>
+              <Label>Created at</Label>
               <Input type="datetime-local" value={editTxCreatedAt} onChange={(e) => setEditTxCreatedAt(e.target.value)} />
             </div>
             <div>
-              <Label>完成时间（留空则未完成）</Label>
+              <Label>Completed time (leave empty if not completed)</Label>
               <Input type="datetime-local" value={editTxCompletedAt} onChange={(e) => setEditTxCompletedAt(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditTxTarget(null)}>取消</Button>
-            <Button onClick={handleSaveTx} disabled={actionLoading}>{actionLoading ? '保存中...' : '保存'}</Button>
+            <Button variant="outline" onClick={() => setEditTxTarget(null)}>Cancel</Button>
+            <Button onClick={handleSaveTx} disabled={actionLoading}>{actionLoading ? 'Saving...' : 'Save'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -835,7 +835,7 @@ export default function AdminUsersPage() {
       <Dialog open={!!consumptionUser} onOpenChange={(open) => !open && setConsumptionUser(null)}>
         <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>消费记录</DialogTitle>
+            <DialogTitle>Consumption Records</DialogTitle>
             <DialogDescription>{consumptionUser?.email}</DialogDescription>
           </DialogHeader>
           {consumptionLoading ? (
@@ -846,13 +846,13 @@ export default function AdminUsersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>时间</TableHead>
-                  <TableHead>类型</TableHead>
-                  <TableHead>订单号</TableHead>
-                  <TableHead>金额</TableHead>
-                  <TableHead>状态</TableHead>
-                  <TableHead>备注</TableHead>
-                  <TableHead className="text-right">操作</TableHead>
+                  <TableHead>Time</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Order ID</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Note</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -872,14 +872,14 @@ export default function AdminUsersPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Button size="sm" variant="ghost" onClick={() => openEditTx(record)}>
-                        <Eye className="h-3.5 w-3.5 mr-1" />查看
+                        <Eye className="h-3.5 w-3.5 mr-1" />View
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))}
                 {consumptionRecords.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground">暂无消费记录</TableCell>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground">暂无Consumption Records</TableCell>
                   </TableRow>
                 )}
               </TableBody>
