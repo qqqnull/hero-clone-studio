@@ -395,7 +395,10 @@ export default function AdminUsersPage() {
           payment_address: editTxPayAddr || null,
           tx_hash: editTxHash || null,
           note: editTxNote || null,
-          completed_at: editTxStatus === 'completed' ? new Date().toISOString() : null,
+          created_at: fromLocalInput(editTxCreatedAt) || editTxTarget.created_at,
+          completed_at: editTxCompletedAt
+            ? fromLocalInput(editTxCompletedAt)
+            : (editTxStatus === 'completed' ? new Date().toISOString() : null),
         })
         .eq('id', editTxTarget.id);
       if (error) throw error;
