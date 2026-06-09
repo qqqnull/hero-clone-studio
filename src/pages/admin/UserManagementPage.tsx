@@ -137,6 +137,34 @@ export default function AdminUsersPage() {
   const [editTxHash, setEditTxHash] = useState('');
   const [editTxNote, setEditTxNote] = useState('');
 
+  // Consumption records dialog
+  const [consumptionUser, setConsumptionUser] = useState<UserProfile | null>(null);
+  const [consumptionRecords, setConsumptionRecords] = useState<TransactionRecord[]>([]);
+  const [consumptionLoading, setConsumptionLoading] = useState(false);
+
+  const openConsumption = async (profile: UserProfile) => {
+    setConsumptionUser(profile);
+    setConsumptionLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('id, user_id, type, amount, order_id, payment_method, payment_address, wallet_address, tx_hash, status, currency, created_at, completed_at, note')
+        .eq('user_id', profile.user_id)
+        .in('type', ['purchase', 'refund'])
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setConsumptionRecords((data as TransactionRecord[]) || []);
+    } catch (e) {
+      toast({ title: '加载失败', description: e instanceof Error ? e.message : '未知错误', variant: 'destructive' });
+    } finally {
+      setConsumptionLoading(false);
+    }
+  };
+
+  const refreshConsumption = async () => {
+    if (consumptionUser) await openConsumption(consumptionUser);
+  };
+
   useEffect(() => {
     const checkAdmin = async () => {
       if (!user) {
