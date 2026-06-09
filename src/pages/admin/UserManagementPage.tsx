@@ -340,6 +340,7 @@ export default function AdminUsersPage() {
     setEditUserTarget(profile);
     setEditBalance(String(profile.balance ?? 0));
     setEditUsdtAddress(profile.usdt_address || '');
+    setEditCreatedAt(toLocalInput(profile.created_at));
   };
 
   const handleSaveUser = async () => {
