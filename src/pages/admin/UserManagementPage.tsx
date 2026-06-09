@@ -376,6 +376,8 @@ export default function AdminUsersPage() {
     setEditTxPayAddr(record.payment_address || '');
     setEditTxHash(record.tx_hash || '');
     setEditTxNote(record.note || '');
+    setEditTxCreatedAt(toLocalInput(record.created_at));
+    setEditTxCompletedAt(toLocalInput(record.completed_at));
   };
 
   const handleSaveTx = async () => {
