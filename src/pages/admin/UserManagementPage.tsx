@@ -605,7 +605,7 @@ export default function AdminUsersPage() {
                                 </TableCell>
                                 <TableCell>${Number(profile.balance || 0).toFixed(2)}</TableCell>
                                 <TableCell>{profile.vip_level || 1}</TableCell>
-                                <TableCell className="max-w-[180px] truncate font-mono text-xs" title={profile.usdt_address || ''}>
+                                <TableCell className="font-mono text-xs whitespace-nowrap" title={profile.usdt_address || ''}>
                                   {profile.usdt_address || '--'}
                                 </TableCell>
                                 <TableCell>{formatDateTime(profile.created_at)}</TableCell>
