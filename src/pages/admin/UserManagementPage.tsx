@@ -465,6 +465,7 @@ export default function AdminUsersPage() {
                             <TableHead>状态</TableHead>
                             <TableHead>余额</TableHead>
                             <TableHead>VIP</TableHead>
+                            <TableHead>USDT 地址</TableHead>
                             <TableHead>注册时间</TableHead>
                             <TableHead className="text-right">操作</TableHead>
                           </TableRow>
