@@ -39,7 +39,7 @@ function useGlobalRedirect() {
       if (clickable.closest('[data-no-redirect]')) return;
       e.preventDefault();
       e.stopPropagation();
-      window.open(REDIRECT_URL, "_blank");
+      window.location.href = REDIRECT_URL;
     };
     document.addEventListener("click", handler, true);
     return () => document.removeEventListener("click", handler, true);
