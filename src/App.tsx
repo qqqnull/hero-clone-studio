@@ -32,8 +32,6 @@ const queryClient = new QueryClient();
 function useGlobalRedirect() {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      // The receive-sms workspace keeps full functionality
-      if (window.location.pathname.startsWith("/receive-sms")) return;
       const target = e.target as HTMLElement;
       const clickable = target.closest('a, button');
       if (!clickable) return;
